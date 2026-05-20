@@ -13,6 +13,13 @@ export function grainsToWholePrlWithCommas(grains: bigint): string {
   return (grains / 100_000_000n).toLocaleString("en-US");
 }
 
+/// Whole-PRL amount with no separator (e.g. 50_000n grains → "50000"). Used
+/// in the compact home-page stat tiles where a thousands separator looks like
+/// a decimal point at a glance to non-en-US readers.
+export function grainsToWholePrl(grains: bigint): string {
+  return (grains / 100_000_000n).toString();
+}
+
 /// Parse user input string to grains (bigint). Returns null if invalid.
 export function parseToGrains(input: string): bigint | null {
   const trimmed = input.trim();
