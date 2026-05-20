@@ -16,6 +16,16 @@ type AuditReport = {
 
 const REPORTS: AuditReport[] = [
   {
+    slug: "pearlbridge-delta-rc510-2026-05-20",
+    title: "PearlBridge RC5.10 Delta Audit",
+    date: "2026-05-20",
+    summary:
+      "Small operational release: brand logo refresh, audit-page loading copy, and a 30s→60s relay cache TTL. No Solidity changes, no on-chain action.",
+    verdict:
+      "Mainnet operation appropriate — surface untouched relative to RC5.6.",
+    status: "published",
+  },
+  {
     slug: "pearlbridge-reaudit-rc56-2026-05-20",
     title: "PearlBridge RC5.6 Audit",
     date: "2026-05-20",
@@ -183,7 +193,7 @@ function SolvencyCard() {
               ? `${grainsToDisplay(totalCustodyGrains)} PRL`
               : custodyError
                 ? "—"
-                : "…"}
+                : "Loading…"}
           </p>
           {custody && lockGrains !== null && depositGrains !== null && feeGrains !== null && (
             <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">

@@ -32,22 +32,15 @@ const queryClient = new QueryClient();
 
 function PearlLogo() {
   return (
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="pearlGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#00e5d0" />
-          <stop offset="100%" stopColor="#0099ff" />
-        </linearGradient>
-        <linearGradient id="shineGrad" x1="20%" y1="20%" x2="80%" y2="80%">
-          <stop offset="0%" stopColor="rgba(255,255,255,0.5)" />
-          <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-        </linearGradient>
-      </defs>
-      <path d="M16 2L28.7 9.5V24.5L16 32L3.3 24.5V9.5L16 2Z" fill="url(#pearlGrad)" />
-      <path d="M16 5L26.1 11V23L16 29L5.9 23V11L16 5Z" fill="url(#shineGrad)" opacity="0.3" />
-      <circle cx="16" cy="16" r="5" fill="white" opacity="0.9" />
-      <circle cx="14" cy="14" r="2" fill="white" opacity="0.5" />
-    </svg>
+    <img
+      src="/brand/logo-128.png"
+      srcSet="/brand/logo-64.png 1x, /brand/logo-128.png 2x, /brand/logo-256.png 4x"
+      width={36}
+      height={36}
+      alt="PearlBridge"
+      className="rounded-lg select-none"
+      draggable={false}
+    />
   );
 }
 
@@ -149,7 +142,7 @@ export function App() {
                 <footer className="py-8 text-center text-xs text-gray-600 border-t border-white/5 space-y-2">
                   <p>PearlBridge is an independent bridge project. Use at your own risk. Not affiliated with Pearl Research Labs.</p>
                   <p><BugBountyModal /></p>
-                  <p className="text-gray-700">Build RC5.9 &middot; {NETWORK}</p>
+                  <p className="text-gray-700">Build RC5.10 &middot; {NETWORK}</p>
                 </footer>
               </div>
 
