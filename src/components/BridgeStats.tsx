@@ -1,7 +1,7 @@
 import { useReadContracts } from "wagmi";
 import { WPRL_ABI, BRIDGE_CONTROLLER_ABI, ADDRESSES, EXPECTED_CHAIN_ID } from "../lib/contracts";
 import { NETWORK } from "../lib/config";
-import { grainsToDisplay } from "../lib/utils";
+import { grainsToWholePrlWithCommas } from "../lib/utils";
 
 const ADDRS = ADDRESSES[NETWORK];
 
@@ -25,8 +25,8 @@ export function BridgeStats() {
 
   return (
     <div className="w-full max-w-lg mx-auto mt-3 grid grid-cols-3 gap-3">
-      <Stat label="TVL (WPRL)" value={tvl !== undefined ? grainsToDisplay(tvl) : "—"} />
-      <Stat label="Fast Lane Left" value={fastRemaining !== undefined ? grainsToDisplay(fastRemaining) : "—"} />
+      <Stat label="TVL (WPRL)" value={tvl !== undefined ? grainsToWholePrlWithCommas(tvl) : "—"} />
+      <Stat label="Fast Lane Left" value={fastRemaining !== undefined ? grainsToWholePrlWithCommas(fastRemaining) : "—"} />
       <Stat
         label="Bridge Status"
         value={isPaused === undefined ? "—" : isPaused ? "PAUSED" : "LIVE"}

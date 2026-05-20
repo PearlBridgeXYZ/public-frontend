@@ -16,6 +16,16 @@ type AuditReport = {
 
 const REPORTS: AuditReport[] = [
   {
+    slug: "pearlbridge-delta-rc512-2026-05-20",
+    title: "PearlBridge RC5.12 Delta Audit",
+    date: "2026-05-20",
+    summary:
+      "Operator-facing anomaly alerting: every anomaly trip in the relay now posts a Telegram alert to the operator group and spawns a read-only Claude investigator session for fast triage. Frontend rounds TVL and Fast Lane Left to whole PRL. No Solidity changes.",
+    verdict:
+      "Mainnet operation appropriate. Anomaly detector continues to run on the same thresholds as RC5.11; only the notification path is new.",
+    status: "published",
+  },
+  {
     slug: "pearlbridge-final-rc511-2026-05-20",
     title: "PearlBridge RC5.11 — Final Pre-Launch Audit",
     date: "2026-05-20",
