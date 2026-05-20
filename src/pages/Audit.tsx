@@ -16,6 +16,16 @@ type AuditReport = {
 
 const REPORTS: AuditReport[] = [
   {
+    slug: "pearlbridge-final-rc511-2026-05-20",
+    title: "PearlBridge RC5.11 — Final Pre-Launch Audit",
+    date: "2026-05-20",
+    summary:
+      "Consolidated launch-readiness review across contracts, relay (signing, recovery, mint quorum, metrics auth), frontend, and ops. RC5.11 ships relay hardening only — no Solidity changes vs RC5.6.",
+    verdict:
+      "Mainnet operation appropriate. Three pre-existing governance/ops items tracked (defaultAdminDelay, Timelock minDelay, pauser ETH).",
+    status: "published",
+  },
+  {
     slug: "pearlbridge-delta-rc510-2026-05-20",
     title: "PearlBridge RC5.10 Delta Audit",
     date: "2026-05-20",
