@@ -25,6 +25,7 @@ import {
   loadReceipt,
   newReceiptId,
   saveReceipt,
+  getConsumedPearlTxIds,
 } from "../lib/bridgeReceipts";
 
 const REQUIRED_CONFIRMATIONS = 6;
@@ -289,6 +290,13 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
   // under the user's ETH address so the txid field fills automatically without
   // requiring the user to paste it. The relay watcher indexes it as soon as it
   // sees the tx — typically within the first 15s after the block mines.
+  //
+  // Reuse trap: when the user bridges twice to the same deposit address, the
+  // relay's `/api/deposits/recent` may still return the FIRST bridge's txid
+  // if its mint row isn't terminal yet (e.g. minted state hasn't settled, or
+  // it's "queued"/"attesting" mid-pipeline). The consumed-txid catalog rejects
+  // any txid this browser has already bound to a prior receipt so the second
+  // bridge waits for the genuinely-new deposit instead of silently rebinding.
   useEffect(() => {
     if (step !== "waiting") return;
     if (pearlTxId.trim().length > 0) return; // already have one
@@ -301,9 +309,13 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
         );
         if (!r.ok || cancelled) return;
         const data = (await r.json()) as { txid?: string | null };
-        if (data.txid && !cancelled) {
-          setPearlTxId(data.txid);
-        }
+        if (!data.txid || cancelled) return;
+        // Exclude any txid already bound to a prior receipt on this browser.
+        // Excluding our own receipt id so a manually-cleared field can
+        // re-adopt the same txid for THIS bridge.
+        const consumed = getConsumedPearlTxIds(receiptId);
+        if (consumed.has(data.txid.toLowerCase())) return;
+        setPearlTxId(data.txid);
       } catch {
         /* swallow — keep polling */
       }
@@ -314,7 +326,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
       cancelled = true;
       clearInterval(handle);
     };
-  }, [step, pearlTxId, effectiveDestination]);
+  }, [step, pearlTxId, effectiveDestination, receiptId]);
 
   // Live confirmation polling. Relay queries pearld via the federated RPC pool
   // and returns { found, confirmations }; we display progress against the

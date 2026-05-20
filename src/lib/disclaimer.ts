@@ -12,7 +12,7 @@
 // auto-escapes any future interpolation. The previous template-literal +
 // dangerouslySetInnerHTML pattern was the audit footgun this replaces.
 
-export const DISCLAIMER_VERSION = "3";
+export const DISCLAIMER_VERSION = "4";
 
 export interface DisclaimerClause {
   title: string;
@@ -54,6 +54,10 @@ export const DISCLAIMER_CLAUSES: DisclaimerClause[] = [
   {
     title: "Third-party software.",
     body: "Wallets, RPC providers, light clients, block explorers, and on-chain protocols referenced by this interface are operated by independent third parties. We do not endorse them, are not responsible for their behavior, and accept no liability for outages, exploits, malware, phishing, or fraud originating from them.",
+  },
+  {
+    title: "Data processing & privacy (GDPR).",
+    body: "By using the service you consent to PearlBridge processing the following personal data under Art. 6(1)(a) and 6(1)(b) GDPR for the limited purposes of operating the bridge: (i) the public Ethereum and Pearl addresses you bridge between (cryptographic identifiers, recorded immutably on the respective public blockchains and indexed by the relay for transaction lookup), (ii) your IP address, hashed (SHA-256) for rate-limiting and abuse mitigation on relay endpoints, (iii) a strictly-necessary cookie storing your acceptance of this disclosure (no analytics, no advertising, no third-party tracking cookies), and (iv) any optional contact information you voluntarily submit through the bug-bounty form. We do not sell personal data, share it with advertisers, or use it for profiling or automated decision-making with legal effects. You retain the rights of access, rectification, erasure, restriction, portability, and objection under Arts. 15–22 GDPR — exercise them by emailing developers@pearlbridge.xyz; note that on-chain data is technically irreversible by anyone, including us. Acceptance of this clause is freely given and may be withdrawn at any time by clearing site data and discontinuing use.",
   },
   {
     title: "Bridge operator discretion.",

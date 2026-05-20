@@ -23,6 +23,12 @@ interface Props {
 
 export function LegalDisclaimer({ onAccept }: Props) {
   const [scrolledToEnd, setScrolledToEnd] = useState(false);
+  // GDPR: consent must be a specific, informed, freely-given, AFFIRMATIVE
+  // action — a scroll-to-bottom plus a single "Accept" button arguably
+  // bundles too many distinct processing purposes. The dedicated checkbox
+  // gives an unambiguous opt-in to the data-processing clause specifically,
+  // which is the legally-load-bearing GDPR Art. 7 anchor.
+  const [gdprConsent, setGdprConsent] = useState(false);
 
   // Pre-mark "scrolled" if the content is shorter than the viewport — no
   // amount of scrolling will fire the bottom event in that case, leaving
@@ -41,7 +47,10 @@ export function LegalDisclaimer({ onAccept }: Props) {
     }
   }
 
+  const canAccept = scrolledToEnd && gdprConsent;
+
   function handleAccept() {
+    if (!canAccept) return;
     markDisclaimerAccepted();
     onAccept();
   }
@@ -98,25 +107,51 @@ export function LegalDisclaimer({ onAccept }: Props) {
       </div>
 
       <footer className="px-6 py-5 border-t border-white/5 bg-black/30 backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row gap-3 items-center justify-between">
-          <p className="text-xs text-gray-500">
-            Disclosure version {DISCLAIMER_VERSION}. Acceptance is stored as a browser
-            cookie for one year.
-          </p>
-          <div className="flex gap-3 w-full sm:w-auto">
-            <a
-              href="https://duckduckgo.com"
-              className="px-5 py-3 rounded-xl text-sm text-gray-300 hover:text-white border border-white/10 hover:border-white/30 transition-colors text-center"
-            >
-              Decline &amp; leave
-            </a>
-            <button
-              disabled={!scrolledToEnd}
-              onClick={handleAccept}
-              className="px-6 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-[#00e5d0] to-[#00b8aa] text-black disabled:from-gray-700 disabled:to-gray-700 disabled:text-gray-500 transition-all shadow-lg shadow-[#00e5d0]/20 disabled:shadow-none whitespace-nowrap"
-            >
-              {scrolledToEnd ? "I have read and accept" : "Scroll to enable"}
-            </button>
+        <div className="max-w-3xl mx-auto flex flex-col gap-4">
+          <label className="flex items-start gap-3 text-sm text-gray-200 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={gdprConsent}
+              onChange={(e) => setGdprConsent(e.target.checked)}
+              className="mt-1 h-4 w-4 accent-[#00e5d0] cursor-pointer flex-shrink-0"
+              aria-describedby="gdpr-consent-description"
+            />
+            <span className="leading-relaxed">
+              <strong className="text-white">GDPR consent.</strong>{" "}
+              <span id="gdpr-consent-description">
+                I have read the data-processing &amp; privacy clause and consent to the
+                processing of my personal data (public wallet addresses, hashed IP for
+                abuse mitigation, and a strictly-necessary acceptance cookie) for the
+                purpose of operating the PearlBridge service, under Arts. 6(1)(a) and
+                6(1)(b) GDPR. I understand I may withdraw consent at any time by
+                clearing site data and discontinuing use.
+              </span>
+            </span>
+          </label>
+          <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+            <p className="text-xs text-gray-500">
+              Disclosure version {DISCLAIMER_VERSION}. Acceptance is stored as a browser
+              cookie for one year.
+            </p>
+            <div className="flex gap-3 w-full sm:w-auto">
+              <a
+                href="https://duckduckgo.com"
+                className="px-5 py-3 rounded-xl text-sm text-gray-300 hover:text-white border border-white/10 hover:border-white/30 transition-colors text-center"
+              >
+                Decline &amp; leave
+              </a>
+              <button
+                disabled={!canAccept}
+                onClick={handleAccept}
+                className="px-6 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-[#00e5d0] to-[#00b8aa] text-black disabled:from-gray-700 disabled:to-gray-700 disabled:text-gray-500 transition-all shadow-lg shadow-[#00e5d0]/20 disabled:shadow-none whitespace-nowrap"
+              >
+                {!scrolledToEnd
+                  ? "Scroll to enable"
+                  : !gdprConsent
+                    ? "Tick GDPR consent to enable"
+                    : "I have read and accept"}
+              </button>
+            </div>
           </div>
         </div>
       </footer>

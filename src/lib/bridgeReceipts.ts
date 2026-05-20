@@ -85,3 +85,38 @@ function addToIndex(ls: Storage, id: string): void {
     /* index is best-effort */
   }
 }
+
+// Enumerate every receipt the index knows about. Used by the auto-detect
+// catalog to compute the set of pearlTxIds this browser has already adopted
+// for a prior bridge — without this, a reused deposit address makes the
+// relay's "most recent non-finalized deposit" call return the OLD txid for
+// the second bridge attempt and the UI silently rebinds to it.
+export function listAllReceipts(): BridgeReceipt[] {
+  const ls = safeLocalStorage();
+  if (!ls) return [];
+  try {
+    const raw = ls.getItem(INDEX_KEY);
+    const ids: string[] = raw ? JSON.parse(raw) : [];
+    const out: BridgeReceipt[] = [];
+    for (const id of ids) {
+      const r = loadReceipt(id);
+      if (r) out.push(r);
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+
+// Catalog of pearlTxIds already bound to any local bridge receipt. Excludes
+// the caller's own receipt id so a user who manually clears the txid field
+// mid-bridge can have the same txid auto-detected again. Always lowercase
+// for case-insensitive comparison.
+export function getConsumedPearlTxIds(excludeReceiptId?: string | null): Set<string> {
+  const out = new Set<string>();
+  for (const r of listAllReceipts()) {
+    if (excludeReceiptId && r.id === excludeReceiptId) continue;
+    if (r.pearlTxId) out.add(r.pearlTxId.toLowerCase());
+  }
+  return out;
+}

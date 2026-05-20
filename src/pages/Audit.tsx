@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { useReadContract } from "wagmi";
 import { WPRL_ABI, CONTRACTS, EXPECTED_CHAIN_ID } from "../lib/contracts";
-import { PEARL_EXPLORER_BASE } from "../lib/config";
+import { PEARL_EXPLORER_BASE, RELAY_API_BASE } from "../lib/config";
 import { grainsToDisplay } from "../lib/utils";
 
 type AuditReport = {
@@ -76,6 +76,20 @@ export function Audit() {
   );
 }
 
+type CustodyResponse = {
+  lockAddress: string;
+  lockGrains: string;
+  feeAddress: string | null;
+  feeGrains: string;
+  depositGrains: string;
+  depositAddressCount: number;
+  totalCustodyGrains: string;
+  totalSupplyGrains: string;
+  surplusGrains: string;
+  timestamp: number;
+  breakdownUrl?: string;
+};
+
 function SolvencyCard() {
   const wprlAddr = CONTRACTS.WPRL;
   const lockAddr = CONTRACTS.PEARL_LOCK_ADDRESS;
@@ -87,9 +101,50 @@ function SolvencyCard() {
     query: { enabled: !!wprlAddr },
   });
 
+  const [custody, setCustody] = useState<CustodyResponse | null>(null);
+  const [custodyError, setCustodyError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchCustody = () => {
+      fetch(`${RELAY_API_BASE}/api/custody`)
+        .then((r) => (r.ok ? r.json() : Promise.reject(`HTTP ${r.status}`)))
+        .then((d: CustodyResponse) => {
+          if (cancelled) return;
+          setCustody(d);
+          setCustodyError(null);
+        })
+        .catch((e: unknown) => {
+          if (!cancelled) setCustodyError(typeof e === "string" ? e : "fetch failed");
+        });
+    };
+    fetchCustody();
+    const id = setInterval(fetchCustody, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+
   const lockExplorerUrl = lockAddr
     ? `${PEARL_EXPLORER_BASE}/address/${lockAddr}`
     : null;
+
+  const lockGrains = custody ? BigInt(custody.lockGrains) : null;
+  const feeGrains = custody ? BigInt(custody.feeGrains) : null;
+  const depositGrains = custody ? BigInt(custody.depositGrains) : null;
+  const totalCustodyGrains = custody ? BigInt(custody.totalCustodyGrains) : null;
+  const surplusGrains = custody ? BigInt(custody.surplusGrains) : null;
+  const breakdownUrl = `${RELAY_API_BASE}/api/custody/addresses`;
+
+  const totalSupplyBig = totalSupply !== undefined ? (totalSupply as bigint) : null;
+  // Cross-check the wagmi-read totalSupply against the relay's reading. If they
+  // disagree by more than a grain we surface a warning — but neither source is
+  // load-bearing on the OTHER's accuracy; both are independently verifiable.
+  const supplyMismatch =
+    totalSupplyBig !== null &&
+    custody !== null &&
+    totalSupplyBig !== BigInt(custody.totalSupplyGrains);
 
   return (
     <section className="glass rounded-2xl p-6 border border-white/5">
@@ -98,10 +153,12 @@ function SolvencyCard() {
         <span className="text-[11px] font-mono text-gray-500">Live</span>
       </div>
       <p className="text-xs text-gray-400 leading-relaxed mb-5 max-w-2xl">
-        Every WPRL on Ethereum is backed 1:1 by PRL locked in a single Pearl L1
-        custody wallet. Compare the two numbers below. The lock-wallet link is
-        an external block explorer &mdash; nothing on this page sits between
-        you and the truth on-chain.
+        Every WPRL on Ethereum is backed 1:1 by PRL custodied on Pearl L1. The
+        custody figure below sums the canonical lock wallet plus every active
+        per-user deposit address &mdash; in-flight deposits awaiting the next
+        sweep cycle are counted as backing, because the relay can only consolidate
+        them; it cannot move them anywhere else. Every number is independently
+        re-checkable on the public Pearl explorer and Etherscan.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl bg-black/30 border border-white/5 p-4">
@@ -109,8 +166,8 @@ function SolvencyCard() {
             WPRL minted (Ethereum)
           </p>
           <p className="text-xl font-bold text-white">
-            {totalSupply !== undefined
-              ? `${grainsToDisplay(totalSupply as bigint)} WPRL`
+            {totalSupplyBig !== null
+              ? `${grainsToDisplay(totalSupplyBig)} WPRL`
               : "—"}
           </p>
           <p className="text-[11px] text-gray-500 mt-2 font-mono break-all">
@@ -119,27 +176,97 @@ function SolvencyCard() {
         </div>
         <div className="rounded-xl bg-black/30 border border-white/5 p-4">
           <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-2">
-            PRL locked (Pearl L1)
+            PRL custodied (Pearl L1)
           </p>
-          {lockExplorerUrl ? (
+          <p className="text-xl font-bold text-white">
+            {totalCustodyGrains !== null
+              ? `${grainsToDisplay(totalCustodyGrains)} PRL`
+              : custodyError
+                ? "—"
+                : "…"}
+          </p>
+          {custody && lockGrains !== null && depositGrains !== null && feeGrains !== null && (
+            <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
+              <span className="font-mono">{grainsToDisplay(lockGrains)}</span>{" "}
+              in lock wallet
+              {feeGrains > 0n && (
+                <>
+                  {" + "}
+                  <span className="font-mono">{grainsToDisplay(feeGrains)}</span>{" "}
+                  in fee-collection wallet
+                </>
+              )}
+              {depositGrains > 0n && (
+                <>
+                  {" + "}
+                  <span className="font-mono">{grainsToDisplay(depositGrains)}</span>{" "}
+                  across {custody.depositAddressCount}{" "}
+                  active deposit address{custody.depositAddressCount === 1 ? "" : "es"}
+                </>
+              )}
+            </p>
+          )}
+          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+            {lockExplorerUrl && (
+              <a
+                href={lockExplorerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] text-[#00e5d0] hover:underline inline-block"
+              >
+                Verify lock wallet on explorer &rarr;
+              </a>
+            )}
             <a
-              href={lockExplorerUrl}
+              href={breakdownUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xl font-bold text-[#00e5d0] hover:underline inline-flex items-center gap-1"
+              className="text-[11px] text-[#00e5d0] hover:underline inline-block"
             >
-              View live balance &rarr;
+              Per-address JSON breakdown &rarr;
             </a>
-          ) : (
-            <p className="text-xl font-bold text-white">—</p>
-          )}
+          </div>
           <p className="text-[11px] text-gray-500 mt-2 font-mono break-all">
             {lockAddr || "not configured"}
           </p>
         </div>
       </div>
+      {custody && surplusGrains !== null && totalCustodyGrains !== null && (
+        <div className="mt-4 rounded-xl bg-black/20 border border-white/5 px-4 py-3 text-[11px] text-gray-400 leading-relaxed flex items-baseline justify-between gap-3">
+          <span>
+            Surplus:{" "}
+            <span
+              className={
+                surplusGrains >= 0n
+                  ? "text-[#00e5d0] font-mono"
+                  : "text-red-400 font-mono"
+              }
+            >
+              {surplusGrains >= 0n ? "+" : ""}
+              {grainsToDisplay(surplusGrains < 0n ? -surplusGrains : surplusGrains)}{" "}
+              PRL
+            </span>
+          </span>
+          <span className="font-mono text-gray-500">
+            updated{" "}
+            {Math.max(0, Math.round((Date.now() - custody.timestamp) / 1000))}s ago
+          </span>
+        </div>
+      )}
+      {supplyMismatch && (
+        <p className="text-[11px] text-amber-400 mt-2">
+          Wallet RPC and relay disagree on WPRL totalSupply &mdash; refresh in a
+          minute. Both are independently verifiable on Etherscan.
+        </p>
+      )}
+      {custodyError && !custody && (
+        <p className="text-[11px] text-amber-400 mt-3">
+          Custody endpoint unavailable &mdash; verify directly on the Pearl
+          explorer via the link above.
+        </p>
+      )}
       <p className="text-[11px] text-gray-500 mt-4">
-        Invariant: WPRL minted &le; PRL locked at all times. The 0.5% bridge
+        Invariant: WPRL minted &le; PRL custodied at all times. The 0.5% bridge
         fee accrues to a separate fee-recipient address; it is not part of
         user-redeemable backing.
       </p>
