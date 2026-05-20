@@ -1,0 +1,265 @@
+import { Link, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useReadContract } from "wagmi";
+import { WPRL_ABI, CONTRACTS, EXPECTED_CHAIN_ID } from "../lib/contracts";
+import { PEARL_EXPLORER_BASE } from "../lib/config";
+import { grainsToDisplay } from "../lib/utils";
+
+type AuditReport = {
+  slug: string;
+  title: string;
+  date: string;
+  summary: string;
+  verdict: string;
+  status: "published" | "in_progress";
+};
+
+const REPORTS: AuditReport[] = [
+  {
+    slug: "pearlbridge-reaudit-rc56-2026-05-20",
+    title: "PearlBridge RC5.6 Audit",
+    date: "2026-05-20",
+    summary:
+      "Eleven independent automated review passes over the live mainnet contract suite (BridgeController, WPearl, BridgeLib) plus on-chain verification of deployed proxy state.",
+    verdict:
+      "Mainnet operation appropriate — no Critical, no unmitigated High. Two Medium and a handful of Low/Informational items documented for the next release.",
+    status: "published",
+  },
+  {
+    slug: "pearlbridge-external-audit-2026",
+    title: "PearlBridge — Independent External Security Audit",
+    date: "In progress",
+    summary:
+      "Independent external review of the live mainnet contract suite. Engagement underway; the report will be published here when complete.",
+    verdict: "In progress",
+    status: "in_progress",
+  },
+];
+
+const REPORTS_SORTED = [...REPORTS].sort((a, b) => b.date.localeCompare(a.date));
+
+export function Audit() {
+  const { slug } = useParams();
+  const active = useMemo(
+    () => REPORTS_SORTED.find((r) => r.slug === slug) ?? null,
+    [slug],
+  );
+
+  return (
+    <div className="max-w-4xl mx-auto px-6 py-12 space-y-10">
+      <header className="space-y-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs text-[#00e5d0] font-medium border border-[#00e5d0]/20">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#00e5d0]" />
+          Audit
+        </div>
+        <h1 className="text-4xl font-extrabold tracking-tight">
+          Audit &amp; transparency
+        </h1>
+        <p className="text-gray-400 text-base leading-relaxed max-w-3xl">
+          PearlBridge ships every release through a multi-pass security audit
+          covering contracts, relay, frontend, and the Pearl cross-chain
+          surface. The most recent re-audit (RC5.6, 2026-05-20) ran eleven
+          independent passes over the live mainnet contract suite plus an
+          on-chain probe of deployed state; a separate independent external
+          audit is currently underway. Live solvency is shown below so backing
+          can be verified without trusting this page.
+        </p>
+      </header>
+
+      {active ? <ReportView report={active} /> : (
+        <>
+          <SolvencyCard />
+          <ReportIndex />
+        </>
+      )}
+    </div>
+  );
+}
+
+function SolvencyCard() {
+  const wprlAddr = CONTRACTS.WPRL;
+  const lockAddr = CONTRACTS.PEARL_LOCK_ADDRESS;
+  const { data: totalSupply } = useReadContract({
+    address: wprlAddr,
+    abi: WPRL_ABI,
+    functionName: "totalSupply",
+    chainId: EXPECTED_CHAIN_ID,
+    query: { enabled: !!wprlAddr },
+  });
+
+  const lockExplorerUrl = lockAddr
+    ? `${PEARL_EXPLORER_BASE}/address/${lockAddr}`
+    : null;
+
+  return (
+    <section className="glass rounded-2xl p-6 border border-white/5">
+      <div className="flex items-baseline justify-between gap-3 mb-5">
+        <h2 className="text-lg font-bold text-white">Solvency &amp; TVL</h2>
+        <span className="text-[11px] font-mono text-gray-500">Live</span>
+      </div>
+      <p className="text-xs text-gray-400 leading-relaxed mb-5 max-w-2xl">
+        Every WPRL on Ethereum is backed 1:1 by PRL locked in a single Pearl L1
+        custody wallet. Compare the two numbers below. The lock-wallet link is
+        an external block explorer &mdash; nothing on this page sits between
+        you and the truth on-chain.
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="rounded-xl bg-black/30 border border-white/5 p-4">
+          <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-2">
+            WPRL minted (Ethereum)
+          </p>
+          <p className="text-xl font-bold text-white">
+            {totalSupply !== undefined
+              ? `${grainsToDisplay(totalSupply as bigint)} WPRL`
+              : "—"}
+          </p>
+          <p className="text-[11px] text-gray-500 mt-2 font-mono break-all">
+            {wprlAddr}
+          </p>
+        </div>
+        <div className="rounded-xl bg-black/30 border border-white/5 p-4">
+          <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-2">
+            PRL locked (Pearl L1)
+          </p>
+          {lockExplorerUrl ? (
+            <a
+              href={lockExplorerUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xl font-bold text-[#00e5d0] hover:underline inline-flex items-center gap-1"
+            >
+              View live balance &rarr;
+            </a>
+          ) : (
+            <p className="text-xl font-bold text-white">—</p>
+          )}
+          <p className="text-[11px] text-gray-500 mt-2 font-mono break-all">
+            {lockAddr || "not configured"}
+          </p>
+        </div>
+      </div>
+      <p className="text-[11px] text-gray-500 mt-4">
+        Invariant: WPRL minted &le; PRL locked at all times. The 0.5% bridge
+        fee accrues to a separate fee-recipient address; it is not part of
+        user-redeemable backing.
+      </p>
+    </section>
+  );
+}
+
+function ReportIndex() {
+  return (
+    <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {REPORTS_SORTED.map((r) =>
+        r.status === "in_progress" ? (
+          <div
+            key={r.slug}
+            className="glass rounded-2xl p-5 border border-amber-400/30 flex flex-col gap-3"
+          >
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 className="text-base font-semibold text-white">{r.title}</h2>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-400 bg-amber-400/10 border border-amber-400/30 rounded-full px-2 py-0.5 flex-shrink-0">
+                In progress
+              </span>
+            </div>
+            <p className="text-xs text-gray-400 leading-relaxed">{r.summary}</p>
+            <p className="text-xs text-gray-300 leading-relaxed">
+              <span className="text-gray-500">Status: </span>
+              {r.verdict}
+            </p>
+          </div>
+        ) : (
+          <Link
+            key={r.slug}
+            to={`/audit/${r.slug}`}
+            className="glass rounded-2xl p-5 border border-white/5 hover:border-[#00e5d0]/30 transition-colors group flex flex-col gap-3"
+          >
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 className="text-base font-semibold text-white group-hover:text-[#00e5d0] transition-colors">
+                {r.title}
+              </h2>
+              <span className="text-[11px] font-mono text-gray-500 flex-shrink-0">
+                {r.date}
+              </span>
+            </div>
+            <p className="text-xs text-gray-400 leading-relaxed">{r.summary}</p>
+            <p className="text-xs text-gray-300 leading-relaxed">
+              <span className="text-gray-500">Verdict: </span>
+              {r.verdict}
+            </p>
+            <div className="text-xs text-[#00e5d0] mt-auto pt-1">
+              Read report &rarr;
+            </div>
+          </Link>
+        ),
+      )}
+    </section>
+  );
+}
+
+function ReportView({ report }: { report: AuditReport }) {
+  const [content, setContent] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setContent(null);
+    setError(null);
+    fetch(`/audits/${report.slug}.md`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.text();
+      })
+      .then((text) => {
+        if (!cancelled) setContent(text);
+      })
+      .catch((e: unknown) => {
+        if (!cancelled)
+          setError(e instanceof Error ? e.message : "Failed to load report");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [report.slug]);
+
+  return (
+    <section className="space-y-6">
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <div>
+          <Link
+            to="/audit"
+            className="text-xs text-[#00e5d0] hover:underline inline-block mb-2"
+          >
+            &larr; All reports
+          </Link>
+          <h2 className="text-2xl font-bold">{report.title}</h2>
+          <p className="text-xs font-mono text-gray-500 mt-1">{report.date}</p>
+        </div>
+        <a
+          href={`/audits/${report.slug}.md`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-gray-400 hover:text-[#00e5d0] transition-colors"
+        >
+          Raw markdown &rarr;
+        </a>
+      </div>
+
+      <div className="glass rounded-2xl p-6 md:p-8 border border-white/5">
+        {error && (
+          <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded-xl px-3 py-2">
+            Failed to load report: {error}
+          </div>
+        )}
+        {!content && !error && (
+          <div className="text-sm text-gray-500">Loading report&hellip;</div>
+        )}
+        {content && (
+          <pre className="text-[12px] leading-relaxed text-gray-300 whitespace-pre-wrap font-mono">
+            {content}
+          </pre>
+        )}
+      </div>
+    </section>
+  );
+}

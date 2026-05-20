@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+dist-*/
+.next/
+*.tsbuildinfo
+
+# Local environment overrides (never commit secrets)
+.env
+.env.local
+.env.*.local
+
+# DevNet env — points at a developer-specific local Hardhat instance.
+# Use .env.devnet.example as a template if you want to wire up a DevNet.
+.env.devnet
+
+# Editor + OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# Backups
+*.bak
+*.bak.*

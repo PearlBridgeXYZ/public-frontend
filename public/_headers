@@ -1,0 +1,11 @@
+# Cloudflare Pages security headers (RC2.6, audit M-3 / L-2).
+# These are header-level enforcement; the meta-CSP in index.html is a
+# defense-in-depth fallback if the edge config is ever misrouted.
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://api.pearlbridge.xyz https://*.publicnode.com https://*.thirdweb.com https://*.merkle.io https://eth.merkle.io https://explorer.pearlresearch.ai https://etherscan.io https://*.etherscan.io https://api.etherscan.io https://api-sepolia.etherscan.io https://enhanced-provider.rainbow.me wss://*.pearlresearch.ai wss:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=()

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PearlBridge — Architecture Overview</title>
+<style>
+:root{
+  --bg:#0b0d10; --panel:#11151b; --line:#1f2630; --ink:#e7ecf3;
+  --mute:#8b95a3; --accent:#74e0b1; --warn:#f5a86b; --link:#9bc7ff;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+a{color:var(--link);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1080px;margin:0 auto;padding:48px 28px 96px}
+header{border-bottom:1px solid var(--line);padding-bottom:24px;margin-bottom:32px}
+.eyebrow{color:var(--mute);font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px}
+h1{margin:0 0 4px;font-size:28px;letter-spacing:-.01em}
+.sub{color:var(--mute);font-size:14px}
+nav.toc{font-size:13px;color:var(--mute);margin-top:18px}
+nav.toc a{color:var(--mute);margin-right:14px}
+nav.toc a:hover{color:var(--ink)}
+h2{font-size:18px;margin:42px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+h3{font-size:14px;color:var(--accent);margin:18px 0 8px;letter-spacing:.04em;text-transform:uppercase}
+p{margin:8px 0 14px}
+code,pre{font-family:var(--mono)}
+code{background:#0e1218;color:#cfe2ff;padding:1px 5px;border-radius:3px;font-size:12.5px}
+pre{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px;overflow-x:auto;font-size:12.5px;line-height:1.5}
+.grid{display:grid;gap:14px}
+.grid.two{grid-template-columns:1fr 1fr}
+@media(max-width:760px){.grid.two{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px}
+.card h4{margin:0 0 6px;font-size:14px}
+.card p{margin:4px 0;color:var(--mute);font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:#0e1218;font-weight:600;color:#cfe2ff}
+td code{font-size:12px}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;background:#1a2230;color:var(--mute);margin-right:6px}
+.tag.new{background:#15301f;color:var(--accent)}
+.tag.warn{background:#2a1e10;color:var(--warn)}
+.diagram{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;margin:10px 0;font-family:var(--mono);font-size:12.5px;color:#cfe2ff;white-space:pre;overflow-x:auto;line-height:1.5}
+.kv{display:grid;grid-template-columns:160px 1fr;gap:6px 14px;font-size:13px;margin:8px 0}
+.kv dt{color:var(--mute)}
+.kv dd{margin:0;font-family:var(--mono);font-size:12.5px}
+footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--line);color:var(--mute);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">PearlBridge / v0.3.1</div>
+  <h1>Architecture Overview</h1>
+  <div class="sub">Pearl L1 ↔ Ethereum bridge. Lock-and-mint model. Updated 2026-05-16 (FEE_ADMIN_ROLE separation).</div>
+  <nav class="toc">
+    <a href="#topology">Topology</a>
+    <a href="#frontend">Frontend</a>
+    <a href="#contracts">Contracts</a>
+    <a href="#roles">Roles</a>
+    <a href="#relay">Relay</a>
+    <a href="#flows">Flows</a>
+    <a href="#deploys">Deployments</a>
+    <a href="#changelog">v0.3.1</a>
+  </nav>
+</header>
+
+<section id="topology">
+<h2>1 · System Topology</h2>
+<p>One asset, two chains. PRL is locked on Pearl L1; an equal amount of WPRL (ERC-20, 8 decimals) is minted on Ethereum by a quorum of relayers. Burning WPRL releases native PRL back on Pearl. The relayer set is the trust boundary; the controller never accepts a single-signer instruction.</p>
+
+<div class="diagram">
+ ┌────────────────────────┐         ┌──────────────────────────┐
+ │      Pearl L1          │         │        Ethereum          │
+ │   (native PRL chain)   │         │   (BridgeController +    │
+ │                        │         │    WPRL ERC-20 token)    │
+ └──────────┬─────────────┘         └────────────┬─────────────┘
+            │  deposits & unlocks                │  mint, burn, fees
+            │                                    │
+            ▼                                    ▼
+ ┌─────────────────────────────────────────────────────────────┐
+ │             Relayer quorum (N-of-M EIP-712 signers)         │
+ │   • Observes both chains  • Signs mint authorisations       │
+ │   • MIN_THRESHOLD = 2     • Federated key custody           │
+ └─────────────────────────────────────────────────────────────┘
+            ▲                                    ▲
+            │ deposit address mapping            │ SIWE auth, history,
+            │ + history API                      │ deposit-addr issuance
+            ▼                                    │
+ ┌─────────────────────────────────────────────────────────────┐
+ │                       Frontend (Vite/React)                 │
+ │     LockAndMint  •  BurnAndUnlock  •  History  •  Infra     │
+ └─────────────────────────────────────────────────────────────┘
+</div>
+</section>
+
+<section id="frontend">
+<h2>2 · Frontend</h2>
+<p>Single-page Vite + React app. Wallet via wagmi/RainbowKit. SIWE for auth-gated endpoints (deposit-address issuance, history). All on-chain reads/writes go through wagmi against the live BridgeController address.</p>
+
+<div class="grid two">
+  <div class="card">
+    <h4>Stack</h4>
+    <p>Vite · React 18 · react-router · TypeScript</p>
+    <p>wagmi + viem · RainbowKit · SIWE adapter</p>
+    <p>Tailwind-flavoured CSS (no framework)</p>
+  </div>
+  <div class="card">
+    <h4>Routes</h4>
+    <p><code>/</code> — bridge widget (mint &amp; burn tabs)</p>
+    <p><code>/history</code> — connected-address activity</p>
+    <p><code>/infrastructure</code> — relayer fleet + validator topology</p>
+    <p><code>/legal</code> — disclaimer (cookie-persisted)</p>
+  </div>
+  <div class="card">
+    <h4>Key modules</h4>
+    <p><code>src/lib/contracts.ts</code> — ABIs + ADDRESSES per network</p>
+    <p><code>src/lib/config.ts</code> — fee bps, RPC base URLs, env flags</p>
+    <p><code>src/lib/siweAdapter.ts</code> — sign-in-with-ethereum</p>
+    <p><code>src/lib/destinationConfirm.ts</code> — manual-address advanced mode</p>
+  </div>
+  <div class="card">
+    <h4>Components</h4>
+    <p><code>LockAndMint</code> — deposit-addr issuance, polling, mint tx</p>
+    <p><code>BurnAndUnlock</code> — approve + requestBurn flow</p>
+    <p><code>BridgeStats</code> — live TVL, daily-limit windows</p>
+    <p><code>BridgeWidget</code> — tabbed shell, share state</p>
+  </div>
+</div>
+</section>
+
+<section id="contracts">
+<h2>3 · Smart contracts</h2>
+<p>Two contracts. <code>WPearl</code> is a non-upgradeable ERC-20 with an immutable controller binding. <code>BridgeController</code> is UUPS-upgradeable behind an ERC1967 proxy, with a propose→wait→execute upgrade path gated by a configurable on-chain delay.</p>
+
+<table>
+<thead><tr><th>Contract</th><th>Upgradeable</th><th>Notes</th></tr></thead>
+<tbody>
+<tr>
+  <td><code>WPearl.sol</code></td>
+  <td>No</td>
+  <td>ERC-20, 8 decimals, MAX_SUPPLY = 2.1B. <code>bridgeController</code> is <code>immutable</code> — set via CREATE pre-compute at deploy time. Freeze/unfreeze on holders, REVOKE_FREEZE_ROLE_ADMIN as distinct admin (audit F-2).</td>
+</tr>
+<tr>
+  <td><code>BridgeController.sol</code></td>
+  <td><strong>UUPS</strong> (ERC1967Proxy)</td>
+  <td>Holds bridge logic: <code>requestBurn</code>, <code>executeMint</code>, fee tuning, daily-rate-limit windows, TVL cap, pause. Initializer guarded by <code>Initializable</code>; admin handover via <code>AccessControlDefaultAdminRules</code> 2-step + delay.</td>
+</tr>
+<tr>
+  <td><code>TimelockController</code></td>
+  <td>—</td>
+  <td>OZ standard. Holds DEFAULT_ADMIN_ROLE on mainnet. Safe (multisig) is proposer + canceller; executor is <code>address(0)</code> (open). 24h delay.</td>
+</tr>
+</tbody>
+</table>
+
+<h3>Security properties (current)</h3>
+<ul>
+  <li>Replay protection via <code>processedPearlTxs</code> mapping</li>
+  <li>Rolling 24h mint &amp; burn windows; <code>MAX_FEE_BPS = 100</code> (1%)</li>
+  <li>EIP-712 N-of-M relayer signatures, <code>MIN_THRESHOLD = 2</code> hard floor</li>
+  <li>Deadline + <code>MAX_DEADLINE_WINDOW = 24h</code> on every mint authorisation</li>
+  <li>Threshold-bound sigs: <code>MINT_TYPEHASH</code> includes <code>threshold</code> (audit H-2)</li>
+  <li>PAUSER and UNPAUSER are <em>mutually exclusive</em> (audit M-8)</li>
+  <li>Two-step fee recipient with frozen-recipient bypass (audit M-1, M-7)</li>
+  <li>UUPS upgrade gate: propose → wait <code>upgradeDelay</code> → execute (audit Round 5)</li>
+</ul>
+</section>
+
+<section id="roles">
+<h2>4 · Role lattice</h2>
+<p>Granular AccessControl, with DEFAULT_ADMIN_ROLE on the Timelock as the only root authority. Hot keys exist <em>only</em> for narrow, recoverable surfaces (pause, mint quorum, fee tuning). v0.3.1 split fee-tuning out of DEFAULT_ADMIN_ROLE into a dedicated <code>FEE_ROLE</code>.</p>
+
+<table>
+<thead><tr><th>Role</th><th>Holder (mainnet)</th><th>Powers</th></tr></thead>
+<tbody>
+<tr><td><code>DEFAULT_ADMIN_ROLE</code></td><td>Timelock (24h) ← Safe</td><td>Grant/revoke any role, schedule upgrades, set delays</td></tr>
+<tr><td><code>FEE_ROLE</code> <span class="tag new">v0.3.1</span></td><td>Hot key, separate from admin</td><td><code>setMintFee</code>, <code>setBurnFee</code>, <code>proposeFeeRecipient</code>, <code>cancelFeeRecipientProposal</code></td></tr>
+<tr><td><code>FEE_WITHDRAW_ROLE</code></td><td>Treasury hot key</td><td><code>withdrawFees</code> to recipient</td></tr>
+<tr><td><code>DAILY_LIMITS_ROLE</code></td><td>Admin / timelock</td><td>Adjust <code>dailyMintLimit</code> / <code>dailyBurnLimit</code></td></tr>
+<tr><td><code>DEPOSIT_BOUNDS_ROLE</code></td><td>Admin / timelock</td><td>Set <code>minDepositAmount</code></td></tr>
+<tr><td><code>TVL_CAP_ROLE</code></td><td>Admin / timelock</td><td>Set TVL ceiling</td></tr>
+<tr><td><code>CONFIRMATIONS_ROLE</code></td><td>Admin / timelock</td><td>Set Pearl-side <code>minPearlConfirmations</code></td></tr>
+<tr><td><code>THRESHOLD_ROLE</code></td><td>Admin / timelock</td><td>Adjust quorum threshold (≥ <code>MIN_THRESHOLD</code>)</td></tr>
+<tr><td><code>RELAYER_ROLE</code></td><td>N relayer keys (≥ 3 on mainnet)</td><td>Sign EIP-712 mint authorisations</td></tr>
+<tr><td><code>PAUSER_ROLE</code></td><td>Hot pauser EOA</td><td><code>pause()</code> (no unpause)</td></tr>
+<tr><td><code>UNPAUSER_ROLE</code></td><td>Distinct from PAUSER (mutual)</td><td><code>unpause()</code></td></tr>
+</tbody>
+</table>
+
+<h3>Why FEE_ROLE is separated</h3>
+<p>Before v0.3.1, tuning fees required a DEFAULT_ADMIN_ROLE call — which on mainnet means a 24h timelock cycle. That's the right friction for upgrades and role grants, but wrong for routine fee adjustments in response to fast-moving market conditions. v0.3.1 grants <code>FEE_ROLE</code> to a separate hot key at <code>initialize()</code> time so fee tuning can ship in one tx, while everything else stays behind the timelock. The Timelock still retains the ability to revoke and re-grant <code>FEE_ROLE</code> through standard AccessControl — a compromised fee key is rotated out by timelocked proposal, never directly by another hot key.</p>
+</section>
+
+<section id="relay">
+<h2>5 · Relay (off-chain backend)</h2>
+<p>TypeScript service. Tails both chains, produces EIP-712 attestations for confirmed Pearl deposits, and submits unlock transactions to Pearl on observed burns. Database is SQLite-backed for crash recovery.</p>
+
+<div class="grid two">
+  <div class="card">
+    <h4>Inbound (Pearl → ETH)</h4>
+    <p><code>watcher.ts</code> polls Pearl RPC pool (3 wg-mgmt validators)</p>
+    <p>Resolves deposit-address → recipient mapping</p>
+    <p>Anomaly check runs <em>before</em> state transition (audit S2-C-1)</p>
+    <p>Federated attesters in <code>ATTESTER_SOURCES</code> sign mint authorisations</p>
+    <p>User submits the relayer-signed payload to <code>executeMint</code></p>
+  </div>
+  <div class="card">
+    <h4>Outbound (ETH → Pearl)</h4>
+    <p><code>unlock.ts</code> tails <code>BurnInitiated</code> events</p>
+    <p>Verifies burn confirmation depth on ETH</p>
+    <p>Broadcasts native PRL send from lock address to user's Pearl address</p>
+    <p>Kill-switch <code>PEARL_UNLOCK_ENABLED=false</code> defers unlocks safely</p>
+  </div>
+  <div class="card">
+    <h4>API surface (relay :4000)</h4>
+    <p><code>POST /api/siwe/nonce</code> — issue SIWE nonce</p>
+    <p><code>POST /api/siwe/verify</code> — verify + issue session</p>
+    <p><code>POST /api/deposit-address</code> — auth-gated, per-user mapping</p>
+    <p><code>GET /api/history?address</code> — connected-address activity</p>
+    <p><code>POST /api/mint-authorisation</code> — relayer-signed payload</p>
+  </div>
+  <div class="card">
+    <h4>Key custody</h4>
+    <p>N-of-M attester quorum behind a Timelock</p>
+    <p>Pearl lock-address signing keys held by the relay only — never logged or shipped over any channel</p>
+    <p>Production custody is decoupled from operator tooling</p>
+    <p>Idempotency on broadcaster calls is enforced by proposal-bound order identifiers</p>
+  </div>
+</div>
+</section>
+
+<section id="flows">
+<h2>6 · End-to-end flows</h2>
+
+<h3>Lock &amp; Mint (Pearl → ETH WPRL)</h3>
+<div class="diagram">
+ user                  frontend             relay              Pearl L1            ETH BridgeController
+  │                       │                   │                   │                       │
+  │── connect wallet ────▶│                   │                   │                       │
+  │── SIWE sign-in ──────▶│── nonce, verify ─▶│                   │                       │
+  │                       │◀── session token ─│                   │                       │
+  │── request deposit ───▶│── POST addr ─────▶│                   │                       │
+  │                       │◀── addr (per-user)│                   │                       │
+  │─── send PRL ──────────────────────────────────────────────────▶│                       │
+  │                       │                   │◀── poll deposit ──│                       │
+  │                       │                   │   (>= minConfs)   │                       │
+  │                       │                   │── 3 attesters sign▶                       │
+  │                       │◀── signed payload ┤                   │                       │
+  │── submit mint ────────────────────────────────────────────────────────────────────────▶│
+  │                       │                   │                   │   executeMint(sigs)    │
+  │                       │                   │                   │   → mint(user, net)    │
+  │◀────────────────────────────── WPRL credited ────────────────────────────────────────│
+</div>
+
+<h3>Burn &amp; Unlock (ETH WPRL → Pearl)</h3>
+<div class="diagram">
+ user            frontend          ETH BridgeController          relay              Pearl L1
+  │                 │                       │                       │                   │
+  │── approve ─────▶│                       │                       │                   │
+  │── requestBurn ─────────────────────────▶│                       │                   │
+  │                                         │  burnFrom(user, gross)│                   │
+  │                                         │  emit BurnInitiated   │                   │
+  │                                         │── event ─────────────▶│                   │
+  │                                         │                       │── send PRL ──────▶│
+  │                                         │                       │                   │
+  │                                         │                       │◀── confirmed ─────│
+  │◀──── frontend polls /api/history ──────────────────────────────│                   │
+</div>
+</section>
+
+<section id="deploys">
+<h2>7 · Live deployments</h2>
+
+<h3>Mainnet (Ethereum)</h3>
+<dl class="kv">
+  <dt>BridgeController (proxy)</dt><dd>0xA6571B73489d4eBFA269a107208665dF7C80Aef5</dd>
+  <dt>WPRL (ERC-20)</dt><dd>0x07696DcaB55E62cfef953666b29Fe1970518cB00</dd>
+  <dt>Pearl lock address</dt><dd>prl1p5f450a5540efskxv050tgscelscuztut6zfaqssq8vnlnw53wvdsmw4yvs</dd>
+  <dt>Admin (DEFAULT_ADMIN_ROLE)</dt><dd>Timelock (24h) — proposer is Safe multisig</dd>
+  <dt>Mint / burn fee</dt><dd>50 bps mint, 0 bps burn (RC3)</dd>
+  <dt>Status</dt><dd>RC3 live since 2026-05-18 (prior RC2.6 at 0x3682/0x8171 deprecated)</dd>
+</dl>
+
+<h3>DevNet (Hardhat localnet, chainId 31337)</h3>
+<dl class="kv">
+  <dt>RPC</dt><dd><code>http://localhost:8545</code> (Hardhat default)</dd>
+  <dt>BridgeController (proxy)</dt><dd>0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0</dd>
+  <dt>BridgeController impl</dt><dd>0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512</dd>
+  <dt>WPRL</dt><dd>0x5FbDB2315678afecb367f032d93F642f64180aa3</dd>
+  <dt>Relayers</dt><dd>Hardhat #2/#3/#4 — threshold 2-of-3</dd>
+  <dt>Fees</dt><dd>50 / 50 bps (matches mainnet posture)</dd>
+  <dt>Bring-up</dt><dd><code>npx hardhat node</code> against the v0.3.1 deploy scripts</dd>
+</dl>
+
+<p><span class="tag warn">Mainnet workstream</span> BridgeController deployed bytecode is currently <strong>24,689 B</strong> (above the 24,576 B EIP-170 ceiling). DevNet sets <code>allowUnlimitedContractSize=true</code> on the Hardhat network to land tests, but a mainnet redeploy of v0.3.1 requires shrinking the bytecode first — recommended path is the custom-errors refactor (~−500 B).</p>
+</section>
+
+<section id="changelog">
+<h2>8 · v0.3.1 — what changed (2026-05-16)</h2>
+<ul>
+  <li><strong>FEE_ADMIN_ROLE separation.</strong> <code>initialize()</code> gains a 5th positional <code>_feeAdmin</code> parameter (between <code>_pauser</code> and <code>_relayers</code>). On mainnet, this points to a hot key separate from the Timelock so routine fee tuning skips the 24h delay. DEFAULT_ADMIN_ROLE retains the ability to rotate or revoke <code>FEE_ROLE</code> via standard AccessControl.</li>
+  <li><strong>Storage layout unchanged.</strong> No new state variables; <code>__gap[46]</code> intact. UUPS-upgrade-safe.</li>
+  <li><strong>Deploy scripts.</strong> <code>deploy.ts</code> / <code>deploy-localnet.ts</code> / <code>deploy-with-timelock.ts</code> / <code>deploy-ceremony.ts</code> / <code>localnet-test.ts</code> all updated. <code>deploy-ceremony.ts</code> now requires <code>ALLOW_DEPLOYER_FEE_ADMIN=1</code> if the operator deliberately sets FEE_ADMIN to the deployer (closes a silent-skip footgun flagged in the audit).</li>
+  <li><strong>Tests.</strong> 273 passing, 1 pending (fork test). New revert test covers the zero-address guard on <code>_feeAdmin</code>.</li>
+  <li><strong>Frontend.</strong> No surface changes — the new role is invisible to users. Fee bps remain 50 / 50 across mainnet and DevNet.</li>
+  <li><strong>Audit verdict.</strong> No high-severity findings on the v0.3.1 diff. EIP-170 overage is the only ship-blocker, and only for a mainnet <em>redeploy</em> of v0.3.1 — the existing mainnet contract is unaffected (the new role can be granted via standard AccessControl on the live proxy as soon as the impl is redeployable). Full report: <code>/tmp/feeadmin-audit-2026-05-16.md</code>.</li>
+</ul>
+</section>
+
+<footer>
+  PearlBridge — generated 2026-05-16 · Source repos: <a href="https://github.com/PearlBridgeXYZ/backend">backend</a> · <a href="https://github.com/PearlBridgeXYZ/frontend">frontend</a> · Long-form contract docs: <code>docs/ARCHITECTURE.md</code>
+</footer>
+
+</div>
+</body>
+</html>
