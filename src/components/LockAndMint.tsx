@@ -42,8 +42,21 @@ type Step = "input" | "send" | "waiting" | "done";
 // "minted" by the API. `queued` and `cancelled` are RC4.0 additions — the UI
 // has to branch on both or slow-lane users see infinite spinners and reorg-
 // cancelled users see misleading green checkmarks.
+// "signing" and "submitted" are the relay's actual intermediate states
+// (relay/mint.ts: pending → signing → submitted → finalized). The API maps
+// finalized→minted but passes signing/submitted through untouched, so the
+// waiting screen can render progress instead of a single static "attesting".
 type MintApiStatus = {
-  state: "pending" | "attesting" | "queued" | "cancelled" | "minted" | "rejected" | null;
+  state:
+    | "pending"
+    | "signing"
+    | "submitted"
+    | "attesting"
+    | "queued"
+    | "cancelled"
+    | "minted"
+    | "rejected"
+    | null;
   mintTxHash: string | null;
   queuedAt: number | null;
   readyAt: number | null;
@@ -386,8 +399,10 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
     if (step !== "waiting" && step !== "done") return;
     const txid = pearlTxId.trim().toLowerCase();
     if (!/^[0-9a-f]{64}$/.test(txid)) return;
-    // Stop polling on terminal states (minted with hash, or cancelled).
-    if (mintTxHash) return;
+    // Stop polling on terminal states only. Gating on mintTxHash would bail
+    // as soon as the relay broadcasts ("submitted" sets the hash for the
+    // Etherscan link), preventing the later "minted" transition.
+    if (step === "done") return;
     if (mintStatus?.state === "cancelled") return;
     let cancelled = false;
     async function poll() {
@@ -414,8 +429,14 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
           cancelReason: data.cancelReason ?? null,
         };
         setMintStatus(next);
-        if (next.state === "minted" && next.mintTxHash) {
+        // Surface the Etherscan link as soon as the relay broadcasts (state
+        // "submitted") — the user gets visible progress before the receipt
+        // confirms, instead of a static "attesting" string for the full
+        // ~12-30s of Ethereum confirmation latency.
+        if (next.mintTxHash && next.mintTxHash !== mintTxHash) {
           setMintTxHash(next.mintTxHash);
+        }
+        if (next.state === "minted" && next.mintTxHash) {
           persistReceipt({ step: "done", mintTxHash: next.mintTxHash });
           setStep("done");
         }
@@ -424,7 +445,14 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
       }
     }
     poll();
-    const handle = setInterval(poll, 15_000);
+    // Close-to-done states get a tighter poll: once the relay has signed
+    // the attestation or broadcast the mint, the user is one Ethereum
+    // confirmation away from "done" and 15s feels glacial. Drop to 3s.
+    const closeToDone =
+      mintStatus?.state === "signing" ||
+      mintStatus?.state === "submitted" ||
+      mintStatus?.state === "attesting";
+    const handle = setInterval(poll, closeToDone ? 3_000 : 15_000);
     return () => {
       cancelled = true;
       clearInterval(handle);
@@ -798,13 +826,37 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
             <p className="text-gray-300">
               {pearlConfirmations === null
                 ? `Waiting for ${REQUIRED_CONFIRMATIONS} Pearl confirmations (~20 min)`
-                : pearlConfirmations >= REQUIRED_CONFIRMATIONS
-                ? "Confirmed — relay is attesting & minting WPRL"
-                : `Pearl confirmations: ${pearlConfirmations} of ${REQUIRED_CONFIRMATIONS}`}
+                : pearlConfirmations < REQUIRED_CONFIRMATIONS
+                ? `Pearl confirmations: ${pearlConfirmations} of ${REQUIRED_CONFIRMATIONS}`
+                : mintStatus?.state === "submitted"
+                ? "Mint broadcast on Ethereum — awaiting confirmation"
+                : mintStatus?.state === "signing" || mintStatus?.state === "attesting"
+                ? "Confirmed — signing mint attestation…"
+                : "Confirmed — relay is processing your mint"}
             </p>
             <p className="text-xs text-gray-500">
               {pearlTxId ? "Transaction detected — tracking confirmations:" : "Waiting for your deposit to be detected…"}
             </p>
+            {mintTxHash && mintStatus?.state !== "minted" && (() => {
+              // Show the Etherscan link while the mint is on-chain but not
+              // yet finalized — the user can verify the broadcast happened
+              // and watch the block confirm, instead of staring at a spinner.
+              const url = ethExplorerTxUrl(mintTxHash);
+              return url ? (
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-[#00e5d0] hover:underline"
+                >
+                  View mint tx on Etherscan &rarr;
+                </a>
+              ) : (
+                <p className="text-xs text-gray-500 font-mono break-all">
+                  Mint tx: {mintTxHash}
+                </p>
+              );
+            })()}
             <input
               type="text"
               value={pearlTxId}
