@@ -22,6 +22,7 @@ import { BugBountyModal } from "../components/BugBountyModal";
 import { Status } from "./Status";
 import { History } from "./History";
 import { Audit } from "./Audit";
+import { Releases } from "./Releases";
 import { Infrastructure } from "./Infrastructure";
 import { Operator } from "./Operator";
 import { NETWORK } from "../lib/config";
@@ -118,6 +119,7 @@ export function App() {
                       <Link to="/status" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Status</Link>
                       <Link to="/infrastructure" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Infrastructure</Link>
                       <Link to="/audit" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Audit</Link>
+                      <Link to="/releases" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Releases</Link>
                       <a href="https://explorer.pearlresearch.ai" target="_blank" rel="noopener noreferrer"
                         className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Explorer</a>
                       <a href="https://pearlwallet.xyz" target="_blank" rel="noopener noreferrer"
@@ -136,6 +138,7 @@ export function App() {
                     <Route path="/history" element={<History />} />
                     <Route path="/audit" element={<Audit />} />
                     <Route path="/audit/:slug" element={<Audit />} />
+                    <Route path="/releases" element={<Releases />} />
                     <Route path="/infrastructure" element={<Infrastructure />} />
                     <Route path="/operator" element={<Operator />} />
                   </Routes>
