@@ -49,6 +49,10 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
   // the "view on explorer" link in the delivery checklist and done step so
   // the user can independently verify their funds arrived.
   const [pearlReleaseTxId, setPearlReleaseTxId] = useState<string | null>(null);
+  // RC5.15 anomaly review reason. Returned by /api/burn-status when the relay
+  // parks the burn at state='under_review' instead of signing. The waiting
+  // step renders this so the user isn't guessing why the unlock stalled.
+  const [anomalyReason, setAnomalyReason] = useState<string | null>(null);
   // Burn tx hash we are tracking. Initialised from localStorage on mount so
   // a tab close / refresh / SPA navigation doesn't strand the user on the
   // input screen while the relay finishes their unlock.
@@ -152,6 +156,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
     setStep("waiting");
     setRelayState("pending");
     setPearlReleaseTxId(null);
+    setAnomalyReason(null);
     refetchBalance();
   }, [burnSuccess, burnTxHash, ethAddress, pearlAddress, grains, net, fee, refetchBalance]);
 
@@ -173,6 +178,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
     setStep("waiting");
     setRelayState("pending");
     setPearlReleaseTxId(null);
+    setAnomalyReason(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ethAddress]);
 
@@ -206,8 +212,13 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
           { credentials: "include" },
         );
         if (!res.ok) return;
-        const json = (await res.json()) as { state: string | null; pearlTxId?: string | null };
+        const json = (await res.json()) as {
+          state: string | null;
+          pearlTxId?: string | null;
+          anomalyReason?: string | null;
+        };
         if (json.pearlTxId) setPearlReleaseTxId(json.pearlTxId);
+        if (json.anomalyReason !== undefined) setAnomalyReason(json.anomalyReason);
         const ui = mapBurnState(json.state);
         setRelayState(ui);
         if (ui === "complete") {
@@ -471,7 +482,50 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
         </div>
       )}
 
-      {step === "waiting" && (
+      {step === "waiting" && relayState === "under_review" && (
+        <div
+          className="space-y-4"
+          role="status"
+          aria-label="unlock under manual review"
+        >
+          <div className="text-center py-6 space-y-3">
+            <div className="text-4xl text-yellow-300" aria-hidden="true">&#9888;</div>
+            <p className="text-yellow-200 font-semibold">
+              Marked for manual review: anomaly detected
+            </p>
+            <p className="text-sm text-gray-300 max-w-md mx-auto">
+              {anomalyReason
+                ? anomalyReason
+                : "The relay flagged this unlock for manual review before releasing PRL."}
+            </p>
+            <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
+              Your WPRL was burned on Ethereum and the PRL is held in the
+              bridge custodial set. An operator will review the anomaly and
+              either release the unlock or initiate a refund. This typically
+              resolves within a few hours during business hours.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center pt-2">
+              <a
+                href={`mailto:bridgedev@mailbox.org?subject=${encodeURIComponent(
+                  `Bridge review: ${trackedBurnHash ?? ""}`,
+                )}&body=${encodeURIComponent(
+                  `My burn at eth tx ${trackedBurnHash ?? ""} was flagged for manual review.\n\nReason returned: ${
+                    anomalyReason ?? "(none returned)"
+                  }\n\nMy connected wallet: ${ethAddress ?? ""}\nMy Pearl destination: ${persistedPearlAddr ?? pearlAddress}\n`,
+                )}`}
+                className="text-xs text-[#00e5d0] hover:underline"
+              >
+                Contact operator &rarr;
+              </a>
+              <Link to="/history" className="text-xs text-gray-400 hover:text-[#00e5d0] hover:underline">
+                View in history &rarr;
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {step === "waiting" && relayState !== "under_review" && (
         <div className="text-center py-6 space-y-4">
           {relayState === "failed" || relayState === "reorged" ? (
             <div className="text-4xl text-red-400">&#9888;</div>
@@ -537,6 +591,17 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
           ) : (
             <p className="text-xs text-gray-500">Estimated time: ~15 min. Safe to close this tab — we&apos;ll pick back up where you left off.</p>
           )}
+          {trackedBurnHash && (
+            <p className="text-xs text-gray-500 pt-2">
+              Share this unwrap's public status (no wallet required):{" "}
+              <Link
+                to={`/unwrap/${trackedBurnHash.toLowerCase()}`}
+                className="text-[#00e5d0] hover:underline font-mono"
+              >
+                /unwrap/{trackedBurnHash.toLowerCase().slice(0, 10)}…
+              </Link>
+            </p>
+          )}
         </div>
       )}
 
@@ -566,6 +631,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
                 setPersistedPearlAddr(null);
                 setPersistedStart(null);
                 setPearlReleaseTxId(null);
+                setAnomalyReason(null);
                 setRelayState("pending");
                 setAmount("");
                 setPearlAddress("");

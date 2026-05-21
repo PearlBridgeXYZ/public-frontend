@@ -145,12 +145,13 @@ export function clearBurn(ethAddress: string | undefined | null): void {
 // mapping explicit and total, so adding a future state to the relay is a
 // type error here instead of a silent FE hang.
 export type UiBurnState =
-  | "pending"      // relay knows about it, hasn't started signing yet
-  | "processing"   // signing / broadcasting in progress
-  | "broadcast"    // tx is on Pearl mempool, waiting for confirmation
-  | "complete"     // confirmed on Pearl, PRL delivered
-  | "failed"       // unrecoverable — show error
-  | "reorged";     // Eth reorg killed it before release — show recovery copy
+  | "pending"        // relay knows about it, hasn't started signing yet
+  | "processing"     // signing / broadcasting in progress
+  | "broadcast"      // tx is on Pearl mempool, waiting for confirmation
+  | "complete"       // confirmed on Pearl, PRL delivered
+  | "failed"         // unrecoverable — show error
+  | "reorged"        // Eth reorg killed it before release — show recovery copy
+  | "under_review";  // RC5.15 — anomaly detector parked the burn for manual review
 
 export function mapBurnState(raw: string | null | undefined): UiBurnState {
   switch (raw) {
@@ -166,6 +167,8 @@ export function mapBurnState(raw: string | null | undefined): UiBurnState {
       return "failed";
     case "reorged":
       return "reorged";
+    case "under_review":
+      return "under_review";
     case "pending":
     case null:
     case undefined:
@@ -179,5 +182,9 @@ export function mapBurnState(raw: string | null | undefined): UiBurnState {
 }
 
 export function isTerminalUiState(s: UiBurnState): boolean {
-  return s === "complete" || s === "failed" || s === "reorged";
+  // under_review is terminal for client-side polling: only an operator
+  // releasing the row will transition it forward, so there's no useful
+  // work for the FE to do beyond surfacing the reason and stopping the
+  // poll loop.
+  return s === "complete" || s === "failed" || s === "reorged" || s === "under_review";
 }

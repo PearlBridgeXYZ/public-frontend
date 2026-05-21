@@ -25,6 +25,8 @@ import { Audit } from "./Audit";
 import { Releases } from "./Releases";
 import { Infrastructure } from "./Infrastructure";
 import { Operator } from "./Operator";
+import { OrderStatus } from "./OrderStatus";
+import { UnwrapStatus } from "./UnwrapStatus";
 import { NETWORK } from "../lib/config";
 import { BRIDGE_CONTROLLER_ABI, CONTRACTS, EXPECTED_CHAIN_ID } from "../lib/contracts";
 import { grainsToWholePrlWithCommas } from "../lib/utils";
@@ -135,6 +137,8 @@ export function App() {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/bridge/:receiptId" element={<HomePage />} />
                     <Route path="/status" element={<Status />} />
+                    <Route path="/order/:pearlTxId" element={<OrderStatus />} />
+                    <Route path="/unwrap/:ethTxHash" element={<UnwrapStatus />} />
                     <Route path="/history" element={<History />} />
                     <Route path="/audit" element={<Audit />} />
                     <Route path="/audit/:slug" element={<Audit />} />
@@ -151,7 +155,7 @@ export function App() {
                     <a href="https://t.me/pearlbridgedev" target="_blank" rel="noopener noreferrer"
                       className="text-[#00e5d0] hover:underline">Need help? Reach the bridge dev on Telegram &rarr;</a>
                   </p>
-                  <p className="text-gray-700">Build RC5.14 &middot; {NETWORK}</p>
+                  <p className="text-gray-700">Build RC5.15 &middot; {NETWORK}</p>
                 </footer>
               </div>
 

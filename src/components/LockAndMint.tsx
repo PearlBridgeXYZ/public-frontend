@@ -54,6 +54,7 @@ type MintApiStatus = {
     | "attesting"
     | "queued"
     | "cancelled"
+    | "under_review"
     | "minted"
     | "rejected"
     | null;
@@ -62,6 +63,7 @@ type MintApiStatus = {
   readyAt: number | null;
   cancelledAt: number | null;
   cancelReason: string | null;
+  anomalyReason: string | null;
 };
 
 export function LockAndMint({ ethAddress, bridgePaused }: Props) {
@@ -404,6 +406,11 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
     // Etherscan link), preventing the later "minted" transition.
     if (step === "done") return;
     if (mintStatus?.state === "cancelled") return;
+    // RC5.15: under_review is a terminal-for-the-user state. Operator must
+    // clear the anomaly before the row leaves under_review, so client-side
+    // polling has no useful work to do — stopping prevents the 15s tick from
+    // hammering the relay while a human investigates.
+    if (mintStatus?.state === "under_review") return;
     let cancelled = false;
     async function poll() {
       try {
@@ -418,6 +425,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
           readyAt?: number | null;
           cancelledAt?: number | null;
           cancelReason?: string | null;
+          anomalyReason?: string | null;
         };
         if (cancelled) return;
         const next: MintApiStatus = {
@@ -427,6 +435,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
           readyAt: data.readyAt ?? null,
           cancelledAt: data.cancelledAt ?? null,
           cancelReason: data.cancelReason ?? null,
+          anomalyReason: data.anomalyReason ?? null,
         };
         setMintStatus(next);
         // Surface the Etherscan link as soon as the relay broadcasts (state
@@ -691,6 +700,68 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
         </>
       )}
 
+      {step === "waiting" && mintStatus?.state === "under_review" && (
+        <div
+          className="space-y-4"
+          role="status"
+          aria-label="mint under manual review"
+        >
+          <div className="text-center py-6 space-y-3">
+            <div className="text-4xl text-yellow-300" aria-hidden="true">&#9888;</div>
+            <p className="text-yellow-200 font-semibold">
+              Marked for manual review: anomaly detected
+            </p>
+            <p className="text-sm text-gray-300 max-w-md mx-auto">
+              {mintStatus.anomalyReason
+                ? mintStatus.anomalyReason
+                : "The relay flagged this deposit for manual review before minting."}
+            </p>
+            <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
+              Your PRL is safe in the bridge custodial set. An operator will
+              review the anomaly and either release the mint or initiate a
+              refund. This typically resolves within a few hours during
+              business hours.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center pt-2">
+              <a
+                href={`mailto:bridgedev@mailbox.org?subject=${encodeURIComponent(
+                  `Bridge review: ${pearlTxId}`,
+                )}&body=${encodeURIComponent(
+                  `My deposit at txid ${pearlTxId} was flagged for manual review.\n\nReason returned: ${
+                    mintStatus.anomalyReason ?? "(none returned)"
+                  }\n\nMy connected wallet: ${effectiveDestination ?? ""}\n`,
+                )}`}
+                className="text-xs text-[#00e5d0] hover:underline"
+              >
+                Contact operator &rarr;
+              </a>
+              <a
+                href="/status"
+                className="text-xs text-gray-400 hover:text-[#00e5d0] hover:underline"
+              >
+                Track on /status &rarr;
+              </a>
+              {pearlTxId && /^[0-9a-f]{64}$/.test(pearlTxId.trim().toLowerCase()) && (
+                <a
+                  href={`${PEARL_EXPLORER_BASE}/tx/${pearlTxId.trim().toLowerCase()}?network=${NETWORK}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-gray-400 hover:text-[#00e5d0] hover:underline"
+                >
+                  View deposit on Pearl Explorer &rarr;
+                </a>
+              )}
+            </div>
+            {receiptId && (
+              <p className="text-xs text-gray-500 pt-2">
+                You can close this tab and return any time at{" "}
+                <span className="font-mono text-gray-400">/bridge/{receiptId}</span>.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {step === "waiting" && mintStatus?.state === "cancelled" && (
         <div
           className="space-y-4"
@@ -815,7 +886,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
         </div>
       )}
 
-      {step === "waiting" && mintStatus?.state !== "queued" && mintStatus?.state !== "cancelled" && (
+      {step === "waiting" && mintStatus?.state !== "queued" && mintStatus?.state !== "cancelled" && mintStatus?.state !== "under_review" && (
         <div
           className="space-y-4"
           role="status"
@@ -895,6 +966,18 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
             )}
             {pearlPollError && (
               <p className="text-xs text-red-400">{pearlPollError}</p>
+            )}
+
+            {pearlTxId && /^[0-9a-f]{64}$/.test(pearlTxId.trim().toLowerCase()) && (
+              <p className="text-xs text-gray-500 pt-1">
+                Share this order's public status (no wallet required):{" "}
+                <Link
+                  to={`/order/${pearlTxId.trim().toLowerCase()}`}
+                  className="text-[#00e5d0] hover:underline font-mono"
+                >
+                  /order/{pearlTxId.trim().toLowerCase().slice(0, 10)}…
+                </Link>
+              </p>
             )}
 
             {receiptId && (
