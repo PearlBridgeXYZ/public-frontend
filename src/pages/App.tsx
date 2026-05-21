@@ -144,7 +144,11 @@ export function App() {
                 <footer className="py-8 text-center text-xs text-gray-600 border-t border-white/5 space-y-2">
                   <p>PearlBridge is an independent bridge project. Use at your own risk. Not affiliated with Pearl Research Labs.</p>
                   <p><BugBountyModal /></p>
-                  <p className="text-gray-700">Build RC5.13 &middot; {NETWORK}</p>
+                  <p>
+                    <a href="https://t.me/pearlbridgedev" target="_blank" rel="noopener noreferrer"
+                      className="text-[#00e5d0] hover:underline">Need help? Reach the bridge dev on Telegram &rarr;</a>
+                  </p>
+                  <p className="text-gray-700">Build RC5.14 &middot; {NETWORK}</p>
                 </footer>
               </div>
 
