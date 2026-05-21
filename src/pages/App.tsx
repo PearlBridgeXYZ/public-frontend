@@ -120,6 +120,8 @@ export function App() {
                       <Link to="/audit" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Audit</Link>
                       <a href="https://explorer.pearlresearch.ai" target="_blank" rel="noopener noreferrer"
                         className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Explorer</a>
+                      <a href="https://pearlwallet.xyz" target="_blank" rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Wallet</a>
                       <BridgeModeToggle />
                       <ConnectButton />
                     </nav>
