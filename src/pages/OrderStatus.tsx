@@ -298,7 +298,8 @@ export function OrderStatus() {
           )}
 
           {stateKey === "queued" && status?.readyAt && (() => {
-            const readyAtMs = status.readyAt * 1000;
+            // readyAt is already ms (see LockAndMint countdown note).
+            const readyAtMs = status.readyAt;
             const remaining = readyAtMs - nowMs;
             const human =
               remaining > 0

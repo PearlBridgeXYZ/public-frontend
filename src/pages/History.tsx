@@ -100,7 +100,7 @@ function MintRow({ row }: { row: ServerMint }) {
       ? `Cancelled: ${row.cancelReason}`
       : row.state === "queued" && row.readyAt
         ? `Queued — slow-lane mint scheduled for ${new Date(
-            row.readyAt * 1000,
+            row.readyAt,
           ).toLocaleString()}`
         : undefined;
   return (
@@ -138,7 +138,7 @@ function MintRow({ row }: { row: ServerMint }) {
           <div>
             <span className="text-gray-500">Slow-lane unlock: </span>
             <span className="text-sky-300">
-              {new Date(row.readyAt * 1000).toLocaleString()}
+              {new Date(row.readyAt).toLocaleString()}
             </span>
           </div>
         ) : null}

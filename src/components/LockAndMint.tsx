@@ -835,9 +835,14 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
             <p className="text-white font-semibold">Queued for slow-lane mint</p>
             <p className="text-sm text-gray-300">
               {(() => {
+                // readyAt is already milliseconds since epoch — the relay
+                // stores it as ms (mint.ts converts on-chain seconds → ms
+                // at write time) and /api/order-status forwards it as-is.
+                // Do NOT re-multiply by 1000 (regression caught 2026-05-23:
+                // Lavize saw "year 58346" because we double-converted).
                 const readyAtMs =
                   typeof mintStatus.readyAt === "number"
-                    ? mintStatus.readyAt * 1000
+                    ? mintStatus.readyAt
                     : null;
                 if (!readyAtMs) {
                   return "Your deposit cleared the relay but the bridge fast-lane cap is full. The mint will land automatically once the slow-lane window opens.";
