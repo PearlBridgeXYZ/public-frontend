@@ -33,13 +33,64 @@ const REASON_COPY: Record<string, { label: string; explainer: string }> = {
     explainer:
       "The deposit address is registered but no Ethereum recipient is bound to it. Likely a relay-side data integrity issue — contact ops.",
   },
+  no_op_return: {
+    label: "No OP_RETURN intent",
+    explainer:
+      "The Pearl tx carried no OP_RETURN deposit-intent output. Without a signed intent (SDI) or an on-chain OP_RETURN, the relay cannot derive a recipient — held pending admin refund or §6 grace-window resolution.",
+  },
+  wrong_length: {
+    label: "OP_RETURN wrong length",
+    explainer:
+      "PRLB OP_RETURN payload was not the required 37 bytes (39 with opcode + push). Likely a malformed deposit-intent emitter — refund the depositor manually.",
+  },
+  wrong_push_opcode: {
+    label: "OP_RETURN wrong push opcode",
+    explainer:
+      "PRLB OP_RETURN used a non-minimal push opcode (e.g., OP_PUSHDATA1 instead of 0x25). Non-standard encoding rejected — refund the depositor manually.",
+  },
+  magic_mismatch: {
+    label: "OP_RETURN magic mismatch",
+    explainer:
+      "OP_RETURN output did not begin with the PRLB magic bytes (0x50 0x52 0x4c 0x42). The tx may have been intended for a different protocol — refund the depositor manually.",
+  },
+  unsupported_version: {
+    label: "OP_RETURN unsupported version",
+    explainer:
+      "PRLB payload version byte was not 0x01. Likely a future or experimental client emitting an unsupported intent format — refund pending spec extension.",
+  },
+  zero_recipient: {
+    label: "Zero recipient",
+    explainer:
+      "OP_RETURN-derived Ethereum recipient was the zero address. Malformed intent — refund the depositor manually.",
+  },
+  non_zero_refund_hint: {
+    label: "Non-zero refund hint",
+    explainer:
+      "OP_RETURN refund_hint field was not all-zero. Reserved bytes were populated by an out-of-spec client — refund the depositor manually.",
+  },
+  multiple_conflicting: {
+    label: "Conflicting OP_RETURN intents",
+    explainer:
+      "Two or more PRLB OP_RETURN outputs in the same tx decoded to different recipients. Intent is ambiguous — refund the depositor manually after operator review.",
+  },
+  op_return_intent_conflict: {
+    label: "OP_RETURN / SDI intent conflict",
+    explainer:
+      "A signed SDI intent and a PRLB OP_RETURN payload were both present but malformed against each other (§6.2). Refund pending operator review.",
+  },
+  unattributed_lock: {
+    label: "Unattributed lock",
+    explainer:
+      "No signed intent and no valid PRLB OP_RETURN were attached to this deposit before the grace window expired. Held for admin refund per §6.",
+  },
 };
 
 function reasonCopy(reason: string) {
   return (
     REASON_COPY[reason] || {
       label: reason,
-      explainer: "Unrecognised rejection reason. Contact ops for context.",
+      explainer:
+        "Reject reason not yet mapped in the UI. The relay produced a code the frontend doesn't recognise — likely a new vocabulary entry that needs a copy update. Contact ops for context.",
     }
   );
 }
