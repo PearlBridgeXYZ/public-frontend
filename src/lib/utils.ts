@@ -50,3 +50,17 @@ export function computeFee(
   const net = gross > fee ? gross - fee : 0n;
   return { fee, net };
 }
+
+/// Hours remaining until the next fixed-epoch window boundary, rounded to
+/// the requested decimal precision. BridgeController's daily limit window
+/// resets at `floor(block.timestamp / windowSec) * windowSec` — i.e., at
+/// fixed UTC offsets, not 24h after the first charge (BridgeLib.currentEpoch,
+/// fixed by audit A5). At a 24h window that's midnight UTC daily.
+///
+/// `nowSec` is unix seconds. `windowSec` is the contract's WINDOW_DURATION
+/// (86_400 on mainnet). Returns hours as a non-negative number.
+export function hoursUntilEpochReset(nowSec: number, windowSec: number): number {
+  if (windowSec <= 0) return 0;
+  const nextBoundary = (Math.floor(nowSec / windowSec) + 1) * windowSec;
+  return Math.max(0, (nextBoundary - nowSec) / 3600);
+}

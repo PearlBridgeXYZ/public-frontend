@@ -16,6 +16,16 @@ type AuditReport = {
 
 const REPORTS: AuditReport[] = [
   {
+    slug: "pearlbridge-delta-rc520-2026-05-24",
+    title: "PearlBridge RC5.20 Delta Audit",
+    date: "2026-05-24",
+    summary:
+      "Surgical UI update: Fast Lane Left tile now shows hours remaining (one decimal) until the cap resets at the next fixed UTC epoch boundary. Pure client-side countdown derived from the contract's WINDOW_DURATION; no extra RPC, no contract change, no relay change. Also recon: every mint since the 2026-05-23 and 2026-05-24 epoch resets routed fast-lane and finalized cleanly.",
+    verdict:
+      "Mainnet operation appropriate. Contracts identical to RC5.6; relay and signing surface untouched.",
+    status: "published",
+  },
+  {
     slug: "pearlbridge-delta-rc512-2026-05-20",
     title: "PearlBridge RC5.12 Delta Audit",
     date: "2026-05-20",

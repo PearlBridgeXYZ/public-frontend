@@ -12,11 +12,25 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.20",
+    date: "2026-05-24",
+    title: "Fast-lane reset countdown",
+    summary:
+      "Surgical UI update: the Fast Lane Left tile now shows hours remaining (one decimal) until the cap resets at the next fixed UTC epoch boundary. Pure client-side math against the contract's WINDOW_DURATION — no extra RPC, no contract change.",
+    highlights: [
+      "Sub-line under Fast Lane Left reads \"resets in X.Xh\" and ticks every minute.",
+      "Reset boundary derived from BridgeLib.currentEpoch — `floor(t/W)*W`, not 24h after the first charge. At a 24h window that's midnight UTC daily.",
+      "New `hoursUntilEpochReset(nowSec, windowSec)` utility with dedicated `node --test` coverage (midnight, noon, half-decimal, just-before-rollover, defensive zero/negative).",
+      "No Solidity changes, no relay change. Contracts identical to RC5.6.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.13",
     date: "2026-05-21",
-    title: "RC5.13 — Primary GTM Release",
+    title: "Live mint progress + two-lane wiring",
     summary:
-      "First release we point new users at by default. Live mint progress states, mid-wait Etherscan deep-links, and a fully wired two-lane mint with on-chain fast-lane cap.",
+      "First release we pointed new users at by default. Live mint progress states, mid-wait Etherscan deep-links, and a fully wired two-lane mint with on-chain fast-lane cap.",
     highlights: [
       "Live mint progress UI: deposit → confirmations → fast/slow lane decision → mint settled, with Etherscan link surfaced as soon as the tx hash exists.",
       "Two-lane mint: fast lane mints at 6 Pearl confirmations up to the contract-enforced 24h cap; anything larger or beyond the day's quota routes through the 24h Timelock automatically.",
@@ -25,7 +39,7 @@ const RELEASES: Release[] = [
     ],
     contracts:
       "Surface identical to RC5.6 (WPRL 0x07696DcaB55…, BridgeController 0xA6571B73…, Timelock 0xc07c5b10…, 24h delay, Safe proposer).",
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.12",
