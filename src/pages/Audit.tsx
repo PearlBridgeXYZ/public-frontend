@@ -16,6 +16,16 @@ type AuditReport = {
 
 const REPORTS: AuditReport[] = [
   {
+    slug: "pearlbridge-delta-rc521-2026-05-24",
+    title: "PearlBridge RC5.21 Delta Audit",
+    date: "2026-05-24",
+    summary:
+      "Relay reliability + small UI refinement. The /api/custody endpoint had been 504-ing on cold cache because per-request fan-out spawned unbounded parallel reads against Pearl RPC; RC5.21 bounds concurrency to 8, single-flights refreshes, serves stale-while-revalidate from a disk-persisted cache that survives restarts, and keeps the cache warm via a 30s background timer. The fast-lane reset countdown also moved off the BridgeStats tile (where it stretched the three-tile row) and onto the Two-Lane Mint info block. CORS allowlist expanded to next.pearlbridge.xyz.",
+    verdict:
+      "Mainnet operation appropriate. No Solidity change, no relay business-logic change. Contracts identical to RC5.6.",
+    status: "published",
+  },
+  {
     slug: "pearlbridge-delta-rc520-2026-05-24",
     title: "PearlBridge RC5.20 Delta Audit",
     date: "2026-05-24",

@@ -1,17 +1,9 @@
-import { useEffect, useState } from "react";
 import { useReadContracts } from "wagmi";
 import { WPRL_ABI, BRIDGE_CONTROLLER_ABI, ADDRESSES, EXPECTED_CHAIN_ID } from "../lib/contracts";
 import { NETWORK } from "../lib/config";
-import { grainsToWholePrl, hoursUntilEpochReset } from "../lib/utils";
+import { grainsToWholePrl } from "../lib/utils";
 
 const ADDRS = ADDRESSES[NETWORK];
-
-// Mirrors BridgeController.WINDOW_DURATION. The fast-lane cap resets at the
-// next fixed UTC epoch boundary (BridgeLib.currentEpoch — `floor(t/W)*W`),
-// not 24h after the first charge. Hardcoded here because it's an immutable
-// constant on the deployed BC and adding an RPC call to read it would only
-// move a constant around the wire.
-const WINDOW_DURATION_SEC = 86_400;
 
 export function BridgeStats() {
   // Pin reads to the bridge's deployed chain. Without an explicit chainId,
@@ -31,28 +23,10 @@ export function BridgeStats() {
   const fastRemaining = data?.[1]?.result as bigint | undefined;
   const isPaused = data?.[2]?.result as boolean | undefined;
 
-  // Tick once a minute — one-decimal hours don't change faster than every
-  // 6 minutes, so 60s is plenty and keeps us off setInterval(1000) battery
-  // drain on mobile. Lazy initializer so SSR / first paint don't re-run
-  // Date.now() on every render.
-  const [nowSec, setNowSec] = useState(() => Math.floor(Date.now() / 1000));
-  useEffect(() => {
-    const id = setInterval(() => setNowSec(Math.floor(Date.now() / 1000)), 60_000);
-    return () => clearInterval(id);
-  }, []);
-  const resetCountdown =
-    fastRemaining !== undefined
-      ? `resets in ${hoursUntilEpochReset(nowSec, WINDOW_DURATION_SEC).toFixed(1)}h`
-      : undefined;
-
   return (
     <div className="w-full max-w-lg mx-auto mt-3 grid grid-cols-3 gap-3">
       <Stat label="TVL (WPRL)" value={tvl !== undefined ? grainsToWholePrl(tvl) : "—"} />
-      <Stat
-        label="Fast Lane Left"
-        value={fastRemaining !== undefined ? grainsToWholePrl(fastRemaining) : "—"}
-        subscript={resetCountdown}
-      />
+      <Stat label="Fast Lane Left" value={fastRemaining !== undefined ? grainsToWholePrl(fastRemaining) : "—"} />
       <Stat
         label="Bridge Status"
         value={isPaused === undefined ? "—" : isPaused ? "PAUSED" : "LIVE"}
@@ -63,8 +37,8 @@ export function BridgeStats() {
   );
 }
 
-function Stat({ label, value, valueClass = "text-white", dot, subscript }: {
-  label: string; value: string; valueClass?: string; dot?: boolean; subscript?: string;
+function Stat({ label, value, valueClass = "text-white", dot }: {
+  label: string; value: string; valueClass?: string; dot?: boolean;
 }) {
   return (
     <div className="glass rounded-2xl p-4 text-center">
@@ -73,7 +47,6 @@ function Stat({ label, value, valueClass = "text-white", dot, subscript }: {
         {dot && <span className="w-1.5 h-1.5 rounded-full bg-[#00e5d0] animate-pulse inline-block" />}
         {value}
       </p>
-      {subscript && <p className="text-[10px] text-gray-500 mt-1">{subscript}</p>}
     </div>
   );
 }

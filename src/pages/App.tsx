@@ -29,7 +29,13 @@ import { OrderStatus } from "./OrderStatus";
 import { UnwrapStatus } from "./UnwrapStatus";
 import { NETWORK } from "../lib/config";
 import { BRIDGE_CONTROLLER_ABI, CONTRACTS, EXPECTED_CHAIN_ID } from "../lib/contracts";
-import { grainsToWholePrlWithCommas } from "../lib/utils";
+import { grainsToWholePrlWithCommas, hoursUntilEpochReset } from "../lib/utils";
+
+// Mirror of BridgeController.WINDOW_DURATION (immutable, 86 400 s on mainnet).
+// If the BC is ever redeployed with a different window, move this constant in
+// tandem — the on-chain cap is enforced regardless; a wrong value here would
+// only misrender the countdown copy, not the cap itself.
+const WINDOW_DURATION_SEC = 86_400;
 
 const queryClient = new QueryClient();
 
@@ -155,7 +161,7 @@ export function App() {
                     <a href="https://t.me/pearlbridgedev" target="_blank" rel="noopener noreferrer"
                       className="text-[#00e5d0] hover:underline">Need help? Reach the bridge dev on Telegram &rarr;</a>
                   </p>
-                  <p className="text-gray-700">Build RC5.20 &middot; {NETWORK}</p>
+                  <p className="text-gray-700">Build RC5.21 &middot; {NETWORK}</p>
                 </footer>
               </div>
 
@@ -182,6 +188,16 @@ function HomePage() {
       ? grainsToWholePrlWithCommas(dailyFastCap as bigint)
       : null;
 
+  // Tick once per minute — one-decimal hours don't change faster than every
+  // 6 minutes, so a per-minute cadence is sufficient and avoids any battery
+  // cost on mobile from a per-second timer.
+  const [nowSec, setNowSec] = useState<number>(() => Math.floor(Date.now() / 1000));
+  useEffect(() => {
+    const t = setInterval(() => setNowSec(Math.floor(Date.now() / 1000)), 60_000);
+    return () => clearInterval(t);
+  }, []);
+  const hoursToReset = hoursUntilEpochReset(nowSec, WINDOW_DURATION_SEC);
+
   return (
     <div className="max-w-5xl mx-auto w-full px-6 py-16">
       <div className="text-center mb-12">
@@ -207,7 +223,10 @@ function HomePage() {
         <div className="flex items-start gap-3">
           <span className="text-[#00e5d0] text-lg mt-0.5">&#9201;</span>
           <div className="space-y-1.5">
-            <p className="text-[#00e5d0] font-semibold text-xs uppercase tracking-wide">Two-Lane Mint</p>
+            <div className="flex items-baseline justify-between gap-2">
+              <p className="text-[#00e5d0] font-semibold text-xs uppercase tracking-wide">Two-Lane Mint</p>
+              <p className="text-gray-500 text-[10px] font-medium">Fast lane resets in {hoursToReset.toFixed(1)}h</p>
+            </div>
             <p className="text-gray-400 text-xs leading-relaxed">
               <span className="text-white">Fast lane:</span> the first {fastCapPrl ?? "—"} PRL bridged per 24h window mints to WPRL as soon as your deposit reaches 6 Pearl confirmations (~20 min).<br />
               <span className="text-white">Slow lane:</span> any single transaction larger than {fastCapPrl ?? "—"} PRL &mdash; or any transaction that exceeds the remaining fast-lane quota for the day &mdash; routes through a 24h timelock in full. No splitting. No action required from you. The mint settles automatically when the timelock matures.

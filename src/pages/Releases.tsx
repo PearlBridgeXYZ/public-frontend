@@ -12,6 +12,21 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.21",
+    date: "2026-05-24",
+    title: "Custody endpoint reliability + countdown re-homed",
+    summary:
+      "Relay-side reliability work for `/api/custody` (was 504-ing on cold cache under unbounded RPC fan-out) plus a small UI refinement: the fast-lane reset countdown is moved out of the stats tile and onto the Two-Lane Mint description block, which is where it actually belongs.",
+    highlights: [
+      "Custody endpoint: bounded-concurrency fan-out (8-wide) over 150+ deposit addresses, single-flight refresh, stale-while-revalidate, disk-persisted cache that survives relay restarts, 30s background warmer.",
+      "Custody endpoint never blocks on cold cache anymore — it returns the previous payload immediately and refreshes in the background.",
+      "CORS allowlist expanded to include `next.pearlbridge.xyz` so the dev mirror's audit page can load custody and stuck-deposits data.",
+      "Frontend: fast-lane reset countdown moved off the Fast Lane Left stat tile and onto the Two-Lane Mint info block, where it doesn't distort the three-tile row.",
+      "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.20",
     date: "2026-05-24",
     title: "Fast-lane reset countdown",
@@ -23,7 +38,7 @@ const RELEASES: Release[] = [
       "New `hoursUntilEpochReset(nowSec, windowSec)` utility with dedicated `node --test` coverage (midnight, noon, half-decimal, just-before-rollover, defensive zero/negative).",
       "No Solidity changes, no relay change. Contracts identical to RC5.6.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.13",
