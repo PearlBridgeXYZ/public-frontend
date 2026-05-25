@@ -13,6 +13,7 @@ import { WPRL_ABI, BRIDGE_CONTROLLER_ABI, ADDRESSES } from "../lib/contracts";
 import { isPlausiblePearlAddress } from "../lib/pearlAddress";
 import { BURN_FEE_BPS, NETWORK, PEARL_EXPLORER_BASE, RELAY_API_BASE } from "../lib/config";
 import { StepIndicator } from "./StepIndicator";
+import { XFollowCTA } from "./XFollowCTA";
 import { useBridgeMode } from "../lib/bridgeMode";
 import {
   DESTINATION_CONFIRM_TYPES,
@@ -644,6 +645,8 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
               Start a new burn
             </button>
           </div>
+
+          <XFollowCTA />
         </div>
       )}
     </div>

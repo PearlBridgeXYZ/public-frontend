@@ -12,6 +12,20 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.23",
+    date: "2026-05-25",
+    title: "X follow CTA on bridge success",
+    summary:
+      "Surgical UI addition: a small \"Follow @pearlbridgexyz on X\" link with the X logo at the bottom of the bridge success states (mint and burn). Pure client-side, no infra change, no other UI touched.",
+    highlights: [
+      "Mint flow: success step now shows the X follow CTA below the existing Etherscan / Pearl Explorer links.",
+      "Burn flow: success step shows the same CTA below the \"Start a new burn\" reset action.",
+      "Reusable `XFollowCTA` component; uses the X logo as inline SVG (no external asset, no tracker), `text-gray-500` with teal hover to match existing accent.",
+      "No Solidity changes, no relay change. Contracts identical to RC5.6.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.21",
     date: "2026-05-24",
     title: "Custody endpoint reliability + countdown re-homed",
@@ -24,7 +38,7 @@ const RELEASES: Release[] = [
       "Frontend: fast-lane reset countdown moved off the Fast Lane Left stat tile and onto the Two-Lane Mint info block, where it doesn't distort the three-tile row.",
       "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.20",

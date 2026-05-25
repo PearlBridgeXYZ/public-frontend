@@ -13,6 +13,7 @@ import {
 import { CONTRACTS, NETWORK, BRIDGE_CONTROLLER_ABI, WPRL_ABI } from "../lib/contracts";
 import { CopyButton } from "./CopyButton";
 import { StepIndicator } from "./StepIndicator";
+import { XFollowCTA } from "./XFollowCTA";
 import { useBridgeMode } from "../lib/bridgeMode";
 import {
   DESTINATION_CONFIRM_TYPES,
@@ -1031,6 +1032,8 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
               </a>
             </div>
           )}
+
+          <XFollowCTA />
         </div>
       )}
     </div>
