@@ -73,6 +73,28 @@ type EcosystemData = {
   incidents: { date: string; summary: string; url?: string }[];
 };
 
+type HistoryEntry = {
+  date: string;
+  updated_at?: string;
+  prl_price_usd: number | null;
+  prl_change_24h_pct?: number | null;
+  prl_volume_24h_usd: number | null;
+  prl_market_cap_usd?: number | null;
+  wprl_price_usd?: number | null;
+  wprl_premium_pct?: number | null;
+  tvl_prl: number | null;
+  tvl_usd?: number | null;
+  block_height?: number | null;
+  hashrate_th_per_sec: number | null;
+  github_commits_7d?: number | null;
+  ecosystem_count?: number | null;
+};
+
+type EcosystemHistory = {
+  schema_version: number;
+  entries: HistoryEntry[];
+};
+
 function fmtUsd(n: number | null | undefined, digits = 2): string {
   if (n === null || n === undefined || Number.isNaN(n)) return "—";
   if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(2)}B`;
@@ -113,6 +135,23 @@ function fmtRelative(iso: string | null | undefined): string {
   return `${days}d ago`;
 }
 
+// fmtRelative collapses negative diffs to "just now", which made
+// next_refresh_at always read as "now". fmtFuture mirrors it for the
+// forward direction so headers show "in 15h" instead.
+function fmtFuture(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  const diffMs = d.getTime() - Date.now();
+  if (diffMs <= 60_000) return "any moment";
+  const min = Math.round(diffMs / 60_000);
+  if (min < 60) return `in ${min}m`;
+  const h = Math.round(min / 60);
+  if (h < 48) return `in ${h}h`;
+  const days = Math.round(h / 24);
+  return `in ${days}d`;
+}
+
 // Single category palette used by both the project cards and the section
 // rail; keeping it in one place avoids drift when adding a new category.
 const CAT_COLOR: Record<EcoEntry["category"], string> = {
@@ -134,6 +173,90 @@ function CategoryPill({ c }: { c: EcoEntry["category"] }) {
     >
       {c}
     </span>
+  );
+}
+
+// Inline SVG sparkline — no charting lib. Renders a polyline normalized
+// to the [min,max] of the series with a soft area fill underneath. Tone
+// is derived from first→last delta: green for up, red for down. We use
+// a fixed viewBox so cards stay the same height regardless of n points.
+function Sparkline({
+  values,
+  label,
+  current,
+  formatValue,
+}: {
+  values: (number | null | undefined)[];
+  label: string;
+  current: string;
+  formatValue?: (n: number) => string;
+}) {
+  const clean = values
+    .map((v) => (v === null || v === undefined || Number.isNaN(v) ? null : v))
+    .filter((v): v is number => v !== null);
+
+  if (clean.length < 2) {
+    // Single sample or no samples: render the current value only, no line.
+    return (
+      <div className="rounded-lg bg-white/[0.03] border border-white/5 px-3 py-2 flex flex-col justify-between min-h-[68px]">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-[9px] uppercase tracking-wide text-gray-500">{label}</span>
+          <span className="text-[15px] font-semibold text-white leading-tight tabular-nums">
+            {current}
+          </span>
+        </div>
+        <div className="text-[9px] text-gray-600">
+          {clean.length === 0 ? "no history yet" : "1 sample · history builds daily"}
+        </div>
+      </div>
+    );
+  }
+
+  const min = Math.min(...clean);
+  const max = Math.max(...clean);
+  const range = max - min || 1;
+  const W = 100;
+  const H = 28;
+  const step = clean.length > 1 ? W / (clean.length - 1) : 0;
+  const points = clean.map((v, i) => {
+    const x = i * step;
+    const y = H - ((v - min) / range) * H;
+    return [x, y] as const;
+  });
+  const linePath = points.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+  const areaPath =
+    linePath +
+    ` L${(W).toFixed(1)},${H} L0,${H} Z`;
+  const first = clean[0];
+  const last = clean[clean.length - 1];
+  const delta = last - first;
+  const deltaPct = first !== 0 ? (delta / first) * 100 : 0;
+  const tone = delta > 0 ? "up" : delta < 0 ? "down" : "neutral";
+  const stroke = tone === "up" ? "#34d399" : tone === "down" ? "#f87171" : "#6b7280";
+  const fill = tone === "up" ? "rgba(52,211,153,0.12)" : tone === "down" ? "rgba(248,113,113,0.12)" : "rgba(107,114,128,0.10)";
+  const deltaColor = tone === "up" ? "text-emerald-400" : tone === "down" ? "text-red-400" : "text-gray-500";
+  const deltaSign = delta > 0 ? "+" : "";
+  const subText =
+    formatValue && clean.length >= 2
+      ? `${deltaSign}${formatValue(delta)} · ${deltaSign}${deltaPct.toFixed(1)}%`
+      : `${deltaSign}${deltaPct.toFixed(1)}%`;
+
+  return (
+    <div className="rounded-lg bg-white/[0.03] border border-white/5 px-3 py-2 flex flex-col gap-1 min-h-[68px]">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-[9px] uppercase tracking-wide text-gray-500">{label}</span>
+        <span className="text-[14px] font-semibold text-white leading-tight tabular-nums">
+          {current}
+        </span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="w-full h-7 block">
+        <path d={areaPath} fill={fill} stroke="none" />
+        <path d={linePath} fill="none" stroke={stroke} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      </svg>
+      <div className={`text-[9px] tabular-nums ${deltaColor}`}>
+        {clean.length}d · {subText}
+      </div>
+    </div>
   );
 }
 
@@ -161,16 +284,25 @@ function Stat({
 
 export function Ecosystem() {
   const [data, setData] = useState<EcosystemData | null>(null);
+  const [history, setHistory] = useState<EcosystemHistory | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/data/ecosystem.json?t=${Date.now()}`)
+    const bust = Date.now();
+    fetch(`/data/ecosystem.json?t=${bust}`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json() as Promise<EcosystemData>;
       })
       .then(setData)
       .catch((e) => setError(e instanceof Error ? e.message : String(e)));
+
+    // History is best-effort — page renders fine without it (e.g. on a
+    // fresh deploy before the file lands). Don't surface as a hard error.
+    fetch(`/data/ecosystem-history.json?t=${bust}`)
+      .then((r) => (r.ok ? (r.json() as Promise<EcosystemHistory>) : null))
+      .then((h) => setHistory(h))
+      .catch(() => setHistory(null));
   }, []);
 
   if (error) {
@@ -237,7 +369,7 @@ export function Ecosystem() {
             <>
               Updated <span className="text-gray-300">{fmtRelative(data.updated_at)}</span>
               {data.next_refresh_at ? (
-                <> · next <span className="text-gray-300">{fmtRelative(data.next_refresh_at)}</span></>
+                <> · next <span className="text-gray-300">{fmtFuture(data.next_refresh_at)}</span></>
               ) : null}
             </>
           )}
@@ -339,6 +471,50 @@ export function Ecosystem() {
             }
           />
           <Stat label="Workers" value={fmtCompact(data.network.active_workers)} />
+        </section>
+      ) : null}
+
+      {history && history.entries.length ? (
+        <section className="space-y-2">
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-sm font-semibold tracking-tight text-gray-300 uppercase">
+              History{" "}
+              <span className="text-gray-600 normal-case font-normal text-xs">
+                {history.entries.length}d
+              </span>
+            </h2>
+            <span className="text-[10px] text-gray-600">since {history.entries[0].date}</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <Sparkline
+              label="PRL"
+              values={history.entries.map((e) => e.prl_price_usd)}
+              current={fmtUsd(data.market.prl_price_usd, 4)}
+              formatValue={(n) => fmtUsd(n, 4)}
+            />
+            <Sparkline
+              label="Volume 24h"
+              values={history.entries.map((e) => e.prl_volume_24h_usd)}
+              current={fmtUsd(data.market.prl_volume_24h_usd)}
+              formatValue={(n) => fmtUsd(Math.abs(n))}
+            />
+            <Sparkline
+              label="Bridge TVL"
+              values={history.entries.map((e) => e.tvl_prl)}
+              current={
+                data.bridge.tvl_prl !== null
+                  ? `${fmtCompact(data.bridge.tvl_prl)} PRL`
+                  : "—"
+              }
+              formatValue={(n) => `${fmtCompact(Math.abs(n))} PRL`}
+            />
+            <Sparkline
+              label="Hashrate"
+              values={history.entries.map((e) => e.hashrate_th_per_sec)}
+              current={data.network.hashrate ?? "—"}
+              formatValue={(n) => `${Math.abs(n).toFixed(0)} TH/s`}
+            />
+          </div>
         </section>
       ) : null}
 
