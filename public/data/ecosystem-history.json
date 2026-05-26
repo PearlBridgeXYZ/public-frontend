@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "note": "Daily UTC-aligned snapshots of headline ecosystem metrics. Written by the daily ecosystem-refresh agent. New entries are appended at the end; same-date entries replace the previous one. Limit ~365 entries.",
+  "entries": [
+    {
+      "date": "2026-05-26",
+      "updated_at": "2026-05-26T08:59:30Z",
+      "prl_price_usd": 0.5386,
+      "prl_change_24h_pct": 23.8,
+      "prl_volume_24h_usd": 66316.75,
+      "prl_market_cap_usd": 89003341,
+      "prl_circulating_supply": 165236503,
+      "wprl_price_usd": 0.5386,
+      "wprl_premium_pct": 0,
+      "tvl_prl": 169268.75,
+      "tvl_usd": 91171.05,
+      "block_height": 61234,
+      "hashrate_th_per_sec": 15018457,
+      "active_workers": 56,
+      "github_commits_7d": 71,
+      "ecosystem_count": 10
+    }
+  ]
+}
