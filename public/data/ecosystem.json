@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "updated_at": null,
+  "next_refresh_at": null,
+  "narrative": null,
+  "market": {
+    "prl_price_usd": null,
+    "prl_change_24h_pct": null,
+    "prl_volume_24h_usd": null,
+    "prl_market_cap_usd": null,
+    "wprl_price_usd": null,
+    "wprl_premium_pct": null,
+    "sources": []
+  },
+  "network": {
+    "hashrate": null,
+    "difficulty": null,
+    "block_height": null,
+    "block_time_sec": null,
+    "active_workers": null,
+    "pool_share_pct": null,
+    "sources": []
+  },
+  "bridge": {
+    "tvl_prl": null,
+    "tvl_usd": null,
+    "deposits_24h_prl": null,
+    "burns_24h_prl": null,
+    "fast_lane_used_pct": null,
+    "active_addresses_24h": null,
+    "anomalies": []
+  },
+  "github": [],
+  "ecosystem": [],
+  "incidents": []
+}
