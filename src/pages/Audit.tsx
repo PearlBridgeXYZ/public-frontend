@@ -215,11 +215,12 @@ function SolvencyCard() {
       </div>
       <p className="text-xs text-gray-400 leading-relaxed mb-5 max-w-2xl">
         Every WPRL on Ethereum is backed 1:1 by PRL custodied on Pearl L1. The
-        custody figure below sums the canonical lock wallet plus every active
-        per-user deposit address &mdash; in-flight deposits awaiting the next
-        sweep cycle are counted as backing, because the relay can only consolidate
-        them; it cannot move them anywhere else. Every number is independently
-        re-checkable on the public Pearl explorer and Etherscan.
+        custody figure below sums the canonical lock wallet, every active
+        per-user deposit address, and the treasury wallets &mdash; in-flight
+        deposits awaiting the next sweep cycle are counted as backing, because
+        the relay can only consolidate them; it cannot move them anywhere else.
+        Every number is independently re-checkable on the public Pearl explorer
+        and Etherscan.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl bg-black/30 border border-white/5 p-4">
