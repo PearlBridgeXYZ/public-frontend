@@ -57,7 +57,13 @@ export function LegalDisclaimer({ onAccept }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[1000] bg-[#050810] flex flex-col"
+      // h-[100dvh]: Android Brave (and other mobile browsers) collapse
+      // their address bar mid-scroll, which causes inset-0 + 100vh to
+      // report a stale taller height; the inner scroll area then sits
+      // below the visible viewport and refuses to scroll. dvh tracks
+      // the live viewport so the footer stays visible and the scroll
+      // pane is correctly sized.
+      className="fixed inset-0 h-[100dvh] z-[1000] bg-[#050810] flex flex-col"
       role="dialog"
       aria-modal="true"
       aria-labelledby="disclaimer-title"
@@ -71,12 +77,12 @@ export function LegalDisclaimer({ onAccept }: Props) {
           style={{ background: "radial-gradient(circle, #0066ff 0%, transparent 70%)" }} />
       </div>
 
-      <header className="px-6 py-5 border-b border-white/5">
+      <header className="px-4 sm:px-6 py-3 sm:py-5 border-b border-white/5 flex-shrink-0">
         <div className="max-w-3xl mx-auto">
-          <h1 id="disclaimer-title" className="text-2xl font-bold text-white">
+          <h1 id="disclaimer-title" className="text-lg sm:text-2xl font-bold text-white">
             Before you use PearlBridge
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-xs sm:text-sm text-gray-400 mt-1">
             Please read the user agreement and risk disclosure in full. You must scroll to
             the bottom to enable the accept button.
           </p>
@@ -86,7 +92,17 @@ export function LegalDisclaimer({ onAccept }: Props) {
       <div
         id="disclaimer-scroll"
         onScroll={onScroll}
-        className="flex-1 overflow-y-auto px-6 py-6"
+        // touch-pan-y + overscroll-contain: required so Android Brave
+        // routes the touch-drag to this inner scroll container instead
+        // of trying to scroll the body (which is locked behind the
+        // fixed overlay). Without these the user has to flip to
+        // "Desktop site" to get the modal to scroll at all.
+        // min-h-0 + flex-1: in a flex-col parent, an overflow:auto
+        // child won't shrink below its content height without min-h-0,
+        // which on small mobile viewports causes the footer to be
+        // pushed off-screen and scroll-to-bottom to be unreachable.
+        style={{ WebkitOverflowScrolling: "touch" }}
+        className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y px-6 py-6"
       >
         <div className="max-w-3xl mx-auto text-sm text-gray-300 leading-relaxed space-y-3">
           <p className="font-semibold text-base text-white mb-3">
@@ -106,8 +122,8 @@ export function LegalDisclaimer({ onAccept }: Props) {
         </div>
       </div>
 
-      <footer className="px-6 py-5 border-t border-white/5 bg-black/30 backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto flex flex-col gap-4">
+      <footer className="px-4 sm:px-6 py-3 sm:py-5 border-t border-white/5 bg-black/30 backdrop-blur-sm flex-shrink-0">
+        <div className="max-w-3xl mx-auto flex flex-col gap-3 sm:gap-4">
           <label className="flex items-start gap-3 text-sm text-gray-200 cursor-pointer select-none">
             <input
               type="checkbox"

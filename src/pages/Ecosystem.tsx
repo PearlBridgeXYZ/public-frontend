@@ -1,13 +1,24 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+type VenueVolume = {
+  venue: string;
+  pair: string;
+  volume_24h_usd: number | null;
+  liquidity_usd?: number | null;
+  url?: string;
+};
+
 type Market = {
   prl_price_usd: number | null;
   prl_change_24h_pct: number | null;
   prl_volume_24h_usd: number | null;
   prl_market_cap_usd: number | null;
+  prl_circulating_supply?: number | null;
+  prl_circulating_supply_method?: string | null;
   wprl_price_usd: number | null;
   wprl_premium_pct: number | null;
+  volume_by_venue?: VenueVolume[];
   sources: string[];
 };
 
@@ -17,8 +28,25 @@ type Network = {
   block_height: number | null;
   block_time_sec: number | null;
   active_workers: number | null;
+  active_workers_scope?: string | null;
   pool_share_pct: number | null;
   sources: string[];
+};
+
+type SampleTweet = {
+  handle?: string;
+  url?: string;
+  snippet?: string;
+  posted_at?: string;
+};
+
+type Social = {
+  sentiment?: "bullish" | "neutral" | "bearish" | null;
+  summary?: string | null;
+  mentions_24h?: number | null;
+  tracked_accounts?: string[];
+  sample_tweets?: SampleTweet[];
+  sources?: string[];
 };
 
 type Bridge = {
@@ -71,6 +99,7 @@ type EcosystemData = {
   github: GitHubRow[];
   ecosystem: EcoEntry[];
   incidents: { date: string; summary: string; url?: string }[];
+  social?: Social;
 };
 
 type HistoryEntry = {
@@ -176,6 +205,104 @@ function CategoryPill({ c }: { c: EcoEntry["category"] }) {
   );
 }
 
+// Composite trend signal across the headline metrics. Counts how many
+// of the tracked series are net-up vs net-down across the available
+// history window. Hidden until we have at least 2 samples.
+function computeTrend(entries: HistoryEntry[]): {
+  label: "Expanding" | "Contracting" | "Stable" | "Building baseline";
+  arrow: "↗" | "↘" | "→" | "·";
+  tone: "up" | "down" | "neutral";
+  upCount: number;
+  downCount: number;
+  total: number;
+  compositePct: number | null;
+  days: number;
+} {
+  const n = entries.length;
+  if (n < 2) {
+    return {
+      label: "Building baseline",
+      arrow: "·",
+      tone: "neutral",
+      upCount: 0,
+      downCount: 0,
+      total: 0,
+      compositePct: null,
+      days: n,
+    };
+  }
+  const first = entries[0];
+  const last = entries[n - 1];
+  const metrics: Array<[number | null | undefined, number | null | undefined]> = [
+    [first.prl_price_usd, last.prl_price_usd],
+    [first.prl_volume_24h_usd, last.prl_volume_24h_usd],
+    [first.tvl_prl, last.tvl_prl],
+    [first.hashrate_th_per_sec, last.hashrate_th_per_sec],
+    [first.github_commits_7d, last.github_commits_7d],
+    [first.ecosystem_count, last.ecosystem_count],
+  ];
+  let up = 0;
+  let down = 0;
+  let total = 0;
+  const pctDeltas: number[] = [];
+  for (const [a, b] of metrics) {
+    if (a === null || a === undefined || b === null || b === undefined) continue;
+    if (Number.isNaN(a) || Number.isNaN(b)) continue;
+    total += 1;
+    if (a === 0 && b === 0) continue;
+    const pct = a === 0 ? (b > 0 ? 100 : -100) : ((b - a) / Math.abs(a)) * 100;
+    pctDeltas.push(Math.max(-200, Math.min(200, pct)));
+    if (pct > 5) up += 1;
+    else if (pct < -5) down += 1;
+  }
+  const composite =
+    pctDeltas.length > 0
+      ? pctDeltas.reduce((s, x) => s + x, 0) / pctDeltas.length
+      : null;
+  let label: "Expanding" | "Contracting" | "Stable";
+  let arrow: "↗" | "↘" | "→";
+  let tone: "up" | "down" | "neutral";
+  if (up > down) {
+    label = "Expanding";
+    arrow = "↗";
+    tone = "up";
+  } else if (down > up) {
+    label = "Contracting";
+    arrow = "↘";
+    tone = "down";
+  } else {
+    label = "Stable";
+    arrow = "→";
+    tone = "neutral";
+  }
+  return { label, arrow, tone, upCount: up, downCount: down, total, compositePct: composite, days: n };
+}
+
+function TrendPill({ trend }: { trend: ReturnType<typeof computeTrend> }) {
+  const cls =
+    trend.tone === "up"
+      ? "text-emerald-300 border-emerald-500/30 bg-emerald-500/10"
+      : trend.tone === "down"
+        ? "text-red-300 border-red-500/30 bg-red-500/10"
+        : "text-gray-300 border-white/10 bg-white/5";
+  const sign = trend.compositePct !== null && trend.compositePct > 0 ? "+" : "";
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-medium ${cls}`}
+      title={`${trend.upCount} up · ${trend.downCount} down · ${trend.total} metrics over ${trend.days}d`}
+    >
+      <span className="text-[12px] leading-none">{trend.arrow}</span>
+      <span>{trend.label}</span>
+      {trend.compositePct !== null ? (
+        <span className="tabular-nums opacity-80">
+          {sign}
+          {trend.compositePct.toFixed(1)}%
+        </span>
+      ) : null}
+    </span>
+  );
+}
+
 // Inline SVG sparkline — no charting lib. Renders a polyline normalized
 // to the [min,max] of the series with a soft area fill underneath. Tone
 // is derived from first→last delta: green for up, red for down. We use
@@ -206,7 +333,9 @@ function Sparkline({
           </span>
         </div>
         <div className="text-[9px] text-gray-600">
-          {clean.length === 0 ? "no history yet" : "1 sample · history builds daily"}
+          {clean.length === 0
+            ? "no history yet · chart appears once data lands"
+            : "1 sample · chart appears tomorrow"}
         </div>
       </div>
     );
@@ -355,10 +484,15 @@ export function Ecosystem() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
       {/* Header — pill + title + meta on one row when there's room. */}
       <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full glass text-[10px] text-[#00e5d0] font-medium border border-[#00e5d0]/20 mb-2">
-            <span className="w-1 h-1 rounded-full bg-[#00e5d0] animate-pulse" />
-            Ecosystem
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full glass text-[10px] text-[#00e5d0] font-medium border border-[#00e5d0]/20">
+              <span className="w-1 h-1 rounded-full bg-[#00e5d0] animate-pulse" />
+              Ecosystem
+            </div>
+            {history && history.entries.length >= 2 ? (
+              <TrendPill trend={computeTrend(history.entries)} />
+            ) : null}
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Pearl Ecosystem</h1>
         </div>
@@ -392,8 +526,24 @@ export function Ecosystem() {
           sub={fmtPct(data.market.prl_change_24h_pct, true) + " 24h"}
           tone={priceTone}
         />
-        <Stat label="Volume 24h" value={fmtUsd(data.market.prl_volume_24h_usd)} />
-        <Stat label="Market cap" value={fmtUsd(data.market.prl_market_cap_usd)} />
+        <Stat
+          label="Volume 24h"
+          value={fmtUsd(data.market.prl_volume_24h_usd)}
+          sub={
+            data.market.volume_by_venue && data.market.volume_by_venue.length
+              ? `across ${data.market.volume_by_venue.length} ${data.market.volume_by_venue.length === 1 ? "venue" : "venues"}`
+              : undefined
+          }
+        />
+        <Stat
+          label="Market cap"
+          value={fmtUsd(data.market.prl_market_cap_usd)}
+          sub={
+            data.market.prl_circulating_supply
+              ? `${fmtCompact(data.market.prl_circulating_supply)} PRL supply`
+              : undefined
+          }
+        />
         <Stat
           label="Bridge TVL"
           value={
@@ -439,7 +589,7 @@ export function Ecosystem() {
         data.network.active_workers !== null) ? (
         <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
           <Stat
-            label="Deposits 24h"
+            label="Bridge deposits 24h"
             value={
               data.bridge.deposits_24h_prl !== null
                 ? `${fmtCompact(data.bridge.deposits_24h_prl)} PRL`
@@ -447,7 +597,7 @@ export function Ecosystem() {
             }
           />
           <Stat
-            label="Burns 24h"
+            label="Bridge burns 24h"
             value={
               data.bridge.burns_24h_prl !== null
                 ? `${fmtCompact(data.bridge.burns_24h_prl)} PRL`
@@ -455,7 +605,7 @@ export function Ecosystem() {
             }
           />
           <Stat
-            label="Fast lane"
+            label="Bridge fast lane"
             value={fmtPct(data.bridge.fast_lane_used_pct)}
             sub={
               data.bridge.active_addresses_24h !== null
@@ -470,13 +620,17 @@ export function Ecosystem() {
               data.network.block_time_sec !== null ? `${data.network.block_time_sec}s` : "—"
             }
           />
-          <Stat label="Workers" value={fmtCompact(data.network.active_workers)} />
+          <Stat
+            label="Pool workers"
+            value={fmtCompact(data.network.active_workers)}
+            sub={data.network.active_workers_scope ?? undefined}
+          />
         </section>
       ) : null}
 
       {history && history.entries.length ? (
         <section className="space-y-2">
-          <div className="flex items-baseline justify-between">
+          <div className="flex items-baseline justify-between gap-3 flex-wrap">
             <h2 className="text-sm font-semibold tracking-tight text-gray-300 uppercase">
               History{" "}
               <span className="text-gray-600 normal-case font-normal text-xs">
@@ -515,6 +669,79 @@ export function Ecosystem() {
               formatValue={(n) => `${Math.abs(n).toFixed(0)} TH/s`}
             />
           </div>
+        </section>
+      ) : null}
+
+      {data.social &&
+      (data.social.summary ||
+        (data.social.sample_tweets && data.social.sample_tweets.length) ||
+        data.social.mentions_24h !== null) ? (
+        <section className="space-y-2">
+          <div className="flex items-baseline justify-between gap-3 flex-wrap">
+            <h2 className="text-sm font-semibold tracking-tight text-gray-300 uppercase flex items-center gap-2">
+              Social
+              {data.social.sentiment ? (
+                <span
+                  className={`inline-flex items-center px-1.5 py-0.5 rounded-full border text-[10px] font-medium normal-case ${
+                    data.social.sentiment === "bullish"
+                      ? "text-emerald-300 border-emerald-500/30 bg-emerald-500/10"
+                      : data.social.sentiment === "bearish"
+                        ? "text-red-300 border-red-500/30 bg-red-500/10"
+                        : "text-gray-300 border-white/10 bg-white/5"
+                  }`}
+                >
+                  {data.social.sentiment}
+                </span>
+              ) : null}
+              {data.social.mentions_24h !== null && data.social.mentions_24h !== undefined ? (
+                <span className="text-gray-600 normal-case font-normal text-xs">
+                  {fmtCompact(data.social.mentions_24h)} mentions 24h
+                </span>
+              ) : null}
+            </h2>
+          </div>
+          {data.social.summary ? (
+            <p className="text-[12px] text-gray-300 leading-relaxed rounded-lg bg-white/[0.03] border border-white/5 px-3 py-2.5">
+              {data.social.summary}
+            </p>
+          ) : null}
+          {data.social.sample_tweets && data.social.sample_tweets.length ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {data.social.sample_tweets.slice(0, 4).map((t, i) => {
+                const inner = (
+                  <div className="h-full rounded-lg bg-white/[0.03] border border-white/5 hover:border-white/15 transition-colors px-3 py-2">
+                    <div className="flex items-center gap-2 text-[11px] text-gray-500 mb-1">
+                      <span className="text-[#00e5d0]">{t.handle ?? "anon"}</span>
+                      {t.posted_at ? <span>· {fmtRelative(t.posted_at)}</span> : null}
+                    </div>
+                    {t.snippet ? (
+                      <p className="text-[12px] text-gray-300 leading-snug line-clamp-3">
+                        {t.snippet}
+                      </p>
+                    ) : null}
+                  </div>
+                );
+                return t.url ? (
+                  <a
+                    key={i}
+                    href={t.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block group"
+                  >
+                    {inner}
+                  </a>
+                ) : (
+                  <div key={i}>{inner}</div>
+                );
+              })}
+            </div>
+          ) : null}
+          {data.social.tracked_accounts && data.social.tracked_accounts.length ? (
+            <p className="text-[10px] text-gray-600">
+              tracked: {data.social.tracked_accounts.join(" · ")}
+            </p>
+          ) : null}
         </section>
       ) : null}
 
