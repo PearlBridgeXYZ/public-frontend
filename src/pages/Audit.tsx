@@ -129,9 +129,13 @@ export function Audit() {
 type CustodyResponse = {
   lockAddress: string;
   lockGrains: string;
+  feeAddress: string | null;
+  feeGrains: string;
   depositGrains: string;
   depositAddressCount: number;
+  totalCustodyGrains: string;
   totalSupplyGrains: string;
+  surplusGrains: string;
   timestamp: number;
   breakdownUrl?: string;
 };
@@ -177,18 +181,16 @@ function SolvencyCard() {
     : null;
 
   const lockGrains = custody ? BigInt(custody.lockGrains) : null;
+  const feeGrains = custody ? BigInt(custody.feeGrains) : null;
   const depositGrains = custody ? BigInt(custody.depositGrains) : null;
-  const totalCustodyGrains =
-    lockGrains !== null && depositGrains !== null
-      ? lockGrains + depositGrains
-      : null;
+  const totalCustodyGrains = custody ? BigInt(custody.totalCustodyGrains) : null;
+  const surplusGrains = custody ? BigInt(custody.surplusGrains) : null;
   const breakdownUrl = `${RELAY_API_BASE}/api/custody/addresses`;
 
   const totalSupplyBig = totalSupply !== undefined ? (totalSupply as bigint) : null;
-  const surplusGrains =
-    totalCustodyGrains !== null && totalSupplyBig !== null
-      ? totalCustodyGrains - totalSupplyBig
-      : null;
+  // Cross-check the wagmi-read totalSupply against the relay's reading. If they
+  // disagree by more than a grain we surface a warning — but neither source is
+  // load-bearing on the OTHER's accuracy; both are independently verifiable.
   const supplyMismatch =
     totalSupplyBig !== null &&
     custody !== null &&
@@ -233,10 +235,17 @@ function SolvencyCard() {
                 ? "—"
                 : "Loading…"}
           </p>
-          {custody && lockGrains !== null && depositGrains !== null && (
+          {custody && lockGrains !== null && depositGrains !== null && feeGrains !== null && (
             <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
               <span className="font-mono">{grainsToDisplay(lockGrains)}</span>{" "}
               in lock wallet
+              {feeGrains > 0n && (
+                <>
+                  {" + "}
+                  <span className="font-mono">{grainsToDisplay(feeGrains)}</span>{" "}
+                  in fee-collection wallet
+                </>
+              )}
               {depositGrains > 0n && (
                 <>
                   {" + "}
@@ -307,7 +316,9 @@ function SolvencyCard() {
         </p>
       )}
       <p className="text-[11px] text-gray-500 mt-4">
-        Invariant: WPRL minted &le; PRL custodied at all times.
+        Invariant: WPRL minted &le; PRL custodied at all times. The 0.5% bridge
+        fee accrues to a separate fee-recipient address; it is not part of
+        user-redeemable backing.
       </p>
     </section>
   );
