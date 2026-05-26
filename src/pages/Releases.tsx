@@ -12,6 +12,21 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.24",
+    date: "2026-05-26",
+    title: "Audit page: hide fee wallet, keep treasury",
+    summary:
+      "Surgical edit to the Solvency & TVL panel. The fee-collection wallet is no longer shown on the audit page or counted in the displayed PRL custodied figure. The total now equals the canonical lock wallet plus active per-user deposit addresses plus treasury wallets — i.e. every PRL that backs outstanding WPRL. Operator-side fee accounting is untouched.",
+    highlights: [
+      "Audit page: PRL custodied figure = lock + deposit addresses + treasury (fee wallet excluded from total and from the inline breakdown).",
+      "Breakdown text now lists lock, deposit addresses, and treasury — no fee-collection wallet mention.",
+      "Disclaimer line about the 0.5% fee removed from the public audit view.",
+      "Computation is client-side from the /api/custody payload; the API still returns fee data for operator tooling, but the figure is not surfaced anywhere on the user-facing site.",
+      "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.23",
     date: "2026-05-25",
     title: "X follow CTA on bridge success",
@@ -23,7 +38,7 @@ const RELEASES: Release[] = [
       "Reusable `XFollowCTA` component; uses the X logo as inline SVG (no external asset, no tracker), `text-gray-500` with teal hover to match existing accent.",
       "No Solidity changes, no relay change. Contracts identical to RC5.6.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.21",
