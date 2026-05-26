@@ -1,15 +1,15 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-05-26T08:59:30Z",
+  "updated_at": "2026-05-26T10:07:25Z",
   "next_refresh_at": "2026-05-27T00:00:00Z",
-  "narrative": "Pearl is a month-old L1 still shipping at a steady clip — the bridge frontend and PearlWallet logged 28 and 37 commits in the last week, with PearlWallet's v0.2.8 Armory-style offline signer landing this morning. The network is producing blocks at height 61,234 with ~15.02 EH/s of hashpower (corrected from the prior schema-v1 snapshot that misreported as 221 TH/s by mistakenly using TH instead of the live H/s value). WPRL trades around $0.54 across four Ethereum venues totaling ~$66k of 24h volume, up ~24% on the day. The bridge holds 169,269 PRL in custody backing 167,012 WPRL minted on Ethereum (a ~1.35% surplus reserve). Circulating PRL supply is ~165.2M at the current constant-subsidy rate, putting fully-circulating market cap near $89M. The catalog stays small but real: four-ish independent shipped artifacts (explorer, wallet, pool, bridge) plus the L1 site and compute marketplace, rather than vapor announcements.",
+  "narrative": "Pearl is a month-old L1 still shipping at a steady clip \u2014 the bridge frontend and PearlWallet logged 28 and 37 commits in the last week, with PearlWallet's v0.2.8 Armory-style offline signer landing this morning. The network is producing blocks at height 61,234 with ~15.02 EH/s of hashpower (corrected from the prior schema-v1 snapshot that misreported as 221 TH/s by mistakenly using TH instead of the live H/s value). WPRL trades around $0.54 across four Ethereum venues totaling ~$66k of 24h volume, up ~24% on the day. The bridge holds 169,269 PRL in custody backing 167,012 WPRL minted on Ethereum (a ~1.35% surplus reserve). Circulating PRL supply is ~165.2M at the current constant-subsidy rate, putting fully-circulating market cap near $89M. The catalog stays small but real: four-ish independent shipped artifacts (explorer, wallet, pool, bridge) plus the L1 site and compute marketplace, rather than vapor announcements.",
   "market": {
     "prl_price_usd": 0.5386,
     "prl_change_24h_pct": 23.8,
     "prl_volume_24h_usd": 66316.75,
     "prl_market_cap_usd": 89003341,
     "prl_circulating_supply": 165236503,
-    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 1, before the first halving)",
+    "prl_circulating_supply_method": "block_height \u00d7 current_block_reward (constant-subsidy approximation \u2014 Pearl is in month 1, before the first halving)",
     "wprl_price_usd": 0.5386,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
@@ -44,7 +44,7 @@
     ],
     "sources": [
       "dexscreener:tokens/0x07696DcaB55E62cfef953666b29Fe1970518cB00 (4 Ethereum pairs aggregated)",
-      "pool.mineprl.com/v1/public/summary (height × block_reward for circulating supply)"
+      "pool.mineprl.com/v1/public/summary (height \u00d7 block_reward for circulating supply)"
     ]
   },
   "network": {
@@ -53,9 +53,11 @@
     "block_height": 61234,
     "block_time_sec": 120,
     "active_workers": 56,
-    "active_workers_scope": "MinePRL pool only — network-wide miner count is not exposed by Pearl RPC",
+    "active_workers_scope": "MinePRL pool only \u2014 network-wide miner count is not exposed by Pearl RPC",
     "pool_share_pct": 0.098,
-    "sources": ["pool.mineprl.com/v1/public/summary (network.network_hashrate_hps, network.height, economics.active_gpus, economics.network_share)"]
+    "sources": [
+      "pool.mineprl.com/v1/public/summary (network.network_hashrate_hps, network.height, economics.active_gpus, economics.network_share)"
+    ]
   },
   "bridge": {
     "tvl_prl": 169268.75,
@@ -71,24 +73,42 @@
   },
   "social": {
     "sentiment": "bullish",
-    "summary": "Conversation around @prlnet on X is steady and constructive — release-cadence posts from the core account, miner-discovery threads in the @joinpearl Discord, and an uptick of bridge mentions following the WPRL price move. No coordinated negative sentiment detected in the last 24h.",
-    "mentions_24h": null,
-    "tracked_accounts": ["@prlnet", "@pearlbridgexyz", "@pearl_research"],
+    "summary": "Last-24h X conversation: 19 matching tweets across 44 distinct accounts, sentiment classifier reads bullish (score +5/19). Pearl-net mentions dominated by $PRL price chatter and @prlnet engagement.",
+    "mentions_24h": 19,
+    "tracked_accounts": [
+      "@prlnet",
+      "@pearlbridgexyz",
+      "@pearl_research"
+    ],
     "sample_tweets": [
       {
-        "handle": "@prlnet",
-        "url": "https://x.com/prlnet",
-        "snippet": "Latest network status and release updates from the Pearl L1 team.",
-        "posted_at": null
+        "handle": "@SSWeb3_",
+        "url": "https://x.com/SSWeb3_/status/2059180540839014474",
+        "snippet": "@prlnet Pearl Mining Packages are even less cost-effective than renting GPUs",
+        "posted_at": "2026-05-26T07:51:13.000Z"
       },
       {
-        "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz",
-        "snippet": "Non-custodial PRL ↔ WPRL bridge — custody and audit posts from the bridge operator.",
-        "posted_at": null
+        "handle": "@teipeeee",
+        "url": "https://x.com/teipeeee/status/2059181244324122915",
+        "snippet": "@prlnet Wha was hashrate up until this point?",
+        "posted_at": "2026-05-26T07:54:01.000Z"
+      },
+      {
+        "handle": "@PortaPog",
+        "url": "https://x.com/PortaPog/status/2059182433539424745",
+        "snippet": "@prlnet Huge",
+        "posted_at": "2026-05-26T07:58:44.000Z"
+      },
+      {
+        "handle": "@John_Cryypt",
+        "url": "https://x.com/John_Cryypt/status/2059186345956823523",
+        "snippet": "@prlnet @0xSrM3ta It\u2019s HUGE ! \ud83d\udc4a\ud83c\udff4\u200d\u2620\ufe0f  @prlnet",
+        "posted_at": "2026-05-26T08:14:17.000Z"
       }
     ],
-    "sources": ["x.com search (handle:prlnet OR pearlbridgexyz OR \"$PRL\" OR \"#PearlNetwork\")"]
+    "sources": [
+      "x.com api v2 tweets/search/recent (query: @prlnet OR @pearlbridgexyz OR $PRL OR #PearlNetwork, -is:retweet, lang:en)"
+    ]
   },
   "github": [
     {
@@ -107,7 +127,7 @@
       "open_prs": 0,
       "commits_7d": 28,
       "last_commit_at": "2026-05-26T07:32:18Z",
-      "last_commit_msg": "merge next → main: api proxy failover + SWR"
+      "last_commit_msg": "merge next \u2192 main: api proxy failover + SWR"
     },
     {
       "repo": "PearlBridgeXYZ/pearlwallet",
@@ -116,7 +136,7 @@
       "open_prs": 0,
       "commits_7d": 37,
       "last_commit_at": "2026-05-26T06:23:31Z",
-      "last_commit_msg": "v0.2.8: Armory-style offline signing — watcher / signer / broadcaster"
+      "last_commit_msg": "v0.2.8: Armory-style offline signing \u2014 watcher / signer / broadcaster"
     },
     {
       "repo": "pearl-research-labs/blockbook",
@@ -133,7 +153,7 @@
       "name": "PearlBridge",
       "category": "bridge",
       "url": "https://pearlbridge.xyz",
-      "description": "Non-custodial PRL ↔ WPRL bridge between Pearl L1 and Ethereum.",
+      "description": "Non-custodial PRL \u2194 WPRL bridge between Pearl L1 and Ethereum.",
       "status": "live",
       "first_seen": "2026-05-26",
       "source": "self"
@@ -160,7 +180,7 @@
       "name": "MinePRL Pool",
       "category": "pool",
       "url": "https://pool.mineprl.com",
-      "description": "Mining pool for PRL — the canonical community pool.",
+      "description": "Mining pool for PRL \u2014 the canonical community pool.",
       "status": "live",
       "first_seen": "2026-05-26",
       "source": "docs / known canonical pool"
@@ -169,7 +189,7 @@
       "name": "Pearl Research",
       "category": "other",
       "url": "https://pearlresearch.ai",
-      "description": "Pearl L1 project homepage — research, docs, and ecosystem index.",
+      "description": "Pearl L1 project homepage \u2014 research, docs, and ecosystem index.",
       "status": "live",
       "first_seen": "2026-05-26",
       "source": "canonical L1 site"
@@ -205,7 +225,7 @@
       "name": "Pearl Discord (joinpearl)",
       "category": "news",
       "url": "https://discord.gg/joinpearl",
-      "description": "Pearl community Discord — primary chat for builders and miners.",
+      "description": "Pearl community Discord \u2014 primary chat for builders and miners.",
       "status": "live",
       "first_seen": "2026-05-26",
       "source": "pearlresearch.ai homepage link"
@@ -214,7 +234,7 @@
       "name": "@prlnet on X",
       "category": "news",
       "url": "https://x.com/prlnet",
-      "description": "Pearl network account on X — release / status updates.",
+      "description": "Pearl network account on X \u2014 release / status updates.",
       "status": "live",
       "first_seen": "2026-05-26",
       "source": "pearlresearch.ai homepage link"
