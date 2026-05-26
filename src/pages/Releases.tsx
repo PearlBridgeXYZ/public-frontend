@@ -12,6 +12,22 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.24",
+    date: "2026-05-26",
+    title: "Audit page: user-redeemable backing only",
+    summary:
+      "Surgical edit to the Solvency & TVL panel on the /audit page. The fee-collection wallet is no longer included in the displayed total or anywhere on the user-facing site. The audit number now reflects only user-redeemable backing (lock + active deposit addresses + treasury). Same edit applied at the API layer so the underlying `/api/custody` and `/api/custody/addresses` JSON responses no longer expose the fee wallet either.",
+    highlights: [
+      "Audit page: PRL custodied figure = lock + deposits + treasury only; fee wallet hidden.",
+      "Inline breakdown text no longer mentions the fee-collection wallet.",
+      "Disclaimer line about the 0.5% fee removed from the public audit view.",
+      "Relay `/api/custody` filters fee fields out of the public response and recomputes total/surplus accordingly; `/api/custody/addresses` drops the fee row from the per-address JSON.",
+      "Operator-side fee accounting (fee-coverage watcher, daily summary) untouched — fee data still flows to the operator group.",
+      "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.23",
     date: "2026-05-25",
     title: "X follow CTA on bridge success",
@@ -23,7 +39,7 @@ const RELEASES: Release[] = [
       "Reusable `XFollowCTA` component; uses the X logo as inline SVG (no external asset, no tracker), `text-gray-500` with teal hover to match existing accent.",
       "No Solidity changes, no relay change. Contracts identical to RC5.6.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.21",
