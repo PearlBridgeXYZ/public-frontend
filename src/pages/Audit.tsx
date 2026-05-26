@@ -129,10 +129,11 @@ export function Audit() {
 type CustodyResponse = {
   lockAddress: string;
   lockGrains: string;
-  feeAddress: string | null;
-  feeGrains: string;
+  feeGrains?: string;
   depositGrains: string;
   depositAddressCount: number;
+  treasuryGrains?: string;
+  treasuryAddressCount?: number;
   totalCustodyGrains: string;
   totalSupplyGrains: string;
   surplusGrains: string;
@@ -181,13 +182,23 @@ function SolvencyCard() {
     : null;
 
   const lockGrains = custody ? BigInt(custody.lockGrains) : null;
-  const feeGrains = custody ? BigInt(custody.feeGrains) : null;
   const depositGrains = custody ? BigInt(custody.depositGrains) : null;
-  const totalCustodyGrains = custody ? BigInt(custody.totalCustodyGrains) : null;
-  const surplusGrains = custody ? BigInt(custody.surplusGrains) : null;
+  const treasuryGrains =
+    custody && custody.treasuryGrains ? BigInt(custody.treasuryGrains) : 0n;
+  // User-redeemable custody = lock + deposit + treasury. The fee-collection
+  // wallet is operator revenue and is intentionally not counted as part of
+  // the figure shown here.
+  const feeGrains = custody && custody.feeGrains ? BigInt(custody.feeGrains) : 0n;
+  const apiTotalCustody = custody ? BigInt(custody.totalCustodyGrains) : null;
+  const totalCustodyGrains =
+    apiTotalCustody !== null ? apiTotalCustody - feeGrains : null;
   const breakdownUrl = `${RELAY_API_BASE}/api/custody/addresses`;
 
   const totalSupplyBig = totalSupply !== undefined ? (totalSupply as bigint) : null;
+  const surplusGrains =
+    totalCustodyGrains !== null && totalSupplyBig !== null
+      ? totalCustodyGrains - totalSupplyBig
+      : null;
   // Cross-check the wagmi-read totalSupply against the relay's reading. If they
   // disagree by more than a grain we surface a warning — but neither source is
   // load-bearing on the OTHER's accuracy; both are independently verifiable.
@@ -235,23 +246,26 @@ function SolvencyCard() {
                 ? "—"
                 : "Loading…"}
           </p>
-          {custody && lockGrains !== null && depositGrains !== null && feeGrains !== null && (
+          {custody && lockGrains !== null && depositGrains !== null && (
             <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
               <span className="font-mono">{grainsToDisplay(lockGrains)}</span>{" "}
               in lock wallet
-              {feeGrains > 0n && (
-                <>
-                  {" + "}
-                  <span className="font-mono">{grainsToDisplay(feeGrains)}</span>{" "}
-                  in fee-collection wallet
-                </>
-              )}
               {depositGrains > 0n && (
                 <>
                   {" + "}
                   <span className="font-mono">{grainsToDisplay(depositGrains)}</span>{" "}
                   across {custody.depositAddressCount}{" "}
                   active deposit address{custody.depositAddressCount === 1 ? "" : "es"}
+                </>
+              )}
+              {treasuryGrains > 0n && (
+                <>
+                  {" + "}
+                  <span className="font-mono">{grainsToDisplay(treasuryGrains)}</span>{" "}
+                  in treasury
+                  {custody.treasuryAddressCount && custody.treasuryAddressCount > 1
+                    ? ` (${custody.treasuryAddressCount} wallets)`
+                    : ""}
                 </>
               )}
             </p>
@@ -316,9 +330,7 @@ function SolvencyCard() {
         </p>
       )}
       <p className="text-[11px] text-gray-500 mt-4">
-        Invariant: WPRL minted &le; PRL custodied at all times. The 0.5% bridge
-        fee accrues to a separate fee-recipient address; it is not part of
-        user-redeemable backing.
+        Invariant: WPRL minted &le; PRL custodied at all times.
       </p>
     </section>
   );
