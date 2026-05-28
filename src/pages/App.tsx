@@ -164,7 +164,7 @@ export function App() {
                     <a href="https://t.me/pearlbridgedev" target="_blank" rel="noopener noreferrer"
                       className="text-[#00e5d0] hover:underline">Need help? Reach the bridge dev on Telegram &rarr;</a>
                   </p>
-                  <p className="text-gray-700">Build RC5.25 &middot; {NETWORK}</p>
+                  <p className="text-gray-700">Build RC5.26 &middot; {NETWORK}</p>
                 </footer>
               </div>
 
@@ -218,6 +218,38 @@ function HomePage() {
           Lock native PRL. Receive WPRL on Ethereum &mdash; fully redeemable 1:1. 0.5% deposit fee (4 PRL minimum). No fee on redemption.
         </p>
       </div>
+
+      {NETWORK === "mainnet" && (
+        <div
+          role="status"
+          aria-label="fast lane capacity notice"
+          className="mb-6 max-w-lg mx-auto rounded-2xl border border-yellow-500/40 bg-yellow-500/10 backdrop-blur-sm p-5 text-sm"
+        >
+          <div className="flex items-start gap-3">
+            <span className="text-yellow-300 text-lg mt-0.5" aria-hidden="true">
+              &#9201;
+            </span>
+            <div className="space-y-2 min-w-0">
+              <p className="text-yellow-200 font-semibold text-xs uppercase tracking-wide">
+                Fast lane temporarily exhausted
+              </p>
+              <p className="text-gray-200 text-xs leading-relaxed">
+                Due to popular demand, the fast lane is currently exhausted.
+                We apologize, but all transactions will have to wait in the
+                24-hour queue after their initiation time in order to be
+                minted on the Ethereum side. This limit will increase to{" "}
+                <span className="text-white font-semibold">
+                  1 million PRL per 24 hours
+                </span>{" "}
+                starting tomorrow.
+              </p>
+              <p className="text-yellow-100/70 text-[11px] leading-relaxed pt-1.5 border-t border-yellow-500/15">
+                Thank you everyone for your patience &mdash; we appreciate the support.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <BridgeWidget />
       <BridgeStats />

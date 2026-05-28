@@ -12,6 +12,20 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.26",
+    date: "2026-05-28",
+    title: "Homepage: fast-lane-exhausted notice banner",
+    summary:
+      "Temporary on-page notice above the bridge widget telling depositors that the fast lane is currently exhausted, so every transaction will route through the 24h slow lane until the cap resets. Also signals the upcoming bump to a 1,000,000 PRL/24h fast-lane cap. Pure copy/UI, no contract or relay change — comes down (in a follow-up RC) once the higher cap is live and fast-lane capacity is available again.",
+    highlights: [
+      "New banner rendered between the hero text and the BridgeWidget on the homepage; mainnet-only (testnet/devnet builds are unchanged).",
+      "Amber tone, stopwatch glyph, accessible role=\"status\" + aria-label — readable for screen readers, visually distinct from the static Security Notice block below.",
+      "Copy emphasises the queue behaviour: deposits are still accepted and still mint, they just take the full 24h slow-lane path until capacity returns.",
+      "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.25",
     date: "2026-05-28",
     title: "Status page: remove global stuck-deposits feed",
@@ -24,7 +38,7 @@ const RELEASES: Release[] = [
       "Sibling pages (OrderStatus, UnwrapStatus) updated: back-link reads \"Bridge status & deposit lookup\" instead of \"stuck-deposit lookup\".",
       "No Solidity changes, no relay business-logic change. /api/stuck-deposits still answers for operator scripts and the relay's own ops tooling; only the public-frontend stops consuming it. Contracts identical to RC5.6.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.24",
