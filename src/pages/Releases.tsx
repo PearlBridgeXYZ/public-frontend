@@ -12,6 +12,21 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.25",
+    date: "2026-05-28",
+    title: "Status page: remove global stuck-deposits feed",
+    summary:
+      "The /status page no longer renders the global list of stuck deposits. The txid lookup form (and the per-order /order/:pearlTxId page it links to) is the canonical path for a depositor to check their own deposit's state and pick up the relay's reject/cancel reason. The relay endpoint at /api/stuck-deposits is untouched for operator tooling — only the public surface stops calling it.",
+    highlights: [
+      "Status page: \"Stuck deposits\" section removed entirely; aggregate counts and per-deposit txids no longer rendered to the public.",
+      "Look-up form: result block gains a \"View full order status →\" link to /order/:pearlTxId, so a depositor who sees their own deposit went to rejected/cancelled/under_review can still reach the full reason and the operator-contact mailto.",
+      "Legend copy: rejected / cancelled entries now point readers at the order page rather than the removed \"stuck deposits above\" section.",
+      "Sibling pages (OrderStatus, UnwrapStatus) updated: back-link reads \"Bridge status & deposit lookup\" instead of \"stuck-deposit lookup\".",
+      "No Solidity changes, no relay business-logic change. /api/stuck-deposits still answers for operator scripts and the relay's own ops tooling; only the public-frontend stops consuming it. Contracts identical to RC5.6.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.24",
     date: "2026-05-26",
     title: "Audit page: hide fee wallet, keep treasury",
@@ -24,7 +39,7 @@ const RELEASES: Release[] = [
       "Computation is client-side from the /api/custody payload; the API still returns fee data for operator tooling, but the figure is not surfaced anywhere on the user-facing site.",
       "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.23",

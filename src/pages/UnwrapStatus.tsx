@@ -298,7 +298,7 @@ export function UnwrapStatus() {
 
       <div className="text-xs text-gray-500 pt-2">
         <Link to="/status" className="hover:text-[#00e5d0] hover:underline">
-          &larr; Bridge status &amp; stuck-deposit lookup
+          &larr; Bridge status &amp; deposit lookup
         </Link>
       </div>
     </div>
