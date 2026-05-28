@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
-import { useReadContract, WagmiProvider } from "wagmi";
+import { useReadContracts, WagmiProvider } from "wagmi";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import {
   RainbowKitProvider,
@@ -164,7 +164,7 @@ export function App() {
                     <a href="https://t.me/pearlbridgedev" target="_blank" rel="noopener noreferrer"
                       className="text-[#00e5d0] hover:underline">Need help? Reach the bridge dev on Telegram &rarr;</a>
                   </p>
-                  <p className="text-gray-700">Build RC5.26 &middot; {NETWORK}</p>
+                  <p className="text-gray-700">Build RC5.27 &middot; {NETWORK}</p>
                 </footer>
               </div>
 
@@ -177,19 +177,40 @@ export function App() {
 }
 
 function HomePage() {
-  // Pull the fast-lane cap directly from the deployed BridgeController so the
-  // copy below always matches what the contract is actually enforcing — no
-  // manual literal to drift when the Timelock changes setFastMintLimit.
-  const { data: dailyFastCap } = useReadContract({
-    address: CONTRACTS.BRIDGE_CONTROLLER,
-    abi: BRIDGE_CONTROLLER_ABI,
-    functionName: "dailyFastMintLimit",
-    chainId: EXPECTED_CHAIN_ID,
+  // Pull the fast-lane cap AND the live remaining-in-window directly from the
+  // deployed BridgeController. The cap drives the copy below ("Fast lane: the
+  // first {fastCapPrl} PRL …"); the remaining drives the exhaustion banner
+  // (only show when remaining == 0). Both come from the same read batch so the
+  // banner and the copy can never get out of sync. Refetch every 30s so the
+  // banner auto-disappears within one tick of the epoch reset, without
+  // requiring a page reload.
+  const { data: capReads } = useReadContracts({
+    contracts: [
+      {
+        address: CONTRACTS.BRIDGE_CONTROLLER,
+        abi: BRIDGE_CONTROLLER_ABI,
+        functionName: "dailyFastMintLimit",
+        chainId: EXPECTED_CHAIN_ID,
+      },
+      {
+        address: CONTRACTS.BRIDGE_CONTROLLER,
+        abi: BRIDGE_CONTROLLER_ABI,
+        functionName: "fastMintWindowRemaining",
+        chainId: EXPECTED_CHAIN_ID,
+      },
+    ],
+    query: { refetchInterval: 30_000 },
   });
+  const dailyFastCap = capReads?.[0]?.result as bigint | undefined;
+  const fastMintWindowRemaining = capReads?.[1]?.result as bigint | undefined;
   const fastCapPrl =
     dailyFastCap !== undefined
-      ? grainsToWholePrlWithCommas(dailyFastCap as bigint)
+      ? grainsToWholePrlWithCommas(dailyFastCap)
       : null;
+  // Strict zero — we don't show the banner until the contract has actually
+  // reported 0 remaining. `undefined` (pre-load) keeps the banner hidden so a
+  // brief flash on first mount can't mislead users about capacity.
+  const fastLaneExhausted = fastMintWindowRemaining === 0n;
 
   // Tick once per minute — one-decimal hours don't change faster than every
   // 6 minutes, so a per-minute cadence is sufficient and avoids any battery
@@ -219,7 +240,7 @@ function HomePage() {
         </p>
       </div>
 
-      {NETWORK === "mainnet" && (
+      {NETWORK === "mainnet" && fastLaneExhausted && (
         <div
           role="status"
           aria-label="fast lane capacity notice"
@@ -230,9 +251,14 @@ function HomePage() {
               &#9201;
             </span>
             <div className="space-y-2 min-w-0">
-              <p className="text-yellow-200 font-semibold text-xs uppercase tracking-wide">
-                Fast lane temporarily exhausted
-              </p>
+              <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                <p className="text-yellow-200 font-semibold text-xs uppercase tracking-wide">
+                  Fast lane temporarily exhausted
+                </p>
+                <p className="text-yellow-100/70 text-[10px] font-medium">
+                  Resets in {hoursToReset.toFixed(1)}h
+                </p>
+              </div>
               <p className="text-gray-200 text-xs leading-relaxed">
                 Due to popular demand, the fast lane is currently exhausted.
                 We apologize, but all transactions will have to wait in the

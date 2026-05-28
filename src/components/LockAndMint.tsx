@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useChainId, useReadContracts, useSignTypedData } from "wagmi";
+import {
+  useChainId,
+  useReadContracts,
+  useSignTypedData,
+  useWaitForTransactionReceipt,
+} from "wagmi";
 import { parseToGrains, grainsToDisplay, computeFee } from "../lib/utils";
 import { validateEthAddress } from "../lib/eth-address";
 import {
@@ -478,6 +483,35 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
     const handle = setInterval(() => setNowMs(Date.now()), 1000);
     return () => clearInterval(handle);
   }, [mintStatus?.state]);
+
+  // Independent Eth-side confirmation watcher. The relay-driven "minted"
+  // transition (mint-status poll above) flips the UI to "done" once the relay
+  // marks the row finalized, but the relay's confirmation policy can lag the
+  // first Ethereum confirmation by several blocks. Users were left staring at
+  // "Confirmed — relay is processing your mint" long after their WPRL was
+  // already in the wallet. Watching the mint tx receipt directly closes that
+  // gap: as soon as the tx has ≥1 confirmation on chain, the UI flips to the
+  // success screen — independent of how long the relay takes to mark the row.
+  const mintHashTyped: `0x${string}` | undefined =
+    mintTxHash && /^0x[0-9a-f]{64}$/i.test(mintTxHash)
+      ? (mintTxHash as `0x${string}`)
+      : undefined;
+  const { data: mintReceipt } = useWaitForTransactionReceipt({
+    hash: mintHashTyped,
+    confirmations: 1,
+    query: { enabled: !!mintHashTyped && step === "waiting" },
+  });
+  useEffect(() => {
+    if (step !== "waiting") return;
+    if (!mintTxHash) return;
+    if (mintReceipt?.status !== "success") return;
+    persistReceipt({ step: "done", mintTxHash });
+    setStep("done");
+    // persistReceipt closes over fresh state via the hook closure on each
+    // render — exhaustive-deps would force us to memoize it; we want the
+    // latest snapshot at the moment the receipt resolves, not a stale one.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mintReceipt?.status, mintTxHash, step]);
 
   if (!ethAddress) {
     return (
@@ -1032,6 +1066,31 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
               </a>
             </div>
           )}
+
+          <div className="pt-3">
+            <button
+              type="button"
+              onClick={() => {
+                setAmount("");
+                setPearlTxId("");
+                setMintTxHash(null);
+                setMintStatus(null);
+                setPearlConfirmations(null);
+                setPearlTxFound(null);
+                setPearlPollError(null);
+                setUserDepositAddress(null);
+                setCustomDestination("");
+                setConfirmError(null);
+                setReceiptId(null);
+                hydratedRef.current = false;
+                setStep("input");
+                navigate("/", { replace: false });
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm bg-[#00e5d0]/15 hover:bg-[#00e5d0]/25 text-[#00e5d0] rounded-lg font-semibold transition-colors"
+            >
+              Start a new mint &rarr;
+            </button>
+          </div>
 
           <XFollowCTA />
         </div>

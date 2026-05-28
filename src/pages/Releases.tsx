@@ -12,6 +12,21 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.27",
+    date: "2026-05-28",
+    title: "Mint UX: \"Done\" on first Eth confirmation + new-mint reset + auto-hide banner",
+    summary:
+      "Three surgical UX fixes for the mint flow and the homepage capacity banner. The mint widget now flips to the success screen as soon as the mint tx has one Ethereum confirmation (was: stuck on \"relay is processing your mint\" until the relay marked the row finalized — often well after the WPRL was already in the wallet). The success screen gains an explicit \"Start a new mint\" reset button. The RC5.26 fast-lane-exhausted banner now reads the live on-chain remaining-in-window and auto-disappears the moment the epoch boundary resets capacity, with a live countdown surfaced inside the banner.",
+    highlights: [
+      "LockAndMint: new wagmi useWaitForTransactionReceipt watcher on the mint tx hash. As soon as the receipt confirms (≥1 conf, success), the step flips to \"done\" — independent of the relay-status poll. Closes the gap where users saw \"relay is processing\" long after their WPRL had landed.",
+      "LockAndMint: \"Start a new mint →\" button on the success screen. Resets all in-memory state and navigates back to /, so the user can fire a second bridge without reloading the tab. Mirrors the existing burn-flow \"Start a new burn\" affordance.",
+      "Homepage banner: only renders when BridgeController.fastMintWindowRemaining() == 0 — auto-disappears within the 30s contract-refetch tick once the daily UTC epoch resets capacity. No manual flag flip, no follow-up deploy required when capacity returns.",
+      "Homepage banner: live \"Resets in X.Xh\" countdown inside the banner so users know when the queue ends.",
+      "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.26",
     date: "2026-05-28",
     title: "Homepage: fast-lane-exhausted notice banner",
@@ -23,7 +38,7 @@ const RELEASES: Release[] = [
       "Copy emphasises the queue behaviour: deposits are still accepted and still mint, they just take the full 24h slow-lane path until capacity returns.",
       "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.25",
