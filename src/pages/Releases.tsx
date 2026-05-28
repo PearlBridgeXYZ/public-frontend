@@ -39,7 +39,7 @@ const RELEASES: Release[] = [
       "Computation is client-side from the /api/custody payload; the API still returns fee data for operator tooling, but the figure is not surfaced anywhere on the user-facing site.",
       "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.23",
