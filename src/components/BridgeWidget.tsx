@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAccount, useChainId, useReadContract, useSwitchChain } from "wagmi";
 import { LockAndMint } from "./LockAndMint";
 import { BurnAndUnlock } from "./BurnAndUnlock";
+import { DuplicatePayoutNotice } from "./DuplicatePayoutNotice";
 import {
   CONTRACTS,
   EXPECTED_CHAIN_ID,
@@ -67,6 +68,7 @@ export function BridgeWidget() {
 
   return (
     <div className="w-full max-w-lg mx-auto glass-strong rounded-3xl p-6 shadow-2xl shadow-black/50">
+      <DuplicatePayoutNotice />
       {isPaused === true && (
         <div className="mb-5 bg-red-500/10 border border-red-500/40 rounded-xl px-4 py-3 text-sm text-red-300 space-y-1">
           <p className="font-semibold text-red-200">Bridge paused</p>
