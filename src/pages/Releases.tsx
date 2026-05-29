@@ -12,6 +12,22 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.30",
+    date: "2026-05-29",
+    title: "Per-wallet notice for the four wallets affected by the May-2026 duplicate-payout incident",
+    summary:
+      "Renders a small in-app notice on top of the bridge widget when the connected Ethereum wallet matches one of the four addresses that received surplus PRL during the May-2026 duplicate-payout window. The notice explains what happened, names the burn tx, the recipient Pearl address, the surplus amount, and asks the user to return the surplus to the bridge lock address. Driven entirely client-side from a frozen four-entry table — no API call, no PII, no on-chain read. The underlying relay race is fixed in v1.5.5 (CAS-guarded unlock state transitions).",
+    highlights: [
+      "Four affected wallets: 2 PRL (still unspent in user's wallet), 443.52505069 PRL, 441.90 PRL, 3000 PRL. Total surplus 3886.42505069 PRL across five duplicate Pearl txs (one burn received a triple, three received doubles).",
+      "Trigger: lowercased EIP-55 match against useAccount() on the bridge widget. Banner is invisible to every other wallet.",
+      "Banner copy: full transparency about the relay race, link to the burn on Etherscan, one-click copy of the return-to lock address, expandable list of the specific duplicate Pearl txids.",
+      "Frozen table — src/lib/duplicatePayoutNotice.ts — is the only source of truth. No remote fetch.",
+      "Underlying fix: relay v1.5.5 (CAS on every burn-state transition: pending→signing→submitted→finalized) is already on prod; this banner is the recovery-comms surface for the four wallets that were affected before that fix landed.",
+      "No contracts touched. No relay logic touched.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.29",
     date: "2026-05-29",
     title: "Per-deposit confirmation tiers: size-scaled Pearl finality on the fast lane",
@@ -26,7 +42,7 @@ const RELEASES: Release[] = [
       "Companion Safe-builder JSON: Timelock.scheduleBatch [setDailyLimits(5M PRL mint, 1M PRL burn), setFastMintLimit(500k PRL)], 24h delay, salt = keccak256(\"conf-tier+cap-bump-2026-05-29\"). Total cap is raised BEFORE fast cap to preserve the MAX_FAST_SHARE_PERMILLE=500 invariant at every intermediate step.",
       "No Solidity changes; this is a relay-policy + UI change against the existing RC5 contracts. Cap-bump itself is a parameter change through DAILY_LIMITS_ROLE on the deployed BridgeController.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.28",
