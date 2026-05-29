@@ -33,8 +33,7 @@ import {
   saveReceipt,
   getConsumedPearlTxIds,
 } from "../lib/bridgeReceipts";
-
-const REQUIRED_CONFIRMATIONS = 6;
+import { requiredConfFor, estimatedWaitLabel } from "../lib/confTiers";
 
 interface Props {
   ethAddress: `0x${string}` | undefined;
@@ -193,6 +192,11 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
   const { fee, net } = grains
     ? computeFee(grains, MINT_FEE_BPS, MIN_BRIDGE_FEE_GRAINS)
     : { fee: 0n, net: 0n };
+  // Per-deposit confirmation tier. Larger deposits wait longer to make a
+  // Pearl-chain 51% reorg uneconomic at every size. Table mirrors the
+  // relay's gate exactly; SPEC §2 is the source of truth.
+  const requiredConfirmations = requiredConfFor(grains);
+  const tierWaitLabel = estimatedWaitLabel(requiredConfirmations);
   // True when the 4 PRL floor is the binding fee (deposit < 800 PRL). Used to
   // swap the label "0.5%" → "4 PRL minimum" so users don't think the math is
   // wrong; the relay enforces the same floor server-side.
@@ -351,7 +355,8 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
 
   // Live confirmation polling. Relay queries pearld via the federated RPC pool
   // and returns { found, confirmations }; we display progress against the
-  // 6-confirmation mint threshold. Explorer link is informational only.
+  // per-tier confirmation threshold (see lib/confTiers.ts — larger deposits
+  // wait longer). Explorer link is informational only.
   useEffect(() => {
     if (step !== "waiting") return;
     const txid = pearlTxId.trim().toLowerCase();
@@ -609,7 +614,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
               <span className="font-semibold">Fast lane &mdash; ~20 min.</span>{" "}
               Your amount fits the {dailyFastMintLimit !== undefined ? grainsToDisplay(dailyFastMintLimit) : "—"} PRL daily fast-lane cap
               ({fastMintWindowRemaining !== undefined ? grainsToDisplay(fastMintWindowRemaining) : "—"} PRL remaining today),
-              so WPRL will mint as soon as your deposit reaches 6 Pearl confirmations.
+              so WPRL will mint as soon as your deposit reaches {requiredConfirmations} Pearl confirmations ({tierWaitLabel}).
             </div>
           )}
 
@@ -936,9 +941,9 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
             <div className="w-12 h-12 border-4 border-[#00e5d0] border-t-transparent rounded-full animate-spin mx-auto" />
             <p className="text-gray-300">
               {pearlConfirmations === null
-                ? `Waiting for ${REQUIRED_CONFIRMATIONS} Pearl confirmations (~20 min)`
-                : pearlConfirmations < REQUIRED_CONFIRMATIONS
-                ? `Pearl confirmations: ${pearlConfirmations} of ${REQUIRED_CONFIRMATIONS}`
+                ? `Waiting for ${requiredConfirmations} Pearl confirmations (${tierWaitLabel})`
+                : pearlConfirmations < requiredConfirmations
+                ? `Pearl confirmations: ${pearlConfirmations} of ${requiredConfirmations}`
                 : mintStatus?.state === "submitted"
                 ? "Mint broadcast on Ethereum — awaiting confirmation"
                 : mintStatus?.state === "signing" || mintStatus?.state === "attesting"
@@ -981,7 +986,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
                 <div
                   className="h-2 bg-gradient-to-r from-[#00e5d0] to-[#00b8aa] transition-all"
                   style={{
-                    width: `${Math.min(100, (pearlConfirmations / REQUIRED_CONFIRMATIONS) * 100)}%`,
+                    width: `${Math.min(100, (pearlConfirmations / requiredConfirmations) * 100)}%`,
                   }}
                 />
               </div>
