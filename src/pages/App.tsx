@@ -292,6 +292,34 @@ function HomePage() {
         </div>
       )}
 
+      {/* TEMP: fast-lane-exhausted notice. Remove once fast cap is raised. */}
+      {NETWORK === "mainnet" && (
+        <div
+          role="status"
+          aria-label="fast lane exhausted notice"
+          className="mb-6 max-w-lg mx-auto rounded-2xl border border-red-500/40 bg-red-500/10 backdrop-blur-sm p-5 text-sm"
+        >
+          <div className="flex items-start gap-3">
+            <span className="text-red-300 text-lg mt-0.5" aria-hidden="true">
+              &#9888;
+            </span>
+            <div className="space-y-2 min-w-0">
+              <p className="text-red-200 font-semibold text-xs uppercase tracking-wide">
+                Fast lane currently exhausted
+              </p>
+              <p className="text-gray-200 text-xs leading-relaxed">
+                Due to popular demand, the fast lane is currently exhausted.
+                We apologize, but all transactions will have to wait in the
+                24-hour queue after their initiation time in order to be
+                minted on the Ethereum side. This limit will increase by
+                1&nbsp;million Pearl per 24 hours starting tomorrow. Thank
+                you everyone for your patience.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <BridgeWidget />
       <BridgeStats />
 
