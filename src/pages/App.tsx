@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
-import { useReadContract, WagmiProvider } from "wagmi";
+import { useReadContracts, WagmiProvider } from "wagmi";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import {
   RainbowKitProvider,
@@ -30,13 +30,22 @@ import { OrderStatus } from "./OrderStatus";
 import { UnwrapStatus } from "./UnwrapStatus";
 import { NETWORK } from "../lib/config";
 import { BRIDGE_CONTROLLER_ABI, CONTRACTS, EXPECTED_CHAIN_ID } from "../lib/contracts";
-import { grainsToWholePrlWithCommas, hoursUntilEpochReset } from "../lib/utils";
+import {
+  grainsToWholePrlWithCommas,
+  hoursUntilEpochReset,
+  secondsUntilNextMidnightUtc,
+  formatHmsCountdown,
+} from "../lib/utils";
 
 // Mirror of BridgeController.WINDOW_DURATION (immutable, 86 400 s on mainnet).
 // If the BC is ever redeployed with a different window, move this constant in
 // tandem — the on-chain cap is enforced regardless; a wrong value here would
 // only misrender the countdown copy, not the cap itself.
 const WINDOW_DURATION_SEC = 86_400;
+
+// Capacity threshold (grains) at or below which the homepage shows the
+// "fast lane nearly full" notice. 100 PRL * 1e8 grains/PRL.
+const LOW_FAST_LANE_GRAINS = 100n * 100_000_000n;
 
 const queryClient = new QueryClient();
 
@@ -164,7 +173,7 @@ export function App() {
                     <a href="https://t.me/pearlbridgedev" target="_blank" rel="noopener noreferrer"
                       className="text-[#00e5d0] hover:underline">Need help? Reach the bridge dev on Telegram &rarr;</a>
                   </p>
-                  <p className="text-gray-700">Build RC5.26 &middot; {NETWORK}</p>
+                  <p className="text-gray-700">Build RC5.27 &middot; {NETWORK}</p>
                 </footer>
               </div>
 
@@ -177,29 +186,58 @@ export function App() {
 }
 
 function HomePage() {
-  // Pull the fast-lane cap directly from the deployed BridgeController so the
-  // copy below always matches what the contract is actually enforcing — no
-  // manual literal to drift when the Timelock changes setFastMintLimit.
-  const { data: dailyFastCap } = useReadContract({
-    address: CONTRACTS.BRIDGE_CONTROLLER,
-    abi: BRIDGE_CONTROLLER_ABI,
-    functionName: "dailyFastMintLimit",
-    chainId: EXPECTED_CHAIN_ID,
+  // Pull the fast-lane cap AND the live remaining-in-window directly from the
+  // deployed BridgeController. The cap drives the copy below ("Fast lane: the
+  // first {fastCapPrl} PRL …"); the remaining drives the exhaustion banner
+  // (only show when remaining == 0). Both come from the same read batch so the
+  // banner and the copy can never get out of sync. Refetch every 30s so the
+  // banner auto-disappears within one tick of the epoch reset, without
+  // requiring a page reload.
+  const { data: capReads } = useReadContracts({
+    contracts: [
+      {
+        address: CONTRACTS.BRIDGE_CONTROLLER,
+        abi: BRIDGE_CONTROLLER_ABI,
+        functionName: "dailyFastMintLimit",
+        chainId: EXPECTED_CHAIN_ID,
+      },
+      {
+        address: CONTRACTS.BRIDGE_CONTROLLER,
+        abi: BRIDGE_CONTROLLER_ABI,
+        functionName: "fastMintWindowRemaining",
+        chainId: EXPECTED_CHAIN_ID,
+      },
+    ],
+    query: { refetchInterval: 30_000 },
   });
+  const dailyFastCap = capReads?.[0]?.result as bigint | undefined;
+  const fastMintWindowRemaining = capReads?.[1]?.result as bigint | undefined;
   const fastCapPrl =
     dailyFastCap !== undefined
-      ? grainsToWholePrlWithCommas(dailyFastCap as bigint)
+      ? grainsToWholePrlWithCommas(dailyFastCap)
       : null;
+  // Banner gate: strictly less than 100 PRL of fast-lane capacity remaining,
+  // AND we've actually received a value from the contract (undefined keeps the
+  // banner hidden so a brief flash on first mount can't mislead users about
+  // capacity). The contract value itself is refetched every 30s by useReadContracts,
+  // so the banner auto-disappears within one tick of the next epoch reset.
+  const fastLaneRunningLow =
+    fastMintWindowRemaining !== undefined &&
+    fastMintWindowRemaining < LOW_FAST_LANE_GRAINS;
 
-  // Tick once per minute — one-decimal hours don't change faster than every
-  // 6 minutes, so a per-minute cadence is sufficient and avoids any battery
-  // cost on mobile from a per-second timer.
-  const [nowSec, setNowSec] = useState<number>(() => Math.floor(Date.now() / 1000));
+  // Tick once per second so the banner's HH:MM:SS midnight-UTC countdown is
+  // smooth. The Two-Lane Mint block below also reads from this tick but its
+  // "X.Xh" display only changes every six minutes; the extra rerenders are
+  // O(small) DOM and cheap.
+  const [nowMsec, setNowMsec] = useState<number>(() => Date.now());
   useEffect(() => {
-    const t = setInterval(() => setNowSec(Math.floor(Date.now() / 1000)), 60_000);
+    const t = setInterval(() => setNowMsec(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
+  const nowSec = Math.floor(nowMsec / 1000);
   const hoursToReset = hoursUntilEpochReset(nowSec, WINDOW_DURATION_SEC);
+  const secondsToMidnight = secondsUntilNextMidnightUtc(nowMsec);
+  const midnightCountdown = formatHmsCountdown(secondsToMidnight);
 
   return (
     <div className="max-w-5xl mx-auto w-full px-6 py-16">
@@ -218,6 +256,41 @@ function HomePage() {
           Lock native PRL. Receive WPRL on Ethereum &mdash; fully redeemable 1:1. 0.5% deposit fee (4 PRL minimum). No fee on redemption.
         </p>
       </div>
+
+      {NETWORK === "mainnet" && fastLaneRunningLow && (
+        <div
+          role="status"
+          aria-label="fast lane capacity notice"
+          className="mb-6 max-w-lg mx-auto rounded-2xl border border-yellow-500/40 bg-yellow-500/10 backdrop-blur-sm p-5 text-sm"
+        >
+          <div className="flex items-start gap-3">
+            <span className="text-yellow-300 text-lg mt-0.5" aria-hidden="true">
+              &#9201;
+            </span>
+            <div className="space-y-2 min-w-0">
+              <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                <p className="text-yellow-200 font-semibold text-xs uppercase tracking-wide">
+                  Fast lane nearly full
+                </p>
+                <p
+                  className="text-yellow-100/80 text-[11px] font-semibold tabular-nums"
+                  aria-label={`fast lane resets in ${midnightCountdown}`}
+                >
+                  {midnightCountdown}
+                </p>
+              </div>
+              <p className="text-gray-200 text-xs leading-relaxed">
+                Less than 100 PRL of fast-lane capacity remains in the current
+                24h window. Once exhausted, new mints route through the slow
+                lane and settle 24h after deposit.
+              </p>
+              <p className="text-yellow-100/70 text-[11px] leading-relaxed pt-1.5 border-t border-yellow-500/15">
+                Fast lane resets at 00:00 UTC.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <BridgeWidget />
       <BridgeStats />
