@@ -12,6 +12,23 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.28",
+    date: "2026-05-29",
+    title: "Homepage: capacity-aware fast-lane notice (<100 PRL gate + midnight UTC countdown)",
+    summary:
+      "Re-introduces the fast-lane capacity notice with a tighter trigger and a generic, evergreen copy. The banner only renders when the on-chain fast-lane remaining drops below 100 PRL in the current 24h window, and it surfaces a live HH:MM:SS countdown to 00:00 UTC — the contract's epoch reset boundary. Includes the RC5.27 mint UX fixes (Eth-conf done flip, \"Start a new mint\" button).",
+    highlights: [
+      "Banner gate: BridgeController.fastMintWindowRemaining() < 100 PRL (10,000,000,000 grains). Undefined / pre-load keeps the banner hidden so a brief flash on first mount can't mislead users about capacity.",
+      "Copy is generic — describes the slow-lane fall-through behaviour without referencing any specific cap value, target, or future change. No 1,000,000 PRL mention, no time-bounded apology.",
+      "Live HH:MM:SS countdown to the next 00:00 UTC boundary, tabular-nums for no digit-jitter, ticks every second from a single per-page interval.",
+      "Banner auto-disappears within one 30s on-chain refetch tick once the epoch boundary resets capacity above 100 PRL — no manual flag flip, no follow-up deploy.",
+      "Two new pure utils: secondsUntilNextMidnightUtc(nowMsec) and formatHmsCountdown(seconds), each with a full unit-test suite (15 new tests).",
+      "Carries forward RC5.27: \"Done\" on first Eth confirmation in the mint flow, \"Start a new mint\" reset button on the success screen.",
+      "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.27",
     date: "2026-05-28",
     title: "Mint UX: \"Done\" on first Eth confirmation + new-mint reset + auto-hide banner",
@@ -24,7 +41,7 @@ const RELEASES: Release[] = [
       "Homepage banner: live \"Resets in X.Xh\" countdown inside the banner so users know when the queue ends.",
       "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.26",

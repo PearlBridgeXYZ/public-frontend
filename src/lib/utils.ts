@@ -64,3 +64,29 @@ export function hoursUntilEpochReset(nowSec: number, windowSec: number): number 
   const nextBoundary = (Math.floor(nowSec / windowSec) + 1) * windowSec;
   return Math.max(0, (nextBoundary - nowSec) / 3600);
 }
+
+/// Whole seconds until the next 00:00:00 UTC boundary from `nowMsec`
+/// (millisecond unix time). Floors the fractional second so a second-resolution
+/// HH:MM:SS counter ticks down monotonically without jitter.
+///
+/// At nowMsec === N * 86_400_000 exactly (a midnight tick) this returns 86_400
+/// — i.e. we treat "right at midnight" as a fresh 24h window, not 0.
+export function secondsUntilNextMidnightUtc(nowMsec: number): number {
+  const DAY_MS = 86_400_000;
+  const remainder = ((nowMsec % DAY_MS) + DAY_MS) % DAY_MS; // handles negatives defensively
+  const msToBoundary = remainder === 0 ? DAY_MS : DAY_MS - remainder;
+  return Math.floor(msToBoundary / 1000);
+}
+
+/// Format a non-negative seconds count as `HH:MM:SS`. Caps at 99:59:59 so
+/// truncated rendering never blows out the layout (the on-chain window is
+/// 24h so this cap is purely defensive).
+export function formatHmsCountdown(totalSeconds: number): string {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  const capped = Math.min(s, 99 * 3600 + 59 * 60 + 59);
+  const h = Math.floor(capped / 3600);
+  const m = Math.floor((capped % 3600) / 60);
+  const sec = capped % 60;
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${pad(h)}:${pad(m)}:${pad(sec)}`;
+}
