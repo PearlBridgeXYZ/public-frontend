@@ -208,9 +208,12 @@ export function Infrastructure() {
           <p>
             <span className="font-semibold text-white">Fast lane.</span>{" "}
             The first <span className="text-[#00e5d0]">{fastCapPrl ?? "—"} PRL</span> bridged in any rolling
-            24-hour window mints to WPRL as soon as the Pearl deposit reaches 6
-            confirmations (~20 minutes). This is the on-demand path for normal
-            user volume.
+            24-hour window mints to WPRL once the Pearl deposit reaches its
+            size-scaled confirmation count: 6 confs (~12 minutes) for deposits
+            ≤ 1k PRL, stepping up to 400 confs (~13 hours) for deposits at the
+            500k PRL ceiling. Smaller deposits stay fast; larger ones wait
+            longer so attack cost stays at least 2&times; the deposit at every
+            tier. This is the on-demand path for normal user volume.
           </p>
           <p>
             <span className="font-semibold text-white">Slow lane.</span>{" "}

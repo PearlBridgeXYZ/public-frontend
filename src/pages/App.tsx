@@ -304,11 +304,11 @@ function HomePage() {
               <p className="text-gray-500 text-[10px] font-medium">Fast lane resets in {hoursToReset.toFixed(1)}h</p>
             </div>
             <p className="text-gray-400 text-xs leading-relaxed">
-              <span className="text-white">Fast lane:</span> the first {fastCapPrl ?? "—"} PRL bridged per 24h window mints to WPRL as soon as your deposit reaches 6 Pearl confirmations (~20 min).<br />
+              <span className="text-white">Fast lane:</span> the first {fastCapPrl ?? "—"} PRL bridged per 24h window mints to WPRL once your deposit reaches its size-scaled Pearl-confirmation count &mdash; 6 confs (~12 min) for deposits ≤ 1k PRL, scaling up to 400 confs (~13h) at the 500k PRL ceiling.<br />
               <span className="text-white">Slow lane:</span> any single transaction larger than {fastCapPrl ?? "—"} PRL &mdash; or any transaction that exceeds the remaining fast-lane quota for the day &mdash; routes through a 24h timelock in full. No splitting. No action required from you. The mint settles automatically when the timelock matures.
             </p>
             <p className="text-gray-500 text-[11px] leading-relaxed pt-1.5 border-t border-white/5">
-              <span className="text-gray-300">Why two lanes?</span> The fast lane caps how much value a 51% reorg of the Pearl chain could try to instantly double-spend through the bridge: at most {fastCapPrl ?? "—"} PRL per 24h window. Anything larger sits in the slow lane&apos;s 24h timelock, giving the validator set time to detect a reorg and cancel the pending mint before it settles on Ethereum.{" "}
+              <span className="text-gray-300">Why two lanes &mdash; and why the wait scales?</span> The fast lane caps how much value a 51% reorg of the Pearl chain could try to instantly double-spend through the bridge: at most {fastCapPrl ?? "—"} PRL per 24h window. Within the fast lane, the per-deposit confirmation count scales with size so attack cost stays at least 2&times; the deposit at every tier. Anything larger than the fast-lane cap sits in the slow lane&apos;s 24h timelock, giving the validator set time to detect a reorg and cancel the pending mint before it settles on Ethereum.{" "}
               <Link to="/infrastructure#two-lane-mint" className="text-[#00e5d0] hover:underline">Read the security model &rarr;</Link>
             </p>
           </div>

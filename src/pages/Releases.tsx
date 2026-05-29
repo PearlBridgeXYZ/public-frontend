@@ -12,6 +12,23 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.29",
+    date: "2026-05-29",
+    title: "Per-deposit confirmation tiers: size-scaled Pearl finality on the fast lane",
+    summary:
+      "Replaces the flat 6-conf fast-lane gate with a size-tiered confirmation table so attack cost stays at least 2× the deposit value at every tier. Pairs with a 24h-Timelocked cap bump (fast 100k→500k PRL/24h, total 1M→5M PRL/24h) so the fast lane can scale without sub-economic finality. Relay enforces the gate; the bridge widget renders the matching per-tx denominator (e.g. \"X of 80 confirmations\" for a 100k-PRL deposit) so users see the right wait the moment they enter an amount.",
+    highlights: [
+      "Tier table (relay + frontend mirror): T0 6 confs ≤ 1k PRL, T1 8 ≤ 10k, T2 20 ≤ 25k, T3 40 ≤ 50k, T4 80 ≤ 100k, T5 200 ≤ 250k, T6 400 ≤ 500k PRL. Above 500k routes to the slow lane in full.",
+      "Watcher gate is defence-in-depth: Math.max(env-knob floor, mainnet 6-conf floor, tier). The tier can only raise — never lower — the network floor.",
+      "Bridge widget: REQUIRED_CONFIRMATIONS constant replaced with requiredConfFor(grains). Waiting copy, progress bar denominator, and the in-input fast-lane hint all derive from the live amount.",
+      "Homepage Two-Lane Mint block and Infrastructure page copy explicitly state the size-scaled wait so users understand the trade-off before they sign.",
+      "New conf-tiers.ts unit-test suite (24 tests): table invariants (ascending caps, monotonic confs, T0 ≥ 6) and boundary coverage at every tier edge.",
+      "Companion Safe-builder JSON: Timelock.scheduleBatch [setDailyLimits(5M PRL mint, 1M PRL burn), setFastMintLimit(500k PRL)], 24h delay, salt = keccak256(\"conf-tier+cap-bump-2026-05-29\"). Total cap is raised BEFORE fast cap to preserve the MAX_FAST_SHARE_PERMILLE=500 invariant at every intermediate step.",
+      "No Solidity changes; this is a relay-policy + UI change against the existing RC5 contracts. Cap-bump itself is a parameter change through DAILY_LIMITS_ROLE on the deployed BridgeController.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.28",
     date: "2026-05-29",
     title: "Homepage: capacity-aware fast-lane notice (<100 PRL gate + midnight UTC countdown)",
@@ -26,7 +43,7 @@ const RELEASES: Release[] = [
       "Carries forward RC5.27: \"Done\" on first Eth confirmation in the mint flow, \"Start a new mint\" reset button on the success screen.",
       "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.27",
