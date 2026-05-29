@@ -1,17 +1,50 @@
+import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import {
   findDuplicatePayoutNotice,
   PEARL_RETURN_ADDRESS,
 } from "../lib/duplicatePayoutNotice";
+import { RELAY_API_BASE } from "../lib/config";
 import { CopyButton } from "./CopyButton";
 
 // Per-wallet banner shown only to the four addresses affected by the
-// May-2026 duplicate-payout incident. Driven entirely client-side from a
-// frozen table — no API call, no PII.
+// May-2026 duplicate-payout incident. The frozen client-side table picks
+// the addresses; the relay's `/api/duplicate-payout-status` hides the
+// banner once the surplus has been returned to the lock address.
+//
+// Failure mode: if the status fetch fails we KEEP showing the banner.
+// A briefly-stale banner for someone who already returned is harmless;
+// suppressing a banner for someone who hasn't returned is the loss case.
 export function DuplicatePayoutNotice() {
   const { address } = useAccount();
   const entry = findDuplicatePayoutNotice(address);
+  const [hideForReturned, setHideForReturned] = useState(false);
+
+  useEffect(() => {
+    setHideForReturned(false);
+    if (!entry || !address) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(
+          `${RELAY_API_BASE}/api/duplicate-payout-status?addr=${address.toLowerCase()}`,
+        );
+        if (!res.ok) return;
+        const data = (await res.json()) as { status?: string };
+        if (!cancelled && data?.status === "returned") {
+          setHideForReturned(true);
+        }
+      } catch {
+        // network/CORS hiccup — leave banner visible (safe default).
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [entry, address]);
+
   if (!entry) return null;
+  if (hideForReturned) return null;
 
   const burnShort = `${entry.ethBurnTxHash.slice(0, 10)}…${entry.ethBurnTxHash.slice(-6)}`;
   const pearlShort = `${entry.pearlRecipient.slice(0, 12)}…${entry.pearlRecipient.slice(-8)}`;

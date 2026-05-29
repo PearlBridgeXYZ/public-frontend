@@ -12,6 +12,22 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.32",
+    date: "2026-05-29",
+    title: "Auto-hide the duplicate-payout banner once the surplus has been returned to the lock address",
+    summary:
+      "Wires the RC5.30 per-wallet duplicate-payout banner to a new relay endpoint (`/api/duplicate-payout-status?addr=`) so the banner disappears for any affected wallet whose surplus has been observed returning to the bridge lock address on-chain. The relay scans the lock address's recent inbound txs, matches a ±1-grain equality on the owed amount, caches the result for 60 seconds per ETH address, and returns `status: \"returned\"` once the per-wallet total meets the owed amount. Frontend fetches the endpoint on mount and renders null once status flips to returned; any fetch failure leaves the banner visible (safe default).",
+    highlights: [
+      "Detection strategy: incoming txs at the lock address whose value-paid-to-lock equals the owed amount ±1 grain. Robust to whichever wallet the user sends from (recipient pearl, downstream wallet, CEX withdraw to a fresh wallet) — no graph-walk needed.",
+      "New relay module: src/relay/duplicate-payout-returns.ts. searchrawtransactions scan over the lock address (count=2000), in-memory cache with 60s TTL per ETH address, stale-cache fallback on RPC blips.",
+      "New endpoint: GET /api/duplicate-payout-status?addr=<eth>. Returns { owedGrains, owedPrl, returnedGrains, returnedPrl, status, returnTxs[], lastScanAt }. 404 for any address not in the four-wallet list — keeps the surface narrow.",
+      "Frontend: DuplicatePayoutNotice.tsx fetches the endpoint on mount, hides the banner when status === \"returned\". Frozen client-side table still gates which wallets ever see the banner.",
+      "Failure mode: a fetch error or relay 503 keeps the banner visible. A briefly stale banner for someone who already returned is harmless; suppressing a banner for someone who hasn't is the loss case.",
+      "No contracts touched. No relay business-logic change. The new module is read-only against Pearl RPC.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.31",
     date: "2026-05-29",
     title: "Homepage copy: \"Due to popular demand\" framing on the nearly-full fast-lane notice",
@@ -22,7 +38,7 @@ const RELEASES: Release[] = [
       "Net diff to App.tsx vs RC5.30: three words added. No other UI, behaviour, or contract change.",
       "Carries forward RC5.30 (per-wallet duplicate-payout notice) and RC5.29 (size-tiered confirmations).",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.30",
