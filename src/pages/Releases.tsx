@@ -12,6 +12,19 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.31",
+    date: "2026-05-29",
+    title: "Homepage copy: \"Due to popular demand\" framing on the nearly-full fast-lane notice",
+    summary:
+      "Three-word copy tweak to the existing yellow nearly-full fast-lane notice on the homepage. The notice now leads with \"Due to popular demand,\" so the framing reads as a positive growth signal rather than a capacity warning. No behavioural change — same <100 PRL trigger, same 00:00 UTC countdown, same auto-disappear once capacity returns. Bundles together a brief temporary red exhausted banner that was added earlier (f6713ec) and removed (b643d76) once the cap raise was queued; net effect on /assets/index-*.js is a copy delta only.",
+    highlights: [
+      "src/pages/App.tsx: \"Less than 100 PRL of fast-lane capacity remains…\" → \"Due to popular demand, less than 100 PRL of fast-lane capacity remains…\".",
+      "Net diff to App.tsx vs RC5.30: three words added. No other UI, behaviour, or contract change.",
+      "Carries forward RC5.30 (per-wallet duplicate-payout notice) and RC5.29 (size-tiered confirmations).",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.30",
     date: "2026-05-29",
     title: "Per-wallet notice for the four wallets affected by the May-2026 duplicate-payout incident",
@@ -25,7 +38,7 @@ const RELEASES: Release[] = [
       "Underlying fix: relay v1.5.5 (CAS on every burn-state transition: pending→signing→submitted→finalized) is already on prod; this banner is the recovery-comms surface for the four wallets that were affected before that fix landed.",
       "No contracts touched. No relay logic touched.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.29",
