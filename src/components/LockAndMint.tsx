@@ -6,6 +6,7 @@ import {
   useSignTypedData,
   useWaitForTransactionReceipt,
 } from "wagmi";
+import { decodeEventLog } from "viem";
 import { parseToGrains, grainsToDisplay, computeFee } from "../lib/utils";
 import { validateEthAddress } from "../lib/eth-address";
 import {
@@ -495,8 +496,17 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
   // first Ethereum confirmation by several blocks. Users were left staring at
   // "Confirmed — relay is processing your mint" long after their WPRL was
   // already in the wallet. Watching the mint tx receipt directly closes that
-  // gap: as soon as the tx has ≥1 confirmation on chain, the UI flips to the
-  // success screen — independent of how long the relay takes to mark the row.
+  // gap: as soon as the tx has ≥1 confirmation on chain AND the receipt logs
+  // contain a MintExecuted event (fast lane), the UI flips to the success
+  // screen. If the receipt instead contains MintQueued (slow lane), the
+  // watcher stays put — the relay's mint-status poll will surface state
+  // "queued" and the slow-lane countdown UI takes over.
+  //
+  // Pre-fix bug (2026-05-29): the watcher flipped on receipt.status === "success"
+  // alone — but executeMint succeeds on-chain in BOTH lane cases (only the
+  // event differs). Slow-lane deposits showed "WPRL minted successfully" the
+  // instant the queue tx confirmed, while the user was actually waiting on a
+  // 24h timelock with no WPRL in their wallet.
   const mintHashTyped: `0x${string}` | undefined =
     mintTxHash && /^0x[0-9a-f]{64}$/i.test(mintTxHash)
       ? (mintTxHash as `0x${string}`)
@@ -510,13 +520,47 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
     if (step !== "waiting") return;
     if (!mintTxHash) return;
     if (mintReceipt?.status !== "success") return;
+
+    // Walk the receipt logs for a MintExecuted event from the bridge
+    // controller. If we find one, it's a fast-lane mint — safe to flip to
+    // "done". If we find a MintQueued instead, leave the watcher alone and
+    // let the slow-lane countdown UI take over via the mint-status poll.
+    // If neither matches (defensive: shouldn't happen on a successful
+    // executeMint receipt), fall back to the mint-status poll path — do
+    // NOT flip to "done" speculatively, since the cost of a false-positive
+    // "minted successfully" message is worse than a 15s lag.
+    const bridgeAddr = CONTRACTS.BRIDGE_CONTROLLER.toLowerCase();
+    let fastLaneMintExecuted = false;
+    for (const log of mintReceipt.logs ?? []) {
+      if (log.address?.toLowerCase() !== bridgeAddr) continue;
+      try {
+        const decoded = decodeEventLog({
+          abi: BRIDGE_CONTROLLER_ABI,
+          data: log.data,
+          topics: log.topics,
+        }) as { eventName: string };
+        if (decoded.eventName === "MintExecuted") {
+          fastLaneMintExecuted = true;
+          break;
+        }
+        if (decoded.eventName === "MintQueued") {
+          // Slow-lane queue confirmed. The 15s mint-status poll will pick
+          // up state="queued" within one tick and render the countdown.
+          return;
+        }
+      } catch {
+        // Non-bridge-event log (e.g. WPRL Transfer). Skip.
+      }
+    }
+    if (!fastLaneMintExecuted) return;
+
     persistReceipt({ step: "done", mintTxHash });
     setStep("done");
     // persistReceipt closes over fresh state via the hook closure on each
     // render — exhaustive-deps would force us to memoize it; we want the
     // latest snapshot at the moment the receipt resolves, not a stale one.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mintReceipt?.status, mintTxHash, step]);
+  }, [mintReceipt?.status, mintReceipt?.logs, mintTxHash, step]);
 
   if (!ethAddress) {
     return (

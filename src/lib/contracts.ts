@@ -187,6 +187,33 @@ export const BRIDGE_CONTROLLER_ABI = [
       { name: "pearlAddress", type: "string", indexed: false },
     ],
   },
+  // Mint-lane events from the tiered-cap BridgeController. The receipt watcher
+  // in LockAndMint decodes these to distinguish "minted now" (MintExecuted,
+  // fast lane) from "queued for 24h timelock" (MintQueued, slow lane). Without
+  // this distinction the watcher flipped to "WPRL minted successfully" the
+  // instant the executeMint tx confirmed — even when the deposit was actually
+  // routed to the slow lane and the user was still waiting on the timelock.
+  {
+    name: "MintExecuted",
+    type: "event",
+    inputs: [
+      { name: "pearlTxId", type: "bytes32", indexed: true },
+      { name: "recipient", type: "address", indexed: true },
+      { name: "grossAmount", type: "uint256", indexed: false },
+      { name: "fee", type: "uint256", indexed: false },
+      { name: "netAmount", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    name: "MintQueued",
+    type: "event",
+    inputs: [
+      { name: "pearlTxId", type: "bytes32", indexed: true },
+      { name: "recipient", type: "address", indexed: true },
+      { name: "grossAmount", type: "uint256", indexed: false },
+      { name: "readyAt", type: "uint256", indexed: false },
+    ],
+  },
   {
     name: "UpgradeProposed",
     type: "event",
