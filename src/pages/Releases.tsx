@@ -12,18 +12,31 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.26.1",
+    date: "2026-05-29",
+    title: "Homepage: remove fast-lane-exhausted notice banner",
+    summary:
+      "Hotfix that removes the temporary on-page notice that was rendered above the bridge widget. The banner had no dynamic gate on the RC5.26 build, so it kept rendering even while the fast lane still had capacity. Pure copy/UI rollback, no contract or relay change. A capacity-aware replacement is being prepared on the dev branch.",
+    highlights: [
+      "Banner block between the hero text and the BridgeWidget is removed on mainnet.",
+      "Two-Lane Mint info block (with the live reset countdown and lane explainer) is unchanged.",
+      "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.26",
     date: "2026-05-28",
     title: "Homepage: fast-lane-exhausted notice banner",
     summary:
-      "Temporary on-page notice above the bridge widget telling depositors that the fast lane is currently exhausted, so every transaction will route through the 24h slow lane until the cap resets. Also signals the upcoming bump to a 1,000,000 PRL/24h fast-lane cap. Pure copy/UI, no contract or relay change — comes down (in a follow-up RC) once the higher cap is live and fast-lane capacity is available again.",
+      "Temporary on-page notice above the bridge widget telling depositors that the fast lane is currently exhausted, so every transaction will route through the 24h slow lane until the cap resets. Also signals the upcoming bump to a 1,000,000 PRL/24h fast-lane cap. Pure copy/UI, no contract or relay change.",
     highlights: [
       "New banner rendered between the hero text and the BridgeWidget on the homepage; mainnet-only (testnet/devnet builds are unchanged).",
       "Amber tone, stopwatch glyph, accessible role=\"status\" + aria-label — readable for screen readers, visually distinct from the static Security Notice block below.",
       "Copy emphasises the queue behaviour: deposits are still accepted and still mint, they just take the full 24h slow-lane path until capacity returns.",
       "No Solidity changes, no relay business-logic change. Contracts identical to RC5.6.",
     ],
-    status: "primary-gtm",
+    status: "superseded",
   },
   {
     tag: "RC5.25",
