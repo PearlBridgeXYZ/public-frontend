@@ -237,8 +237,8 @@ export function SideDoorUnwrap() {
       const hash = await writeContractAsync({
         address: ADDRS.WPRL as `0x${string}`,
         abi: WPRL_ABI,
-        functionName: "transfer" as never,
-        args: [intermediary, amountGrains] as never,
+        functionName: "transfer",
+        args: [intermediary, amountGrains],
       });
       setTxHash(hash);
     } catch (e: any) {
