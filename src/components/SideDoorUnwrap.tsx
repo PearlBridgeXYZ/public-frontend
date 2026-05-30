@@ -11,10 +11,10 @@
 
 import { useEffect, useState } from "react";
 import { useAccount, useChainId, useSignMessage, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
-import { parseUnits, formatUnits, type Hex } from "viem";
+import { type Hex } from "viem";
 import { WPRL_ABI, ADDRESSES, NETWORK } from "../lib/contracts";
 import { isPlausiblePearlAddress } from "../lib/pearlAddress";
-import { shortAddress } from "../lib/utils";
+import { shortAddress, parseToGrains, grainsToDisplay } from "../lib/utils";
 import { CopyButton } from "./CopyButton";
 import {
   fetchSideDoorConfig,
@@ -155,6 +155,26 @@ export function SideDoorUnwrap() {
     );
   }
 
+  // Refuse to render the Send button if the relay is watching a different
+  // WPRL contract than the frontend would transfer from. Sending canonical
+  // WPRL to the hot wallet while the relay watches a fork = silent loss.
+  if (
+    cfg.wprlAddress &&
+    ADDRS.WPRL &&
+    cfg.wprlAddress.toLowerCase() !== ADDRS.WPRL.toLowerCase()
+  ) {
+    return (
+      <Card>
+        <p className="text-red-300 text-sm font-semibold">WPRL mismatch</p>
+        <p className="text-gray-400 text-xs mt-2 break-all">
+          Relay watches <span className="font-mono">{cfg.wprlAddress}</span>;
+          frontend would transfer from <span className="font-mono">{ADDRS.WPRL}</span>.
+          Refusing to send.
+        </p>
+      </Card>
+    );
+  }
+
   // ------------- main UI --------------------------------------------------
 
   const feePct = ((cfg.feeBps ?? 0) / 100).toFixed(2);
@@ -199,19 +219,17 @@ export function SideDoorUnwrap() {
   const handleSend = async () => {
     setErr(null);
     if (!amount || !cfg.intermediaryHotAddress) return;
-    let amountWei: bigint;
-    try {
-      amountWei = parseUnits(amount, 18);
-    } catch {
-      setErr("Amount could not be parsed as WPRL (18 decimals).");
+    const amountGrains = parseToGrains(amount);
+    if (amountGrains == null) {
+      setErr("Amount could not be parsed.");
       return;
     }
-    if (cfg.minPayoutWei && amountWei <= cfg.minPayoutWei) {
-      setErr(`Below dust floor (${formatUnits(cfg.minPayoutWei, 18)} WPRL).`);
+    if (cfg.minPayoutWei && amountGrains <= cfg.minPayoutWei) {
+      setErr(`Below dust floor (${grainsToDisplay(cfg.minPayoutWei)} WPRL).`);
       return;
     }
-    if (cfg.perTxCapWei && cfg.perTxCapWei > 0n && amountWei > cfg.perTxCapWei) {
-      setErr(`Above per-tx cap (${formatUnits(cfg.perTxCapWei, 18)} WPRL).`);
+    if (cfg.perTxCapWei && cfg.perTxCapWei > 0n && amountGrains > cfg.perTxCapWei) {
+      setErr(`Above per-tx cap (${grainsToDisplay(cfg.perTxCapWei)} WPRL).`);
       return;
     }
     setStep("sending");
@@ -220,7 +238,7 @@ export function SideDoorUnwrap() {
         address: ADDRS.WPRL as `0x${string}`,
         abi: WPRL_ABI,
         functionName: "transfer" as never,
-        args: [intermediary, amountWei] as never,
+        args: [intermediary, amountGrains] as never,
       });
       setTxHash(hash);
     } catch (e: any) {
@@ -317,10 +335,10 @@ export function SideDoorUnwrap() {
                 />
                 {wprlBalance != null && (
                   <button
-                    onClick={() => setAmount(formatUnits(wprlBalance as bigint, 18))}
+                    onClick={() => setAmount(grainsToDisplay(wprlBalance as bigint))}
                     className="absolute right-2 top-1/2 -translate-y-1/2 text-amber-400 text-[10px] hover:underline"
                   >
-                    MAX {Number(formatUnits(wprlBalance as bigint, 18)).toFixed(4)}
+                    MAX {grainsToDisplay(wprlBalance as bigint)}
                   </button>
                 )}
               </div>
@@ -331,10 +349,10 @@ export function SideDoorUnwrap() {
               <CopyButton value={intermediary} />.{" "}
               Daily cap{" "}
               {cfg.daily24hCapWei
-                ? `${formatUnits(cfg.daily24hCapWei, 18)} WPRL`
+                ? `${grainsToDisplay(cfg.daily24hCapWei)} WPRL`
                 : "—"}
               {cfg.perTxCapWei && cfg.perTxCapWei > 0n
-                ? ` · per-tx cap ${formatUnits(cfg.perTxCapWei, 18)} WPRL`
+                ? ` · per-tx cap ${grainsToDisplay(cfg.perTxCapWei)} WPRL`
                 : ""}
               .
             </div>
@@ -367,14 +385,14 @@ export function SideDoorUnwrap() {
                 <div className="flex justify-between text-gray-400">
                   <span>WPRL in</span>
                   <span className="font-mono text-white">
-                    {Number(formatUnits(BigInt(row.wprlAmount), 18)).toFixed(6)}
+                    {grainsToDisplay(BigInt(row.wprlAmount))}
                   </span>
                 </div>
                 {row.pearlAmount && (
                   <div className="flex justify-between text-gray-400">
                     <span>PRL out (net of fee)</span>
                     <span className="font-mono text-white">
-                      {(Number(row.pearlAmount) / 1e8).toFixed(8)}
+                      {grainsToDisplay(BigInt(row.pearlAmount))}
                     </span>
                   </div>
                 )}
