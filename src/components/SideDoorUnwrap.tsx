@@ -87,9 +87,13 @@ export function SideDoorUnwrap() {
   }, [receipt]);
 
   // -- Live head — used to compute "X / Y confirmations" --------------------
+  // Use the object-form `watch` so the watcher's polling interval is
+  // explicit. The boolean form inherits the chain default and we saw it
+  // get stuck at the initial block on at least one RPC provider.
+  const trackingActive = !!receipt && step === "tracking";
   const { data: currentBlock } = useBlockNumber({
-    watch: true,
-    query: { enabled: !!receipt && step === "tracking" },
+    watch: { enabled: trackingActive, pollingInterval: 4_000 },
+    query: { enabled: trackingActive, refetchInterval: 4_000 },
   });
 
   // -- Status poll ---------------------------------------------------------
