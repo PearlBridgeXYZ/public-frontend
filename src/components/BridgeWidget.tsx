@@ -10,6 +10,10 @@ import {
   NETWORK,
   BRIDGE_CONTROLLER_ABI,
 } from "../lib/contracts";
+import {
+  DEPOSIT_RESUMES_AT_UNIX,
+  WITHDRAW_RESUMES_AT_UNIX,
+} from "../lib/pauseSchedule";
 
 type Direction = "lock" | "burn";
 
@@ -19,12 +23,29 @@ export function BridgeWidget() {
   const { switchChain, isPending: switching } = useSwitchChain();
   const [direction, setDirection] = useState<Direction>("lock");
 
-  const { data: isPaused } = useReadContract({
+  const { data: isPaused, isError: pausedReadFailed } = useReadContract({
     address: CONTRACTS.BRIDGE_CONTROLLER,
     abi: BRIDGE_CONTROLLER_ABI,
     functionName: "paused",
     query: { enabled: !!CONTRACTS.BRIDGE_CONTROLLER, refetchInterval: 15_000 },
   });
+
+  // Pause-gate fallback: if the on-chain paused() read errors (RPC outage,
+  // node throttle, transient timeout) we cannot let isPaused silently fall
+  // through to `undefined` — `bridgePaused={isPaused === true}` would then
+  // disengage the user-facing pause gate while the contract is still paused,
+  // and the user's tx would revert in their wallet. Instead, fall back to
+  // the operator-published schedule: if the read fails AND the schedule
+  // says the relevant lane has not yet resumed, treat as paused.
+  // The direction-aware threshold matches the post-unpause split: deposits
+  // resume later than withdrawals in this window.
+  const nowSec = Math.floor(Date.now() / 1000);
+  const scheduleResumesAt =
+    direction === "lock" ? DEPOSIT_RESUMES_AT_UNIX : WITHDRAW_RESUMES_AT_UNIX;
+  const scheduleSaysPaused = nowSec < scheduleResumesAt;
+  const bridgePaused =
+    isPaused === true ||
+    (pausedReadFailed && isPaused === undefined && scheduleSaysPaused);
 
   // M5-15 (Round 5): refuse to show the bridge UI if the user's wallet is on
   // the wrong chain. Empty EXPECTED_BC_ADDRESS means the contract hasn't been
@@ -69,12 +90,17 @@ export function BridgeWidget() {
   return (
     <div className="w-full max-w-lg mx-auto glass-strong rounded-3xl p-6 shadow-2xl shadow-black/50">
       <DuplicatePayoutNotice />
-      {isPaused === true && (
+      {bridgePaused && (
         <div className="mb-5 bg-red-500/10 border border-red-500/40 rounded-xl px-4 py-3 text-sm text-red-300 space-y-1">
           <p className="font-semibold text-red-200">Bridge paused</p>
           <p className="text-xs">
             On-chain transactions will revert. New deposits and burns are
             disabled until the operator resumes the contract.
+            {pausedReadFailed && isPaused === undefined && (
+              <span className="block mt-1 text-red-400/80">
+                (Live pause-status read failed; showing scheduled state.)
+              </span>
+            )}
           </p>
         </div>
       )}
@@ -103,9 +129,9 @@ export function BridgeWidget() {
       </div>
 
       {direction === "lock" ? (
-        <LockAndMint ethAddress={address} bridgePaused={isPaused === true} />
+        <LockAndMint ethAddress={address} bridgePaused={bridgePaused} />
       ) : (
-        <BurnAndUnlock ethAddress={address} bridgePaused={isPaused === true} />
+        <BurnAndUnlock ethAddress={address} bridgePaused={bridgePaused} />
       )}
     </div>
   );

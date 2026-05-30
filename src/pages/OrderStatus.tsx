@@ -17,11 +17,14 @@ type MintStatus = {
     | "pending"
     | "signing"
     | "submitted"
+    | "submitted_stuck"
     | "attesting"
     | "queued"
     | "cancelled"
+    | "failed"
     | "under_review"
     | "minted"
+    | "refunded"
     | "rejected"
     | null;
   mintTxHash: string | null;
@@ -30,6 +33,8 @@ type MintStatus = {
   cancelledAt: number | null;
   cancelReason: string | null;
   anomalyReason: string | null;
+  refundPrlTxId: string | null;
+  refundedAt: number | null;
 };
 
 const STATE_COPY: Record<NonNullable<MintStatus["state"]> | "unknown", {
@@ -54,6 +59,12 @@ const STATE_COPY: Record<NonNullable<MintStatus["state"]> | "unknown", {
     detail:
       "The mint transaction has been broadcast on Ethereum. It will finalise once the mining queue confirms it.",
     tone: "neutral",
+  },
+  submitted_stuck: {
+    label: "Mint broadcast — awaiting inclusion",
+    detail:
+      "The mint transaction is broadcast on Ethereum but has not been mined within the expected window (usually due to a gas-price floor change or a brief mempool eviction). The relay will resubmit automatically; no action is required.",
+    tone: "warn",
   },
   attesting: {
     label: "Attestation in progress",
@@ -85,9 +96,21 @@ const STATE_COPY: Record<NonNullable<MintStatus["state"]> | "unknown", {
       "The deposit failed validation (unregistered address, below minimum, or unbound recipient). Funds are held in the custodial set pending refund.",
     tone: "bad",
   },
+  failed: {
+    label: "Mint failed",
+    detail:
+      "The mint attestation could not be broadcast successfully on Ethereum. The relay has flagged this order for manual review. Your PRL remains in the bridge custodial set and is recoverable via refund — contact the operator to initiate it.",
+    tone: "bad",
+  },
   minted: {
     label: "WPRL minted",
     detail: "WPRL has been minted and delivered to the destination wallet.",
+    tone: "good",
+  },
+  refunded: {
+    label: "Refunded on Pearl",
+    detail:
+      "An admin refund has been authorised on Ethereum and the PRL payout has been broadcast back to your Pearl address.",
     tone: "good",
   },
   unknown: {
@@ -166,6 +189,8 @@ export function OrderStatus() {
           cancelledAt: data.cancelledAt ?? null,
           cancelReason: data.cancelReason ?? null,
           anomalyReason: data.anomalyReason ?? null,
+          refundPrlTxId: data.refundPrlTxId ?? null,
+          refundedAt: data.refundedAt ?? null,
         });
         setError(null);
         setLoaded(true);
@@ -184,7 +209,9 @@ export function OrderStatus() {
       status?.state === "minted" ||
       status?.state === "cancelled" ||
       status?.state === "rejected" ||
-      status?.state === "under_review";
+      status?.state === "failed" ||
+      status?.state === "under_review" ||
+      status?.refundedAt != null;
     const interval = terminal ? null : setInterval(poll, 15_000);
     return () => {
       cancelled = true;
@@ -213,7 +240,13 @@ export function OrderStatus() {
     );
   }
 
-  const stateKey = status?.state ?? (loaded ? "unknown" : null);
+  // Refund overrides everything: once the PRL payout broadcast lands, surface
+  // "refunded" regardless of the underlying mint_requests.state (which we
+  // intentionally leave unchanged to keep the state machine narrow). The
+  // refundedAt timestamp is the authoritative signal.
+  const stateKey = status?.refundedAt != null
+    ? "refunded"
+    : (status?.state ?? (loaded ? "unknown" : null));
   const copy = stateKey ? STATE_COPY[stateKey] : null;
   const tone = copy ? toneClasses(copy.tone) : toneClasses("neutral");
 
@@ -339,20 +372,34 @@ export function OrderStatus() {
                 </span>
               );
             })()}
-            {(stateKey === "under_review" || stateKey === "cancelled" || stateKey === "rejected") && (
+            {stateKey === "refunded" && status?.refundPrlTxId && (
               <a
-                href={`mailto:bridgedev@mailbox.org?subject=${encodeURIComponent(
-                  `Bridge order: ${pearlTxId}`,
-                )}&body=${encodeURIComponent(
-                  `Order txid: ${pearlTxId}\nState: ${stateKey}\nReason: ${
-                    status?.anomalyReason ?? status?.cancelReason ?? "(none returned)"
-                  }\n`,
-                )}`}
+                href={`${PEARL_EXPLORER_BASE}/tx/${status.refundPrlTxId}?network=${NETWORK}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-xs text-[#00e5d0] hover:underline"
               >
-                Contact operator &rarr;
+                View refund payout on Pearl Explorer &rarr;
               </a>
             )}
+            {stateKey !== "refunded" &&
+              (stateKey === "under_review" ||
+                stateKey === "cancelled" ||
+                stateKey === "rejected" ||
+                stateKey === "failed") && (
+                <a
+                  href={`mailto:bridgedev@mailbox.org?subject=${encodeURIComponent(
+                    `Bridge order: ${pearlTxId}`,
+                  )}&body=${encodeURIComponent(
+                    `Order txid: ${pearlTxId}\nState: ${stateKey}\nReason: ${
+                      status?.anomalyReason ?? status?.cancelReason ?? "(none returned)"
+                    }\n`,
+                  )}`}
+                  className="text-xs text-[#00e5d0] hover:underline"
+                >
+                  Contact operator &rarr;
+                </a>
+              )}
           </div>
         </div>
       )}

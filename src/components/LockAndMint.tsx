@@ -57,11 +57,14 @@ type MintApiStatus = {
     | "pending"
     | "signing"
     | "submitted"
+    | "submitted_stuck"
     | "attesting"
     | "queued"
     | "cancelled"
+    | "failed"
     | "under_review"
     | "minted"
+    | "refunded"
     | "rejected"
     | null;
   mintTxHash: string | null;
@@ -70,6 +73,8 @@ type MintApiStatus = {
   cancelledAt: number | null;
   cancelReason: string | null;
   anomalyReason: string | null;
+  refundPrlTxId: string | null;
+  refundedAt: number | null;
 };
 
 export function LockAndMint({ ethAddress, bridgePaused }: Props) {
@@ -438,6 +443,8 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
           cancelledAt?: number | null;
           cancelReason?: string | null;
           anomalyReason?: string | null;
+          refundPrlTxId?: string | null;
+          refundedAt?: number | null;
         };
         if (cancelled) return;
         const next: MintApiStatus = {
@@ -448,6 +455,8 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
           cancelledAt: data.cancelledAt ?? null,
           cancelReason: data.cancelReason ?? null,
           anomalyReason: data.anomalyReason ?? null,
+          refundPrlTxId: data.refundPrlTxId ?? null,
+          refundedAt: data.refundedAt ?? null,
         };
         setMintStatus(next);
         // Surface the Etherscan link as soon as the relay broadcasts (state
@@ -873,20 +882,31 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
               >
                 Look up status &rarr;
               </a>
-              <a
-                href={`mailto:refunds@pearlbridge.xyz?subject=${encodeURIComponent(
-                  `Refund request: ${pearlTxId}`,
-                )}&body=${encodeURIComponent(
-                  `My deposit at txid ${pearlTxId} was cancelled by the relay.\n\nCancel reason: ${
-                    mintStatus.cancelReason ?? "(none returned)"
-                  }\n\nMy Pearl source address: <fill in>\nMy connected wallet: ${
-                    effectiveDestination ?? ""
-                  }\nProof of ownership: <attach signed message>`,
-                )}`}
-                className="text-xs text-[#00e5d0] hover:underline"
-              >
-                Request refund &rarr;
-              </a>
+              {mintStatus.refundedAt != null && mintStatus.refundPrlTxId ? (
+                <a
+                  href={`${PEARL_EXPLORER_BASE}/tx/${mintStatus.refundPrlTxId}?network=${NETWORK}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-[#00e5d0] hover:underline"
+                >
+                  Refunded &middot; view tx &rarr;
+                </a>
+              ) : (
+                <a
+                  href={`mailto:refunds@pearlbridge.xyz?subject=${encodeURIComponent(
+                    `Refund request: ${pearlTxId}`,
+                  )}&body=${encodeURIComponent(
+                    `My deposit at txid ${pearlTxId} was cancelled by the relay.\n\nCancel reason: ${
+                      mintStatus.cancelReason ?? "(none returned)"
+                    }\n\nMy Pearl source address: <fill in>\nMy connected wallet: ${
+                      effectiveDestination ?? ""
+                    }\nProof of ownership: <attach signed message>`,
+                  )}`}
+                  className="text-xs text-[#00e5d0] hover:underline"
+                >
+                  Request refund &rarr;
+                </a>
+              )}
               <a
                 href="/audit"
                 className="text-xs text-gray-400 hover:text-[#00e5d0] hover:underline"
