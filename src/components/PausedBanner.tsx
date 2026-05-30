@@ -65,11 +65,11 @@ export function PausedBanner() {
             ) : null}
           </div>
           <p className="text-gray-200 text-xs leading-relaxed">
-            Thanks for bearing with us &mdash; we&rsquo;re growing fast and
-            pausing briefly to ship infrastructure upgrades that handle the
-            increased demand. <span className="text-white">All funds are
-            safe</span> and will be fully accessible the moment the bridge
-            reopens. Any deposits or burns already on-chain will settle
+            Our anomaly detection system triggered an automatic bridge pause.
+            We&rsquo;re using the 24-hour window to make the bridge even more
+            secure and better for the future. <span className="text-white">All
+            funds are safe</span> and will be fully accessible the moment the
+            bridge reopens. Any deposits or burns already on-chain will settle
             normally once we resume. Apologies for the interruption.
           </p>
           <p className="text-[#00e5d0]/70 text-[11px] leading-relaxed pt-1.5 border-t border-[#00e5d0]/15">
