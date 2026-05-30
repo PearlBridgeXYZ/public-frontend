@@ -16,6 +16,7 @@ import { ConnectButton } from "../components/ConnectButton";
 import { BridgeWidget } from "../components/BridgeWidget";
 import { BridgeStats } from "../components/BridgeStats";
 import { BridgeModeToggle } from "../components/BridgeModeToggle";
+import { PausedBanner } from "../components/PausedBanner";
 import { LegalDisclaimer } from "../components/DisclaimerModal";
 import { hasAcceptedDisclaimer } from "../lib/disclaimer";
 import { BugBountyModal } from "../components/BugBountyModal";
@@ -256,6 +257,8 @@ function HomePage() {
           Lock native PRL. Receive WPRL on Ethereum &mdash; fully redeemable 1:1. 0.5% deposit fee (4 PRL minimum). No fee on redemption.
         </p>
       </div>
+
+      {NETWORK === "mainnet" && <PausedBanner />}
 
       {NETWORK === "mainnet" && fastLaneRunningLow && (
         <div
