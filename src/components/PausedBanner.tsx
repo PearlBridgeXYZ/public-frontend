@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import { useReadContract } from "wagmi";
-import { BRIDGE_CONTROLLER_ABI, CONTRACTS, EXPECTED_CHAIN_ID } from "../lib/contracts";
-import {
-  WITHDRAW_RESUMES_AT_UNIX,
-  DEPOSIT_RESUMES_AT_UNIX,
-} from "../lib/pauseSchedule";
+import { DEPOSIT_RESUMES_AT_UNIX } from "../lib/pauseSchedule";
 
 function formatCountdown(secondsTotal: number): string {
   const s = Math.max(0, secondsTotal);
@@ -15,30 +10,18 @@ function formatCountdown(secondsTotal: number): string {
 }
 
 export function PausedBanner() {
-  const { data: paused } = useReadContract({
-    address: CONTRACTS.BRIDGE_CONTROLLER,
-    abi: BRIDGE_CONTROLLER_ABI,
-    functionName: "paused",
-    chainId: EXPECTED_CHAIN_ID,
-    query: { refetchInterval: 30_000 },
-  });
-
   const [nowSec, setNowSec] = useState<number>(() => Math.floor(Date.now() / 1000));
   useEffect(() => {
     const t = setInterval(() => setNowSec(Math.floor(Date.now() / 1000)), 1000);
     return () => clearInterval(t);
   }, []);
 
-  // Banner displays through the deposit-resume target regardless of contract
-  // paused() state — the directional reopening (withdrawals at +2h, deposits
-  // at +24h) is a UX commitment that outlives the on-chain pause flag. Once
-  // we're past the deposit target, hide entirely. While we're inside the
-  // window, also surface if the contract has already been unpaused.
+  // Banner displays through the deposit-resume target. Withdrawals are
+  // covered by the side door (paid), so no withdrawal countdown — only
+  // deposits remain time-gated.
   if (nowSec >= DEPOSIT_RESUMES_AT_UNIX) return null;
 
-  const withdrawSeconds = WITHDRAW_RESUMES_AT_UNIX - nowSec;
   const depositSeconds = DEPOSIT_RESUMES_AT_UNIX - nowSec;
-  const withdrawalsOpen = withdrawSeconds <= 0;
 
   return (
     <div
@@ -68,28 +51,15 @@ export function PausedBanner() {
               <p className="text-gray-300 text-[11px]">
                 <span className="text-white font-semibold">Withdrawals</span>
                 <span className="text-gray-500"> (WPRL &rarr; PRL)</span>
-                {withdrawalsOpen ? null : (
-                  <span className="text-gray-500"> resume in</span>
-                )}
               </p>
-              <p
-                className={`text-[11px] font-semibold tabular-nums ${
-                  withdrawalsOpen ? "text-[#00e5d0]" : "text-[#00e5d0]/90"
-                }`}
-                aria-label={
-                  withdrawalsOpen
-                    ? "withdrawals open"
-                    : `withdrawals resume in ${formatCountdown(withdrawSeconds)}`
-                }
-              >
-                {withdrawalsOpen
-                  ? paused === true
-                    ? "Reopening\u2026"
-                    : "Open"
-                  : formatCountdown(withdrawSeconds)}
+              <p className="text-[#00e5d0] text-[11px] font-semibold">
+                Side door open
               </p>
             </div>
-            <div className="flex items-baseline justify-between gap-2 flex-wrap">
+            <p className="text-gray-500 text-[10px] leading-relaxed -mt-1">
+              with fee &middot; free withdrawals resume when main bridge unpauses
+            </p>
+            <div className="flex items-baseline justify-between gap-2 flex-wrap pt-1">
               <p className="text-gray-300 text-[11px]">
                 <span className="text-white font-semibold">Deposits</span>
                 <span className="text-gray-500"> (PRL &rarr; WPRL)</span>
@@ -103,11 +73,6 @@ export function PausedBanner() {
               </p>
             </div>
           </div>
-
-          <p className="text-[#00e5d0]/70 text-[10px] leading-relaxed pt-1.5 border-t border-[#00e5d0]/15">
-            Withdrawals reopen 2026-05-30 19:24:55 UTC &middot; Deposits reopen
-            2026-05-31 17:24:55 UTC.
-          </p>
         </div>
       </div>
     </div>
