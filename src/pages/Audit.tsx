@@ -16,16 +16,6 @@ type AuditReport = {
 
 const REPORTS: AuditReport[] = [
   {
-    slug: "pearlbridge-relay-minimax-2026-05-30",
-    title: "PearlBridge Relay — Off-Chain Security Audit",
-    date: "2026-05-30",
-    summary:
-      "First publicly-published relay-focused audit. Four parallel automated passes (perimeter / Pearl / Ethereum / value-movement) over the off-chain TypeScript daemon — 15.4k LOC production, 11.6k LOC tests — that watches Pearl L1 deposits, attests them to the BridgeController, and broadcasts cross-chain payouts. 26 findings total; all 3 Highs spot-verified against source by hand.",
-    verdict:
-      "Three operational/availability-class Highs (refund/unlock mutex parity, sweep terminal-state guard, /api/intents rate-limit) — fix-worthy, not custody-class. The on-chain processedPearlTxs map remains the actual double-spend safety net. Mediums are scheduled debt.",
-    status: "published",
-  },
-  {
     slug: "pearlbridge-delta-rc521-2026-05-24",
     title: "PearlBridge RC5.21 Delta Audit",
     date: "2026-05-24",
