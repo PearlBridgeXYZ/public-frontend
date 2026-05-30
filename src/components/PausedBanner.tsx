@@ -44,20 +44,20 @@ export function PausedBanner() {
     <div
       role="status"
       aria-label="bridge paused notice"
-      className="mb-6 max-w-lg mx-auto rounded-2xl border border-red-500/40 bg-red-500/10 backdrop-blur-sm p-5 text-sm"
+      className="mb-6 max-w-lg mx-auto rounded-2xl border border-[#00e5d0]/40 bg-[#00e5d0]/10 backdrop-blur-sm p-5 text-sm"
     >
       <div className="flex items-start gap-3">
-        <span className="text-red-300 text-lg mt-0.5" aria-hidden="true">
+        <span className="text-[#00e5d0] text-lg mt-0.5" aria-hidden="true">
           &#9208;
         </span>
         <div className="space-y-2 min-w-0">
           <div className="flex items-baseline justify-between gap-2 flex-wrap">
-            <p className="text-red-200 font-semibold text-xs uppercase tracking-wide">
-              Bridge paused &mdash; safety circuit breaker tripped
+            <p className="text-[#00e5d0] font-semibold text-xs uppercase tracking-wide">
+              Bridge paused for upgrades
             </p>
             {countdownActive ? (
               <p
-                className="text-red-100/80 text-[11px] font-semibold tabular-nums"
+                className="text-[#00e5d0]/90 text-[11px] font-semibold tabular-nums"
                 aria-label={`resumes in ${formatCountdown(secondsRemaining)}`}
               >
                 {formatCountdown(secondsRemaining)}
@@ -65,12 +65,14 @@ export function PausedBanner() {
             ) : null}
           </div>
           <p className="text-gray-200 text-xs leading-relaxed">
-            An anomaly tripped our automatic safety circuit and the bridge has
-            been paused for 24 hours. Mints and burns will resume when the
-            timer hits zero. Funds already locked or burned are unaffected and
-            will settle once the bridge is live again.
+            Thanks for bearing with us &mdash; we&rsquo;re growing fast and
+            pausing briefly to ship infrastructure upgrades that handle the
+            increased demand. <span className="text-white">All funds are
+            safe</span> and will be fully accessible the moment the bridge
+            reopens. Any deposits or burns already on-chain will settle
+            normally once we resume. Apologies for the interruption.
           </p>
-          <p className="text-red-100/70 text-[11px] leading-relaxed pt-1.5 border-t border-red-500/15">
+          <p className="text-[#00e5d0]/70 text-[11px] leading-relaxed pt-1.5 border-t border-[#00e5d0]/15">
             {countdownActive
               ? "Resumes at 2026-05-31 17:24:55 UTC."
               : "Resuming shortly\u2026"}
