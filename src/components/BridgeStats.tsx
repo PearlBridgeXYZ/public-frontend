@@ -2,6 +2,7 @@ import { useReadContracts } from "wagmi";
 import { WPRL_ABI, BRIDGE_CONTROLLER_ABI, ADDRESSES, EXPECTED_CHAIN_ID } from "../lib/contracts";
 import { NETWORK } from "../lib/config";
 import { grainsToWholePrl } from "../lib/utils";
+import { useIntermediaryHotBalance } from "../lib/useIntermediaryHotBalance";
 
 const ADDRS = ADDRESSES[NETWORK];
 
@@ -19,9 +20,18 @@ export function BridgeStats() {
     query: { refetchInterval: 30_000 },
   });
 
-  const tvl = data?.[0]?.result as bigint | undefined;
+  const totalSupply = data?.[0]?.result as bigint | undefined;
   const fastRemaining = data?.[1]?.result as bigint | undefined;
   const isPaused = data?.[2]?.result as boolean | undefined;
+
+  // Subtract the side-door intermediary's pending-burn WPRL so TVL
+  // reflects user-held supply, not raw on-chain totalSupply. See
+  // useIntermediaryHotBalance for the rationale.
+  const { balance: pendingBurn } = useIntermediaryHotBalance();
+  const tvl =
+    totalSupply !== undefined
+      ? totalSupply - (pendingBurn ?? 0n)
+      : undefined;
 
   return (
     <div className="w-full max-w-lg mx-auto mt-3 grid grid-cols-3 gap-3">
