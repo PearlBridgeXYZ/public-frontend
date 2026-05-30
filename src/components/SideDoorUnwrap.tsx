@@ -266,11 +266,8 @@ export function SideDoorUnwrap() {
         </div>
 
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 text-xs text-amber-100/90 leading-relaxed">
-          You send WPRL directly to an operator hot wallet. PRL is paid
-          from a separate operator hot wallet. This is <strong>not</strong>
-          {" "}trust-minimized — the operator could withhold. Use only while
-          the canonical bridge is paused, and only for amounts you would
-          trust the operator with.
+          Temporary side door opened to allow unwrapping WPRL to PRL
+          while the bridge is paused. Fee {feePct}%.
         </div>
 
         {/* ---- Input step ------------------------------------------------ */}
