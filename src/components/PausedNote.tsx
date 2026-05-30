@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-
-// Same anchor as PausedBanner — pause block timestamp + 24h. Once we're past
-// the deposit-resume target, the community note hides alongside the banner.
-const DEPOSIT_RESUMES_AT_UNIX = 1_780_192_295; // 2026-05-31 17:24:55 UTC
+import { DEPOSIT_RESUMES_AT_UNIX } from "../lib/pauseSchedule";
 
 export function PausedNote() {
   const [nowSec, setNowSec] = useState<number>(() => Math.floor(Date.now() / 1000));

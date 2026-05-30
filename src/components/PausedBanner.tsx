@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
 import { useReadContract } from "wagmi";
 import { BRIDGE_CONTROLLER_ABI, CONTRACTS, EXPECTED_CHAIN_ID } from "../lib/contracts";
-
-// Pause was triggered by the safety circuit at block 25205020 (PAUSER guardian
-// 0x10AE…9009). Anchor both countdowns to that block's timestamp so the resume
-// targets are fixed for every visitor — withdrawals at +2h, deposits at +24h.
-const PAUSE_AT_UNIX = 1_780_105_895; // 2026-05-30 17:24:55 UTC
-const WITHDRAW_RESUMES_AT_UNIX = PAUSE_AT_UNIX + 2 * 3600;   // 2026-05-30 19:24:55 UTC
-const DEPOSIT_RESUMES_AT_UNIX = PAUSE_AT_UNIX + 24 * 3600;   // 2026-05-31 17:24:55 UTC
+import {
+  WITHDRAW_RESUMES_AT_UNIX,
+  DEPOSIT_RESUMES_AT_UNIX,
+} from "../lib/pauseSchedule";
 
 function formatCountdown(secondsTotal: number): string {
   const s = Math.max(0, secondsTotal);

@@ -3,7 +3,6 @@ import {
   DISCLAIMER_INTRO,
   DISCLAIMER_CLAUSES,
   DISCLAIMER_VERSION,
-  hasAcceptedDisclaimer,
   markDisclaimerAccepted,
 } from "../lib/disclaimer";
 
@@ -175,9 +174,3 @@ export function LegalDisclaimer({ onAccept }: Props) {
   );
 }
 
-// Backwards-compat export — older imports still use the modal name.
-export const DisclaimerModal = LegalDisclaimer;
-
-// Hook for the App-shell to read acceptance state. Re-exported so callers
-// don't need to import from two paths.
-export { hasAcceptedDisclaimer };

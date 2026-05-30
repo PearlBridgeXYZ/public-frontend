@@ -37,14 +37,9 @@ function safeLocalStorage(): Storage | null {
 }
 
 export function newReceiptId(): string {
-  // 9-char base36 (~ 47 bits of entropy) — collision-resistant within a single
-  // user's history; not meant to be globally unique.
-  const rand = new Uint8Array(8);
-  crypto.getRandomValues(rand);
-  let n = 0n;
-  for (const b of rand) n = (n << 8n) | BigInt(b);
-  const s = n.toString(36).slice(0, 9).padStart(9, "0");
-  return `r_${s}`;
+  // 122-bit UUID v4, hyphens stripped for URL compactness. The receipt index
+  // can grow without practical collision risk even across many devices.
+  return `r_${crypto.randomUUID().replace(/-/g, "")}`;
 }
 
 export function loadReceipt(id: string): BridgeReceipt | null {
