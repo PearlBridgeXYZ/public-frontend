@@ -8,8 +8,8 @@
 // first-party — the only path that works reliably across browsers.
 //
 // Failover tiers (added 2026-05-26 after relay 502 incident):
-//   1. PRIMARY = api.pearlbridge.xyz (Hetzner openclaw VPS, active)
-//   2. EU      = api-eu.pearlbridge.xyz (Hetzner CX23 hel1, passive hot-standby)
+//   1. PRIMARY = api.pearlbridge.xyz (active)
+//   2. EU      = api-eu.pearlbridge.xyz (passive hot-standby)
 //   3. CACHE   = CF edge SWR (whitelisted public GETs only)
 //
 // Reads (whitelist): try PRIMARY → EU → cache, return whichever responds 2xx.
