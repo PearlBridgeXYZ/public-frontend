@@ -9,7 +9,7 @@
 //   4. Send WPRL to the intermediary hot address (one-click via wagmi)
 //   5. Poll /api/unwrap/status by tx hash → render state machine
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAccount, useBlockNumber, useChainId, useSignMessage, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { type Hex } from "viem";
 import { WPRL_ABI, ADDRESSES, NETWORK } from "../lib/contracts";
@@ -95,6 +95,26 @@ export function SideDoorUnwrap() {
     watch: { enabled: trackingActive, pollingInterval: 4_000 },
     query: { enabled: trackingActive, refetchInterval: 4_000 },
   });
+
+  // -- Smooth countdown: 1s tick + track when the head last advanced --------
+  // Used to interpolate the confirmation bar between blocks and to render a
+  // shrinking "~Ns remaining" estimate. 14s = canonical mainnet block time.
+  const [nowMs, setNowMs] = useState<number>(() => Date.now());
+  const [lastBlockChangeMs, setLastBlockChangeMs] = useState<number | null>(null);
+  const lastSeenBlockRef = useRef<bigint | null>(null);
+
+  useEffect(() => {
+    if (currentBlock != null && currentBlock !== lastSeenBlockRef.current) {
+      lastSeenBlockRef.current = currentBlock;
+      setLastBlockChangeMs(Date.now());
+    }
+  }, [currentBlock]);
+
+  useEffect(() => {
+    if (!trackingActive || rows.length > 0) return;
+    const id = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [trackingActive, rows.length]);
 
   // -- Status poll ---------------------------------------------------------
   useEffect(() => {
@@ -381,37 +401,57 @@ export function SideDoorUnwrap() {
             <p className="text-gray-300 text-sm">
               ETH tx{" "}
               <span className="font-mono text-white">{shortAddress(txHash)}</span>{" "}
-              broadcast — waiting for the relay.
+              broadcast.
             </p>
             {rows.length === 0 && (() => {
               const minConfs = cfg.minConfirmations ?? 12;
+              const SEC_PER_BLOCK = 14;
               if (!receipt) {
                 return (
                   <ConfirmationBar
-                    confs={0}
+                    smoothedConfs={0}
+                    integerConfs={0}
                     minConfs={minConfs}
                     label="Waiting for transaction to be mined…"
                   />
                 );
               }
-              const confs = currentBlock
+              const integerConfs = currentBlock
                 ? Math.max(0, Number(currentBlock - receipt.blockNumber) + 1)
                 : 1;
-              if (confs < minConfs) {
+              if (integerConfs >= minConfs) {
                 return (
                   <ConfirmationBar
-                    confs={confs}
+                    smoothedConfs={minConfs}
+                    integerConfs={minConfs}
                     minConfs={minConfs}
-                    label={`${confs} / ${minConfs} ETH confirmations`}
+                    label="Confirmations reached — waiting for the relay to observe…"
+                    done
                   />
                 );
               }
+              // Smooth: interpolate confs by (time since last block) / 14s,
+              // clamped so the bar never overshoots integer confs+1.
+              const elapsedMs = lastBlockChangeMs
+                ? Math.max(0, nowMs - lastBlockChangeMs)
+                : 0;
+              const partialBlock = Math.min(1, elapsedMs / (SEC_PER_BLOCK * 1000));
+              const smoothedConfs = Math.min(minConfs, integerConfs + partialBlock);
+              const blocksRemaining = Math.max(0, minConfs - integerConfs);
+              const etaSec = Math.max(
+                0,
+                Math.ceil((blocksRemaining * SEC_PER_BLOCK * 1000 - elapsedMs) / 1000),
+              );
+              const etaStr =
+                etaSec >= 60
+                  ? `~${Math.floor(etaSec / 60)}m ${String(etaSec % 60).padStart(2, "0")}s`
+                  : `~${etaSec}s`;
               return (
                 <ConfirmationBar
-                  confs={minConfs}
+                  smoothedConfs={smoothedConfs}
+                  integerConfs={integerConfs}
                   minConfs={minConfs}
-                  label="Confirmations reached — waiting for the relay to observe…"
-                  done
+                  label={`Waiting for confirmations · ${etaStr} remaining`}
                 />
               );
             })()}
@@ -478,24 +518,28 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function ConfirmationBar({
-  confs,
+  smoothedConfs,
+  integerConfs,
   minConfs,
   label,
   done,
 }: {
-  confs: number;
+  smoothedConfs: number;
+  integerConfs: number;
   minConfs: number;
   label: string;
   done?: boolean;
 }) {
-  const pct = Math.min(100, Math.max(0, (confs / minConfs) * 100));
+  const pct = Math.min(100, Math.max(0, (smoothedConfs / minConfs) * 100));
+  // Transition just under the 1s tick interval so the bar eases between
+  // ticks without ever falling behind the next update.
   return (
     <div className="space-y-1.5 pt-1">
       <div className="flex items-baseline justify-between gap-2">
         <span className="text-gray-400 text-[11px]">{label}</span>
         {!done && (
           <span className="text-gray-500 text-[10px] tabular-nums">
-            {confs}/{minConfs}
+            {integerConfs}/{minConfs}
           </span>
         )}
       </div>
@@ -504,10 +548,10 @@ function ConfirmationBar({
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={minConfs}
-        aria-valuenow={confs}
+        aria-valuenow={integerConfs}
       >
         <div
-          className={`h-full rounded-full transition-all duration-500 ease-out ${
+          className={`h-full rounded-full transition-[width] duration-[900ms] ease-linear ${
             done
               ? "bg-gradient-to-r from-emerald-400 to-emerald-500"
               : "bg-gradient-to-r from-amber-400 to-amber-500"
