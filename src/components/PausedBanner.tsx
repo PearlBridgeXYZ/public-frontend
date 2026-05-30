@@ -16,12 +16,12 @@ export function PausedBanner() {
     return () => clearInterval(t);
   }, []);
 
-  // Banner displays through the deposit-resume target. Withdrawals are
-  // covered by the side door (paid), so no withdrawal countdown — only
-  // deposits remain time-gated.
+  // Banner displays through the resume target. Both deposits and normal
+  // (free) withdrawals share the same countdown; the side-door (paid)
+  // withdrawal path stays open the whole time as a fallback.
   if (nowSec >= DEPOSIT_RESUMES_AT_UNIX) return null;
 
-  const depositSeconds = DEPOSIT_RESUMES_AT_UNIX - nowSec;
+  const resumeSeconds = DEPOSIT_RESUMES_AT_UNIX - nowSec;
 
   return (
     <div
@@ -49,29 +49,19 @@ export function PausedBanner() {
           <div className="space-y-1.5 pt-2 border-t border-[#00e5d0]/15">
             <div className="flex items-baseline justify-between gap-2 flex-wrap">
               <p className="text-gray-300 text-[11px]">
-                <span className="text-white font-semibold">Withdrawals</span>
-                <span className="text-gray-500"> (WPRL &rarr; PRL)</span>
-              </p>
-              <p className="text-[#00e5d0] text-[11px] font-semibold">
-                Side door open
-              </p>
-            </div>
-            <p className="text-gray-500 text-[10px] leading-relaxed -mt-1">
-              with fee &middot; free withdrawals resume when main bridge unpauses
-            </p>
-            <div className="flex items-baseline justify-between gap-2 flex-wrap pt-1">
-              <p className="text-gray-300 text-[11px]">
-                <span className="text-white font-semibold">Deposits</span>
-                <span className="text-gray-500"> (PRL &rarr; WPRL)</span>
+                <span className="text-white font-semibold">Deposits &amp; withdrawals</span>
                 <span className="text-gray-500"> resume in</span>
               </p>
               <p
                 className="text-[#00e5d0]/90 text-[11px] font-semibold tabular-nums"
-                aria-label={`deposits resume in ${formatCountdown(depositSeconds)}`}
+                aria-label={`deposits and withdrawals resume in ${formatCountdown(resumeSeconds)}`}
               >
-                {formatCountdown(depositSeconds)}
+                {formatCountdown(resumeSeconds)}
               </p>
             </div>
+            <p className="text-gray-500 text-[10px] leading-relaxed -mt-0.5">
+              Side door (paid withdrawals) remains open until then.
+            </p>
           </div>
         </div>
       </div>

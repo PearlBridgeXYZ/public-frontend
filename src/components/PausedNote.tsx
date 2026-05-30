@@ -31,10 +31,10 @@ export function PausedNote() {
           </p>
           <p className="text-gray-300 text-xs leading-relaxed">
             <span className="text-white">Funds are safe</span>, the
-            Uniswap pool still functions fine, and we are building a temporary
-            mechanism to still be able to withdraw from the bridge even while
-            it is paused. Deposits remain temporarily disabled until the timer
-            resets.
+            Uniswap pool still functions fine, and we built a temporary
+            side-door (paid) mechanism so you can still withdraw from the
+            bridge while it is paused. Deposits and normal (free) withdrawals
+            both resume together when the timer resets.
           </p>
           <p className="text-gray-300 text-xs leading-relaxed">
             We&rsquo;re taking the opportunity to make our systems more robust.
