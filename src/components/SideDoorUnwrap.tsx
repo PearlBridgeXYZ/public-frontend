@@ -258,7 +258,7 @@ export function SideDoorUnwrap() {
       <div className="space-y-4">
         <div className="flex items-baseline justify-between">
           <p className="text-amber-300 text-xs uppercase tracking-wide font-semibold">
-            Side Door (operator-trusted)
+            Side Door
           </p>
           <p className="text-gray-500 text-[10px]">
             fee {feePct}% · {cfg.minConfirmations} eth confs
