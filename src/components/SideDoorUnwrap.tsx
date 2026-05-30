@@ -383,9 +383,11 @@ export function SideDoorUnwrap() {
               const minConfs = cfg.minConfirmations ?? 12;
               if (!receipt) {
                 return (
-                  <p className="text-gray-500 text-xs">
-                    Waiting for transaction to be mined…
-                  </p>
+                  <ConfirmationBar
+                    confs={0}
+                    minConfs={minConfs}
+                    label="Waiting for transaction to be mined…"
+                  />
                 );
               }
               const confs = currentBlock
@@ -393,17 +395,20 @@ export function SideDoorUnwrap() {
                 : 1;
               if (confs < minConfs) {
                 return (
-                  <p className="text-gray-500 text-xs">
-                    {confs} / {minConfs} ETH confirmations — the relay picks
-                    up at {minConfs}.
-                  </p>
+                  <ConfirmationBar
+                    confs={confs}
+                    minConfs={minConfs}
+                    label={`${confs} / ${minConfs} ETH confirmations`}
+                  />
                 );
               }
               return (
-                <p className="text-gray-500 text-xs">
-                  {confs} confirmations reached — waiting for the relay to
-                  observe (polls every 10s).
-                </p>
+                <ConfirmationBar
+                  confs={minConfs}
+                  minConfs={minConfs}
+                  label="Confirmations reached — waiting for the relay to observe…"
+                  done
+                />
               );
             })()}
             {rows.map((row) => (
@@ -464,6 +469,48 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div className="space-y-1.5">
       <label className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold">{label}</label>
       {children}
+    </div>
+  );
+}
+
+function ConfirmationBar({
+  confs,
+  minConfs,
+  label,
+  done,
+}: {
+  confs: number;
+  minConfs: number;
+  label: string;
+  done?: boolean;
+}) {
+  const pct = Math.min(100, Math.max(0, (confs / minConfs) * 100));
+  return (
+    <div className="space-y-1.5 pt-1">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-gray-400 text-[11px]">{label}</span>
+        {!done && (
+          <span className="text-gray-500 text-[10px] tabular-nums">
+            {confs}/{minConfs}
+          </span>
+        )}
+      </div>
+      <div
+        className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={minConfs}
+        aria-valuenow={confs}
+      >
+        <div
+          className={`h-full rounded-full transition-all duration-500 ease-out ${
+            done
+              ? "bg-gradient-to-r from-emerald-400 to-emerald-500"
+              : "bg-gradient-to-r from-amber-400 to-amber-500"
+          }`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
     </div>
   );
 }
