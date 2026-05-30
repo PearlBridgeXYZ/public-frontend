@@ -4,6 +4,7 @@ import { useReadContract } from "wagmi";
 import { WPRL_ABI, CONTRACTS, EXPECTED_CHAIN_ID } from "../lib/contracts";
 import { PEARL_EXPLORER_BASE, RELAY_API_BASE } from "../lib/config";
 import { grainsToDisplay } from "../lib/utils";
+import { useIntermediaryHotBalance } from "../lib/useIntermediaryHotBalance";
 
 type AuditReport = {
   slug: string;
@@ -195,9 +196,22 @@ function SolvencyCard() {
   const breakdownUrl = `${RELAY_API_BASE}/api/custody/addresses`;
 
   const totalSupplyBig = totalSupply !== undefined ? (totalSupply as bigint) : null;
+
+  // Subtract the side-door intermediary hot wallet's WPRL balance from the
+  // raw totalSupply to get the honest "user-held WPRL in circulation"
+  // figure. That WPRL is operator-owned and pending burn — the lock has
+  // already paid out the corresponding PRL, so counting it against
+  // backing creates a transient apparent shortfall that resolves the
+  // moment the operator burns. See useIntermediaryHotBalance for the
+  // rationale.
+  const { address: intermediaryAddress, balance: intermediaryHotBalance } =
+    useIntermediaryHotBalance();
+  const pendingBurnGrains = intermediaryHotBalance ?? 0n;
+  const circulatingWprlGrains =
+    totalSupplyBig !== null ? totalSupplyBig - pendingBurnGrains : null;
   const surplusGrains =
-    totalCustodyGrains !== null && totalSupplyBig !== null
-      ? totalCustodyGrains - totalSupplyBig
+    totalCustodyGrains !== null && circulatingWprlGrains !== null
+      ? totalCustodyGrains - circulatingWprlGrains
       : null;
   // Cross-check the wagmi-read totalSupply against the relay's reading. If they
   // disagree by more than a grain we surface a warning — but neither source is
@@ -225,16 +239,29 @@ function SolvencyCard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl bg-black/30 border border-white/5 p-4">
           <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-2">
-            WPRL minted (Ethereum)
+            WPRL in circulation (Ethereum)
           </p>
           <p className="text-xl font-bold text-white">
-            {totalSupplyBig !== null
-              ? `${grainsToDisplay(totalSupplyBig)} WPRL`
+            {circulatingWprlGrains !== null
+              ? `${grainsToDisplay(circulatingWprlGrains)} WPRL`
               : "—"}
           </p>
+          {pendingBurnGrains > 0n && totalSupplyBig !== null && (
+            <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
+              <span className="font-mono">{grainsToDisplay(totalSupplyBig)}</span>{" "}
+              minted &minus;{" "}
+              <span className="font-mono">{grainsToDisplay(pendingBurnGrains)}</span>{" "}
+              in side-door intermediary, pending burn
+            </p>
+          )}
           <p className="text-[11px] text-gray-500 mt-2 font-mono break-all">
             {wprlAddr}
           </p>
+          {intermediaryAddress && pendingBurnGrains > 0n && (
+            <p className="text-[10px] text-gray-600 mt-1 font-mono break-all">
+              side door: {intermediaryAddress}
+            </p>
+          )}
         </div>
         <div className="rounded-xl bg-black/30 border border-white/5 p-4">
           <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-2">
