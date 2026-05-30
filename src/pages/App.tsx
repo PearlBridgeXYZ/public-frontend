@@ -17,6 +17,7 @@ import { BridgeWidget } from "../components/BridgeWidget";
 import { BridgeStats } from "../components/BridgeStats";
 import { BridgeModeToggle } from "../components/BridgeModeToggle";
 import { PausedBanner } from "../components/PausedBanner";
+import { PausedNote } from "../components/PausedNote";
 import { LegalDisclaimer } from "../components/DisclaimerModal";
 import { hasAcceptedDisclaimer } from "../lib/disclaimer";
 import { BugBountyModal } from "../components/BugBountyModal";
@@ -259,6 +260,7 @@ function HomePage() {
       </div>
 
       {NETWORK === "mainnet" && <PausedBanner />}
+      {NETWORK === "mainnet" && <PausedNote />}
 
       {NETWORK === "mainnet" && fastLaneRunningLow && (
         <div
