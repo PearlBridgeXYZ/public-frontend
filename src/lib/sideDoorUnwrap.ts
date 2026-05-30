@@ -115,7 +115,15 @@ export async function postBind(args: {
   if (!res.ok) {
     throw new Error(`bind failed (HTTP ${res.status}): ${j?.error ?? "unknown"}`);
   }
-  return j as BindingRow;
+  // Relay's bind response is {ok, expiresAt, promoted} — it does NOT echo
+  // ethAddress/pearlAddress back. Synthesize the BindingRow from the args
+  // we just sent + the expiresAt the relay returned, so downstream renders
+  // (which read binding.pearlAddress) don't blow up.
+  return {
+    ethAddress: args.ethAddress,
+    pearlAddress: args.pearlAddress,
+    expiresAt: Number(j?.expiresAt ?? args.issuedAt + (args.bindingTtlMs ?? DEFAULT_BINDING_TTL_MS)),
+  };
 }
 
 export async function fetchBinding(ethAddress: string): Promise<BindingRow | null> {
