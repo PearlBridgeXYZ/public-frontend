@@ -13,6 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { useAccount, useBlockNumber, useChainId, useSignMessage, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { type Hex } from "viem";
 import { WPRL_ABI, ADDRESSES, NETWORK } from "../lib/contracts";
+import { PEARL_EXPLORER_BASE, ethExplorerTxUrl } from "../lib/config";
 import { isPlausiblePearlAddress } from "../lib/pearlAddress";
 import { shortAddress, parseToGrains, grainsToDisplay } from "../lib/utils";
 import { CopyButton } from "./CopyButton";
@@ -396,103 +397,86 @@ export function SideDoorUnwrap() {
         )}
 
         {/* ---- Tracking ------------------------------------------------- */}
-        {(step === "tracking" || step === "done") && txHash && (
-          <div className="space-y-2">
-            <p className="text-gray-300 text-sm">
-              ETH tx{" "}
-              <span className="font-mono text-white">{shortAddress(txHash)}</span>{" "}
-              broadcast.
-            </p>
-            {rows.length === 0 && (() => {
-              const minConfs = cfg.minConfirmations ?? 12;
-              const SEC_PER_BLOCK = 14;
-              if (!receipt) {
-                return (
-                  <ConfirmationBar
-                    smoothedConfs={0}
-                    integerConfs={0}
-                    minConfs={minConfs}
-                    label="Waiting for transaction to be mined…"
-                  />
-                );
-              }
-              const integerConfs = currentBlock
-                ? Math.max(0, Number(currentBlock - receipt.blockNumber) + 1)
-                : 1;
-              if (integerConfs >= minConfs) {
-                return (
-                  <ConfirmationBar
-                    smoothedConfs={minConfs}
-                    integerConfs={minConfs}
-                    minConfs={minConfs}
-                    label="Confirmations reached — waiting for the relay to observe…"
-                    done
-                  />
-                );
-              }
-              // Smooth: interpolate confs by (time since last block) / 14s,
-              // clamped so the bar never overshoots integer confs+1.
-              const elapsedMs = lastBlockChangeMs
-                ? Math.max(0, nowMs - lastBlockChangeMs)
-                : 0;
-              const partialBlock = Math.min(1, elapsedMs / (SEC_PER_BLOCK * 1000));
-              const smoothedConfs = Math.min(minConfs, integerConfs + partialBlock);
-              const blocksRemaining = Math.max(0, minConfs - integerConfs);
-              const etaSec = Math.max(
-                0,
-                Math.ceil((blocksRemaining * SEC_PER_BLOCK * 1000 - elapsedMs) / 1000),
-              );
-              const etaStr =
-                etaSec >= 60
-                  ? `~${Math.floor(etaSec / 60)}m ${String(etaSec % 60).padStart(2, "0")}s`
-                  : `~${etaSec}s`;
-              return (
-                <ConfirmationBar
-                  smoothedConfs={smoothedConfs}
-                  integerConfs={integerConfs}
-                  minConfs={minConfs}
-                  label={`Waiting for confirmations · ${etaStr} remaining`}
-                />
-              );
-            })()}
-            {rows.map((row) => (
-              <div key={row.ethLogIndex} className="bg-white/5 rounded-lg px-3 py-2 text-xs space-y-1">
-                <div className="flex justify-between text-gray-400">
-                  <span>WPRL in</span>
-                  <span className="font-mono text-white">
-                    {grainsToDisplay(BigInt(row.wprlAmount))}
-                  </span>
-                </div>
-                {row.pearlAmount && (
-                  <div className="flex justify-between text-gray-400">
-                    <span>PRL out (net of fee)</span>
-                    <span className="font-mono text-white">
-                      {grainsToDisplay(BigInt(row.pearlAmount))}
-                    </span>
-                  </div>
-                )}
-                <div className="flex justify-between text-gray-400">
-                  <span>State</span>
-                  <StateBadge state={row.state} />
-                </div>
-                {row.pearlTxId && (
-                  <div className="flex justify-between text-gray-400">
-                    <span>Pearl tx</span>
-                    <span className="font-mono text-white">{row.pearlTxId.slice(0, 12)}…</span>
-                  </div>
-                )}
-                {row.reviewReason && (
-                  <p className="text-amber-300 text-[10px] pt-1">
-                    Under review: {row.reviewReason}
-                  </p>
-                )}
-                {row.lastError && (
-                  <p className="text-red-300 text-[10px] pt-1">Last error: {row.lastError}</p>
+        {(step === "tracking" || step === "done") && txHash && (() => {
+          const ethTxLink = ethExplorerTxUrl(txHash);
+          return (
+            <div className="space-y-3">
+              {/* ETH tx — always show with explorer link */}
+              <div className="bg-white/5 rounded-lg px-3 py-2 text-xs flex justify-between items-center">
+                <span className="text-gray-400">ETH tx</span>
+                {ethTxLink ? (
+                  <a
+                    href={ethTxLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-amber-300 hover:underline"
+                  >
+                    {shortAddress(txHash)} ↗
+                  </a>
+                ) : (
+                  <span className="font-mono text-white">{shortAddress(txHash)}</span>
                 )}
               </div>
-            ))}
-          </div>
-        )}
+
+              {/* Pre-relay: confirmation progress */}
+              {rows.length === 0 && (() => {
+                const minConfs = cfg.minConfirmations ?? 12;
+                const SEC_PER_BLOCK = 14;
+                if (!receipt) {
+                  return (
+                    <ConfirmationBar
+                      smoothedConfs={0}
+                      integerConfs={0}
+                      minConfs={minConfs}
+                      label="Waiting for transaction to be mined…"
+                    />
+                  );
+                }
+                const integerConfs = currentBlock
+                  ? Math.max(0, Number(currentBlock - receipt.blockNumber) + 1)
+                  : 1;
+                if (integerConfs >= minConfs) {
+                  return (
+                    <ConfirmationBar
+                      smoothedConfs={minConfs}
+                      integerConfs={minConfs}
+                      minConfs={minConfs}
+                      label="Confirmations reached · relay picking up shortly…"
+                      done
+                    />
+                  );
+                }
+                const elapsedMs = lastBlockChangeMs
+                  ? Math.max(0, nowMs - lastBlockChangeMs)
+                  : 0;
+                const partialBlock = Math.min(1, elapsedMs / (SEC_PER_BLOCK * 1000));
+                const smoothedConfs = Math.min(minConfs, integerConfs + partialBlock);
+                const blocksRemaining = Math.max(0, minConfs - integerConfs);
+                const etaSec = Math.max(
+                  0,
+                  Math.ceil((blocksRemaining * SEC_PER_BLOCK * 1000 - elapsedMs) / 1000),
+                );
+                const etaStr =
+                  etaSec >= 60
+                    ? `~${Math.floor(etaSec / 60)}m ${String(etaSec % 60).padStart(2, "0")}s`
+                    : `~${etaSec}s`;
+                return (
+                  <ConfirmationBar
+                    smoothedConfs={smoothedConfs}
+                    integerConfs={integerConfs}
+                    minConfs={minConfs}
+                    label={`Waiting for confirmations · ${etaStr} remaining`}
+                  />
+                );
+              })()}
+
+              {/* Post-relay: one row per Transfer log */}
+              {rows.map((row) => (
+                <UnwrapRowCard key={row.ethLogIndex} row={row} />
+              ))}
+            </div>
+          );
+        })()}
 
         {err && <p className="text-red-300 text-xs">{err}</p>}
       </div>
@@ -563,16 +547,138 @@ function ConfirmationBar({
   );
 }
 
-function StateBadge({ state }: { state: UnwrapRow["state"] }) {
-  const color: Record<UnwrapRow["state"], string> = {
-    awaiting_address: "text-gray-300",
-    pending: "text-yellow-300",
-    signing: "text-cyan-300",
-    submitted: "text-cyan-300",
-    finalized: "text-emerald-300",
-    failed: "text-red-300",
-    reorged: "text-red-300",
-    under_review: "text-amber-300",
-  };
-  return <span className={`font-semibold ${color[state]}`}>{state}</span>;
+// Human-readable headline + tone per relay state. The relay's state machine
+// passes through pending → signing → submitted → finalized; failures branch
+// to failed/reorged/under_review.
+type Tone = "progress" | "success" | "warn" | "error";
+const STATE_DISPLAY: Record<UnwrapRow["state"], { headline: string; sub: string; tone: Tone }> = {
+  awaiting_address: {
+    headline: "Awaiting binding",
+    sub: "Relay observed your deposit but has no Pearl address bound — re-bind and retry.",
+    tone: "warn",
+  },
+  pending: {
+    headline: "Observed by relay",
+    sub: "Queued for Pearl payout signing.",
+    tone: "progress",
+  },
+  signing: {
+    headline: "Signing Pearl payout",
+    sub: "Building and signing the PRL transaction.",
+    tone: "progress",
+  },
+  submitted: {
+    headline: "PRL transaction broadcast",
+    sub: "Waiting for Pearl confirmations.",
+    tone: "progress",
+  },
+  finalized: {
+    headline: "PRL delivered",
+    sub: "The Pearl transaction is confirmed on the Pearl chain.",
+    tone: "success",
+  },
+  failed: {
+    headline: "Payout failed",
+    sub: "The relay was unable to deliver PRL. See the error below.",
+    tone: "error",
+  },
+  reorged: {
+    headline: "Eth-side reorg",
+    sub: "Your deposit was reorganized out of the canonical chain.",
+    tone: "error",
+  },
+  under_review: {
+    headline: "Under operator review",
+    sub: "The deposit triggered an anomaly check and is queued for manual review.",
+    tone: "warn",
+  },
+};
+
+const TONE_CLASSES: Record<Tone, { border: string; bg: string; dot: string; text: string }> = {
+  progress: {
+    border: "border-cyan-500/30",
+    bg: "bg-cyan-500/5",
+    dot: "bg-cyan-400 animate-pulse",
+    text: "text-cyan-200",
+  },
+  success: {
+    border: "border-emerald-500/40",
+    bg: "bg-emerald-500/10",
+    dot: "bg-emerald-400",
+    text: "text-emerald-200",
+  },
+  warn: {
+    border: "border-amber-500/40",
+    bg: "bg-amber-500/10",
+    dot: "bg-amber-400",
+    text: "text-amber-200",
+  },
+  error: {
+    border: "border-red-500/40",
+    bg: "bg-red-500/10",
+    dot: "bg-red-400",
+    text: "text-red-200",
+  },
+};
+
+function UnwrapRowCard({ row }: { row: UnwrapRow }) {
+  const display = STATE_DISPLAY[row.state] ?? STATE_DISPLAY.pending;
+  const tone = TONE_CLASSES[display.tone];
+  const pearlLink = row.pearlTxId ? `${PEARL_EXPLORER_BASE}/tx/${row.pearlTxId}` : null;
+  return (
+    <div className={`rounded-xl border px-4 py-3 space-y-2 ${tone.border} ${tone.bg}`}>
+      <div className="flex items-center gap-2">
+        <span className={`inline-block w-2 h-2 rounded-full ${tone.dot}`} aria-hidden="true" />
+        <span className={`text-sm font-semibold ${tone.text}`}>{display.headline}</span>
+      </div>
+      <p className="text-xs text-gray-300 leading-relaxed">{display.sub}</p>
+
+      <div className="bg-black/20 rounded-lg px-3 py-2 text-xs space-y-1 mt-1">
+        <div className="flex justify-between text-gray-400">
+          <span>WPRL in</span>
+          <span className="font-mono text-white">{grainsToDisplay(BigInt(row.wprlAmount))}</span>
+        </div>
+        {row.pearlAmount && (
+          <div className="flex justify-between text-gray-400">
+            <span>PRL out</span>
+            <span className="font-mono text-white">{grainsToDisplay(BigInt(row.pearlAmount))}</span>
+          </div>
+        )}
+        {row.pearlAddress && (
+          <div className="flex justify-between text-gray-400">
+            <span>To</span>
+            <span className="font-mono text-white">{shortAddress(row.pearlAddress)}</span>
+          </div>
+        )}
+      </div>
+
+      {pearlLink && (
+        <a
+          href={pearlLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`block text-center text-sm font-semibold py-2 rounded-lg transition-colors ${
+            display.tone === "success"
+              ? "bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200"
+              : "bg-white/5 hover:bg-white/10 text-gray-200"
+          }`}
+        >
+          View PRL transaction on Pearl Explorer ↗
+        </a>
+      )}
+
+      {row.reviewReason && (
+        <p className="text-amber-200 text-[11px] leading-relaxed pt-1">
+          <span className="uppercase tracking-wide font-semibold">Reason: </span>
+          {row.reviewReason}
+        </p>
+      )}
+      {row.lastError && (
+        <p className="text-red-200 text-[11px] leading-relaxed pt-1">
+          <span className="uppercase tracking-wide font-semibold">Error: </span>
+          {row.lastError}
+        </p>
+      )}
+    </div>
+  );
 }

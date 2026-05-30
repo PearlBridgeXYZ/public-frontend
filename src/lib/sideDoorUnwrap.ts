@@ -171,7 +171,15 @@ export async function fetchStatusByTx(ethTxHash: string): Promise<UnwrapRow[]> {
   if (res.status === 404) return [];
   if (!res.ok) throw new Error(`status fetch failed: HTTP ${res.status}`);
   const j = await res.json();
-  return Array.isArray(j) ? (j as UnwrapRow[]) : [j as UnwrapRow];
+  // Relay returns three shapes:
+  //   - single row (when ?ethLogIndex= is set)            → object
+  //   - multi-row {entries: [...]} (no ethLogIndex)       → envelope
+  //   - bare array (older relay builds, kept for safety)  → array
+  if (Array.isArray(j)) return j as UnwrapRow[];
+  if (j && Array.isArray((j as { entries?: unknown }).entries)) {
+    return (j as { entries: UnwrapRow[] }).entries;
+  }
+  return [j as UnwrapRow];
 }
 
 export function isTerminalState(s: UnwrapState): boolean {
