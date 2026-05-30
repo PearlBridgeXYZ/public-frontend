@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { DEPOSIT_RESUMES_AT_UNIX } from "../lib/pauseSchedule";
+import { useBridgePaused } from "../lib/useBridgePaused";
 
 function formatCountdown(secondsTotal: number): string {
   const s = Math.max(0, secondsTotal);
@@ -16,12 +17,14 @@ export function PausedBanner() {
     return () => clearInterval(t);
   }, []);
 
-  // Banner displays through the resume target. Both deposits and normal
-  // (free) withdrawals share the same countdown; the side-door (paid)
-  // withdrawal path stays open the whole time as a fallback.
-  if (nowSec >= DEPOSIT_RESUMES_AT_UNIX) return null;
+  // On-chain paused() is authoritative — if ops unpauses early (or hasn't
+  // unpaused by the scheduled time), follow chain reality. The schedule is
+  // only used as an RPC-failure fallback inside the hook. When the bridge
+  // is live, hide unconditionally.
+  const { paused } = useBridgePaused();
+  if (!paused) return null;
 
-  const resumeSeconds = DEPOSIT_RESUMES_AT_UNIX - nowSec;
+  const resumeSeconds = Math.max(0, DEPOSIT_RESUMES_AT_UNIX - nowSec);
 
   return (
     <div

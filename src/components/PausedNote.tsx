@@ -1,14 +1,11 @@
-import { useEffect, useState } from "react";
-import { DEPOSIT_RESUMES_AT_UNIX } from "../lib/pauseSchedule";
+import { useBridgePaused } from "../lib/useBridgePaused";
 
 export function PausedNote() {
-  const [nowSec, setNowSec] = useState<number>(() => Math.floor(Date.now() / 1000));
-  useEffect(() => {
-    const t = setInterval(() => setNowSec(Math.floor(Date.now() / 1000)), 30_000);
-    return () => clearInterval(t);
-  }, []);
-
-  if (nowSec >= DEPOSIT_RESUMES_AT_UNIX) return null;
+  // Hide as soon as the on-chain pause is lifted (or the schedule expires if
+  // the RPC read is failing). The hook polls paused() every 15s, so this note
+  // disappears within one tick of ops calling unpause().
+  const { paused } = useBridgePaused();
+  if (!paused) return null;
 
   return (
     <div

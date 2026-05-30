@@ -1,17 +1,26 @@
-// Temporary wrapper that lets the user flip between the canonical
-// bridge UI (paused) and the operator-trusted side door (default while
-// the bridge is paused). Remove once the canonical bridge is healthy
-// and re-enabled — at that point BridgeWidget goes back to being the
-// sole entrypoint.
+// Wrapper that lets the user flip between the canonical bridge UI and the
+// operator-trusted side door — but only while the canonical bridge is
+// actually paused on-chain. Once ops unpauses paused(), the switcher
+// collapses to just the BridgeWidget; the side-door tab disappears entirely
+// because there's no reason to surface the paid path when the free one works.
 
 import { useState } from "react";
 import { BridgeWidget } from "./BridgeWidget";
 import { SideDoorUnwrap } from "./SideDoorUnwrap";
+import { useBridgePaused } from "../lib/useBridgePaused";
 
 type Mode = "side_door" | "canonical";
 
 export function BridgeCardSwitcher() {
+  const { paused } = useBridgePaused();
+  // Default to side_door while paused (it's the only working withdrawal
+  // path); once unpaused, this state is ignored and we render the canonical
+  // widget directly.
   const [mode, setMode] = useState<Mode>("side_door");
+
+  if (!paused) {
+    return <BridgeWidget />;
+  }
 
   return (
     <div className="w-full max-w-lg mx-auto space-y-3">
