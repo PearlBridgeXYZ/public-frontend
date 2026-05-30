@@ -10,7 +10,7 @@
 //   5. Poll /api/unwrap/status by tx hash → render state machine
 
 import { useEffect, useState } from "react";
-import { useAccount, useChainId, useSignMessage, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useBlockNumber, useChainId, useSignMessage, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { type Hex } from "viem";
 import { WPRL_ABI, ADDRESSES, NETWORK } from "../lib/contracts";
 import { isPlausiblePearlAddress } from "../lib/pearlAddress";
@@ -85,6 +85,12 @@ export function SideDoorUnwrap() {
     if (!receipt) return;
     setStep("tracking");
   }, [receipt]);
+
+  // -- Live head — used to compute "X / Y confirmations" --------------------
+  const { data: currentBlock } = useBlockNumber({
+    watch: true,
+    query: { enabled: !!receipt && step === "tracking" },
+  });
 
   // -- Status poll ---------------------------------------------------------
   useEffect(() => {
@@ -177,7 +183,8 @@ export function SideDoorUnwrap() {
 
   // ------------- main UI --------------------------------------------------
 
-  const feePct = ((cfg.feeBps ?? 0) / 100).toFixed(2);
+  // Trim trailing zeros so 50 bps → "0.5", 30 bps → "0.3", 25 bps → "0.25".
+  const feePct = ((cfg.feeBps ?? 0) / 100).toFixed(2).replace(/\.?0+$/, "");
   const intermediary = cfg.intermediaryHotAddress!;
 
   const handleBind = async () => {
@@ -372,11 +379,33 @@ export function SideDoorUnwrap() {
               <span className="font-mono text-white">{shortAddress(txHash)}</span>{" "}
               broadcast — waiting for the relay.
             </p>
-            {rows.length === 0 && (
-              <p className="text-gray-500 text-xs">
-                Relay has not yet observed your transfer. Polling every 10s.
-              </p>
-            )}
+            {rows.length === 0 && (() => {
+              const minConfs = cfg.minConfirmations ?? 12;
+              if (!receipt) {
+                return (
+                  <p className="text-gray-500 text-xs">
+                    Waiting for transaction to be mined…
+                  </p>
+                );
+              }
+              const confs = currentBlock
+                ? Math.max(0, Number(currentBlock - receipt.blockNumber) + 1)
+                : 1;
+              if (confs < minConfs) {
+                return (
+                  <p className="text-gray-500 text-xs">
+                    {confs} / {minConfs} ETH confirmations — the relay picks
+                    up at {minConfs}.
+                  </p>
+                );
+              }
+              return (
+                <p className="text-gray-500 text-xs">
+                  {confs} confirmations reached — waiting for the relay to
+                  observe (polls every 10s).
+                </p>
+              );
+            })()}
             {rows.map((row) => (
               <div key={row.ethLogIndex} className="bg-white/5 rounded-lg px-3 py-2 text-xs space-y-1">
                 <div className="flex justify-between text-gray-400">
