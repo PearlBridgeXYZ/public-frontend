@@ -13,7 +13,7 @@ import { wagmiConfig } from "../lib/wagmi";
 import { siweAdapter, getInitialSiweStatus } from "../lib/siweAdapter";
 import { getAuthStatus, subscribeAuthStatus } from "../lib/authStore";
 import { ConnectButton } from "../components/ConnectButton";
-import { BridgeWidget } from "../components/BridgeWidget";
+import { BridgeCardSwitcher } from "../components/BridgeCardSwitcher";
 import { BridgeStats } from "../components/BridgeStats";
 import { BridgeModeToggle } from "../components/BridgeModeToggle";
 import { PausedBanner } from "../components/PausedBanner";
@@ -297,7 +297,7 @@ function HomePage() {
         </div>
       )}
 
-      <BridgeWidget />
+      <BridgeCardSwitcher />
       <BridgeStats />
 
       <div className="mt-6 max-w-lg mx-auto glass rounded-2xl p-5 text-sm">
