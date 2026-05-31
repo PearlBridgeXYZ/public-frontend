@@ -646,7 +646,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
               <Row label="You receive" value={grainsToDisplay(net) + " WPRL"} highlight />
               <Row
                 label="Estimated time"
-                value={willBeSlowLane ? "~24h (slow lane)" : "~20 min (fast lane)"}
+                value={willBeSlowLane ? "~24h (slow lane)" : `${tierWaitLabel} (fast lane)`}
               />
               <p className="text-xs text-gray-500 pt-1 border-t border-white/5">
                 Bridge fee is 0.5% of the deposit, with a 4 PRL minimum (binds for deposits
@@ -664,10 +664,10 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
 
           {willBeFastLane && (
             <div className="text-xs text-[#00e5d0] bg-[#00e5d0]/5 border border-[#00e5d0]/30 rounded-xl px-3 py-2.5">
-              <span className="font-semibold">Fast lane &mdash; ~20 min.</span>{" "}
+              <span className="font-semibold">Fast lane.</span>{" "}
               Your amount fits the {dailyFastMintLimit !== undefined ? grainsToDisplay(dailyFastMintLimit) : "—"} PRL daily fast-lane cap
               ({fastMintWindowRemaining !== undefined ? grainsToDisplay(fastMintWindowRemaining) : "—"} PRL remaining today),
-              so WPRL will mint as soon as your deposit reaches {requiredConfirmations} Pearl confirmations ({tierWaitLabel}).
+              so WPRL will mint as soon as your deposit reaches {requiredConfirmations} Pearl confirmations.
             </div>
           )}
 
