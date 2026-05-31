@@ -52,3 +52,20 @@ jobs:
           name: dist
           path: dist
           retention-days: 30
+
+      - name: Deploy to Cloudflare Pages
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/next' || github.ref == 'refs/heads/main')
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            PROJECT=pearlbridge-xyz
+          else
+            PROJECT=pearlbridge-next
+          fi
+          npx -y wrangler@4 pages deploy dist \
+            --project-name="$PROJECT" \
+            --branch="${{ github.ref_name }}" \
+            --commit-hash="${{ github.sha }}" \
+            --commit-message="${{ github.event.head_commit.message }}"
