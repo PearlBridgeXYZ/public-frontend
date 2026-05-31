@@ -22,6 +22,7 @@ import { LegalDisclaimer } from "../components/DisclaimerModal";
 import { hasAcceptedDisclaimer } from "../lib/disclaimer";
 import { BugBountyModal } from "../components/BugBountyModal";
 import { Status } from "./Status";
+import { Stats } from "./Stats";
 import { History } from "./History";
 import { Audit } from "./Audit";
 import { Releases } from "./Releases";
@@ -137,6 +138,7 @@ export function App() {
                         <Link to="/history" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">History</Link>
                       ) : null}
                       <Link to="/status" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Status</Link>
+                      <Link to="/stats" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Stats</Link>
                       <Link to="/ecosystem" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Ecosystem</Link>
                       <Link to="/infrastructure" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Infrastructure</Link>
                       <Link to="/audit" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Audit</Link>
@@ -156,6 +158,7 @@ export function App() {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/bridge/:receiptId" element={<HomePage />} />
                     <Route path="/status" element={<Status />} />
+                    <Route path="/stats" element={<Stats />} />
                     <Route path="/order/:pearlTxId" element={<OrderStatus />} />
                     <Route path="/unwrap/:ethTxHash" element={<UnwrapStatus />} />
                     <Route path="/history" element={<History />} />
