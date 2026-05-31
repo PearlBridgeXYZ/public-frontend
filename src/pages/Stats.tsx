@@ -81,10 +81,11 @@ export function Stats() {
     };
   }, []);
 
-  // TVL = sum of grains held at lock + deposit addresses (the on-chain WPRL
-  // is collateralised against these). Fees = grains held at the fee
-  // collection address. Both come from the same custody scan the audit page
-  // uses, so /stats and /audit can never disagree.
+  // TVL = total PRL collateral backing WPRL: hot lock + cold treasury + any
+  // in-flight deposit balances. Fees = grains at the fee collection address.
+  // Same custody scan the audit page uses, so /stats and /audit can never
+  // disagree. The "fee" address sits outside TVL — fees are revenue, not
+  // collateral.
   let tvlGrains: bigint | null = null;
   let feeGrains: bigint | null = null;
   if (custodyAddrs) {
@@ -93,7 +94,7 @@ export function Stats() {
     for (const row of custodyAddrs.addresses) {
       try {
         const g = BigInt(row.grains);
-        if (row.role === "lock" || row.role === "deposit") tvl += g;
+        if (row.role === "lock" || row.role === "deposit" || row.role === "treasury") tvl += g;
         if (row.role === "fee") fee += g;
       } catch {
         /* skip malformed rows */
