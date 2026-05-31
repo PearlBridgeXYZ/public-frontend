@@ -186,40 +186,49 @@ function SolvencyCard() {
   const depositGrains = custody ? BigInt(custody.depositGrains) : null;
   const treasuryGrains =
     custody && custody.treasuryGrains ? BigInt(custody.treasuryGrains) : 0n;
-  // User-redeemable custody = lock + deposit + treasury. The fee-collection
-  // wallet is operator revenue and is intentionally not counted as part of
-  // the figure shown here.
   const feeGrains = custody && custody.feeGrains ? BigInt(custody.feeGrains) : 0n;
+  // Relay-side custody = lock + deposit + treasury + fee. We use the full sum:
+  // the fee Pearl wallet's PRL backs the operator-held fee WPRL that is part
+  // of `totalSupply`, so subtracting fee on the custody side alone (and not
+  // also on the supply side) used to produce a phantom shortfall on the page.
   const apiTotalCustody = custody ? BigInt(custody.totalCustodyGrains) : null;
-  const totalCustodyGrains =
-    apiTotalCustody !== null ? apiTotalCustody - feeGrains : null;
   const breakdownUrl = `${RELAY_API_BASE}/api/custody/addresses`;
 
-  const totalSupplyBig = totalSupply !== undefined ? (totalSupply as bigint) : null;
-
-  // Subtract the side-door intermediary hot wallet's WPRL balance from the
-  // raw totalSupply to get the honest "user-held WPRL in circulation"
-  // figure. That WPRL is operator-owned and pending burn — the lock has
-  // already paid out the corresponding PRL, so counting it against
-  // backing creates a transient apparent shortfall that resolves the
-  // moment the operator burns. See useIntermediaryHotBalance for the
-  // rationale.
+  // Side-door intermediary hot wallet (ETH side) holds WPRL the operator has
+  // already paid out for off-chain — every grain is a 1:1 burnable claim that
+  // will release a PRL grain from the lock when burned, so it represents
+  // PRL-equivalent backing today. Add it to custody to reflect that the
+  // operator-held WPRL pending burn is part of the bridge's collateral, not
+  // an unmatched liability. Without this addend, side-door payouts (which
+  // drain the operator's Pearl hot wallet in the treasury but leave the
+  // corresponding WPRL on Ethereum until the burn lands) create a transient
+  // apparent shortfall on the page even though the bridge is solvent.
   const { address: intermediaryAddress, balance: intermediaryHotBalance } =
     useIntermediaryHotBalance();
   const pendingBurnGrains = intermediaryHotBalance ?? 0n;
-  const circulatingWprlGrains =
-    totalSupplyBig !== null ? totalSupplyBig - pendingBurnGrains : null;
+  const totalCustodyGrains =
+    apiTotalCustody !== null ? apiTotalCustody + pendingBurnGrains : null;
+
+  // Use the relay's snapshot of WPRL totalSupply for the circulating figure.
+  // Custody and supply both come from the same relay snapshot, so the page
+  // never shows a deficit caused purely by snapshot drift between a live RPC
+  // read and a 30s-cached relay read. wagmi's live totalSupply is still read
+  // below for cross-check; mismatches surface a warning but don't drive math.
+  const relaySupplyGrains = custody ? BigInt(custody.totalSupplyGrains) : null;
+  const circulatingWprlGrains = relaySupplyGrains;
+  const totalSupplyBig = totalSupply !== undefined ? (totalSupply as bigint) : null;
   const surplusGrains =
     totalCustodyGrains !== null && circulatingWprlGrains !== null
       ? totalCustodyGrains - circulatingWprlGrains
       : null;
-  // Cross-check the wagmi-read totalSupply against the relay's reading. If they
-  // disagree by more than a grain we surface a warning — but neither source is
-  // load-bearing on the OTHER's accuracy; both are independently verifiable.
+  // Cross-check the wagmi-read totalSupply against the relay's reading. Small
+  // drift is normal (relay snapshot is up to 30s stale). A large drift would
+  // indicate a real relay-vs-RPC disagreement worth investigating.
   const supplyMismatch =
     totalSupplyBig !== null &&
     custody !== null &&
-    totalSupplyBig !== BigInt(custody.totalSupplyGrains);
+    totalSupplyBig > BigInt(custody.totalSupplyGrains) &&
+    totalSupplyBig - BigInt(custody.totalSupplyGrains) > 10n * 100_000_000n;
 
   return (
     <section className="glass rounded-2xl p-6 border border-white/5">
@@ -230,11 +239,14 @@ function SolvencyCard() {
       <p className="text-xs text-gray-400 leading-relaxed mb-5 max-w-2xl">
         Every WPRL on Ethereum is backed 1:1 by PRL custodied on Pearl L1. The
         custody figure below sums the canonical lock wallet, every active
-        per-user deposit address, and the treasury wallets &mdash; in-flight
-        deposits awaiting the next sweep cycle are counted as backing, because
-        the relay can only consolidate them; it cannot move them anywhere else.
-        Every number is independently re-checkable on the public Pearl explorer
-        and Etherscan.
+        per-user deposit address, the treasury and fee wallets, and the
+        side-door intermediary&rsquo;s WPRL balance &mdash; that WPRL is
+        operator-held and burnable 1:1 against the lock, so it counts as
+        PRL-equivalent backing until the burn settles. In-flight deposits
+        awaiting the next sweep cycle are counted too, because the relay can
+        only consolidate them; it cannot move them anywhere else. Every number
+        is independently re-checkable on the public Pearl explorer and
+        Etherscan.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl bg-black/30 border border-white/5 p-4">
@@ -246,22 +258,17 @@ function SolvencyCard() {
               ? `${grainsToDisplay(circulatingWprlGrains)} WPRL`
               : "—"}
           </p>
-          {pendingBurnGrains > 0n && totalSupplyBig !== null && (
+          {pendingBurnGrains > 0n && (
             <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
-              <span className="font-mono">{grainsToDisplay(totalSupplyBig)}</span>{" "}
-              minted &minus;{" "}
+              includes{" "}
               <span className="font-mono">{grainsToDisplay(pendingBurnGrains)}</span>{" "}
-              in side-door intermediary, pending burn
+              operator-held in side-door intermediary (counted as PRL-equiv on
+              custody side, pending burn)
             </p>
           )}
           <p className="text-[11px] text-gray-500 mt-2 font-mono break-all">
             {wprlAddr}
           </p>
-          {intermediaryAddress && pendingBurnGrains > 0n && (
-            <p className="text-[10px] text-gray-600 mt-1 font-mono break-all">
-              side door: {intermediaryAddress}
-            </p>
-          )}
         </div>
         <div className="rounded-xl bg-black/30 border border-white/5 p-4">
           <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-2">
@@ -296,6 +303,25 @@ function SolvencyCard() {
                     : ""}
                 </>
               )}
+              {feeGrains > 0n && (
+                <>
+                  {" + "}
+                  <span className="font-mono">{grainsToDisplay(feeGrains)}</span>{" "}
+                  in fee wallet
+                </>
+              )}
+              {pendingBurnGrains > 0n && (
+                <>
+                  {" + "}
+                  <span className="font-mono">{grainsToDisplay(pendingBurnGrains)}</span>{" "}
+                  PRL-equiv operator-held WPRL in side-door intermediary
+                </>
+              )}
+            </p>
+          )}
+          {intermediaryAddress && pendingBurnGrains > 0n && (
+            <p className="text-[10px] text-gray-600 mt-1 font-mono break-all">
+              side door: {intermediaryAddress}
             </p>
           )}
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
@@ -347,8 +373,9 @@ function SolvencyCard() {
       )}
       {supplyMismatch && (
         <p className="text-[11px] text-amber-400 mt-2">
-          Wallet RPC and relay disagree on WPRL totalSupply &mdash; refresh in a
-          minute. Both are independently verifiable on Etherscan.
+          Wallet RPC and relay disagree on WPRL totalSupply by more than 10 PRL
+          &mdash; refresh in a minute. Both are independently verifiable on
+          Etherscan.
         </p>
       )}
       {custodyError && !custody && (
