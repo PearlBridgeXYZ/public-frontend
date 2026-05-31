@@ -65,6 +65,28 @@ to the next RC tag (RC5.27 → RC5.28 → RC5.29 …). Bump on every push, even
 tiny copy tweaks. This lets operators verify a deploy landed just by
 reading the footer — no guesswork about which build the CDN is serving.
 
+## Deploying
+
+Production deploys run **only from the ops VPS**, never from CI. The
+Cloudflare API token is IP-allowlisted to that one host — narrow
+allowlist as defense-in-depth, deliberate trade-off vs auto-deploy
+convenience.
+
+```bash
+# from the ops VPS, on the branch you want to deploy
+bash scripts/deploy.sh next   # → next.pearlbridge.xyz
+bash scripts/deploy.sh main   # → pearlbridge.xyz
+```
+
+`scripts/deploy.sh` builds `dist/`, pulls the CF token from the vault,
+and pushes via `wrangler pages deploy` with IPv4 DNS forced
+(`NODE_OPTIONS=--dns-result-order=ipv4first`) — IPv6 default-routing
+silently bypasses the IP allowlist and CF returns `code 1000 / 9109`.
+
+CI still builds + uploads `dist` as an artifact on every push so the
+reproducibility check (below) keeps working, but it does **not** ship
+to the CDN.
+
 ## Reproducibility
 
 The `npm ci && npm run build -- --mode mainnet` command, run with the
