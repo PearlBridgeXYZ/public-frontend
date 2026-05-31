@@ -54,6 +54,15 @@ onto Cloudflare Pages — no server-side runtime.
 To set up a local DevNet, copy `.env.devnet.example` to `.env.devnet`,
 point the URLs at your local Hardhat node, then `npm run dev -- --mode devnet`.
 
+## Versioning
+
+The footer renders `Build {version}` from `package.json` via Vite's `define`.
+Every change that lands on `main` or `next` **must** bump the `version`
+field in `package.json` (patch for fixes/UI tweaks, minor for new flows,
+major for breaking changes). This lets operators verify a deploy landed
+just by reading the footer — no guesswork about which build the CDN is
+serving.
+
 ## Reproducibility
 
 The `npm ci && npm run build -- --mode mainnet` command, run with the

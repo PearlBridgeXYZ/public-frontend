@@ -177,7 +177,7 @@ export function App() {
                     <a href="https://t.me/pearlbridgedev" target="_blank" rel="noopener noreferrer"
                       className="text-[#00e5d0] hover:underline">Need help? Reach the bridge dev on Telegram &rarr;</a>
                   </p>
-                  <p className="text-gray-700">Build RC5.27 &middot; {NETWORK}</p>
+                  <p className="text-gray-700">Build {__APP_VERSION__} &middot; {NETWORK}</p>
                 </footer>
               </div>
 
