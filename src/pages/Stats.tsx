@@ -26,16 +26,29 @@ function fmtPrl(grainsStr: string): string {
   }
 }
 
-function sumBucket(w: Window): bigint {
+// Inflow = WPRL minted on Ethereum (PRL deposited and locked).
+// Outflow = WPRL leaving Ethereum, returning PRL — burn + intermediary
+//           (partner-funded WPRL unwrap that still releases locked PRL).
+function inflowGrains(w: Window): bigint {
   try {
-    return BigInt(w.mint.grains) + BigInt(w.burn.grains) + BigInt(w.intermediary.grains);
+    return BigInt(w.mint.grains);
   } catch {
     return 0n;
   }
 }
 
-function countBucket(w: Window): number {
-  return w.mint.count + w.burn.count + w.intermediary.count;
+function outflowGrains(w: Window): bigint {
+  try {
+    return BigInt(w.burn.grains) + BigInt(w.intermediary.grains);
+  } catch {
+    return 0n;
+  }
+}
+
+function netSignedString(net: bigint): string {
+  const abs = net < 0n ? -net : net;
+  const sign = net > 0n ? "+" : net < 0n ? "−" : "";
+  return `${sign}${grainsToWholePrlWithCommas(abs)}`;
 }
 
 function ageString(tsMs: number): string {
@@ -52,6 +65,8 @@ export function Stats() {
   const [custodyAddrs, setCustodyAddrs] = useState<CustodyAddrsPayload | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [tab, setTab] = useState<WindowKey>("24h");
+  const [lastFetchMs, setLastFetchMs] = useState<number>(Date.now());
+  const [tickNow, setTickNow] = useState<number>(Date.now());
 
   useEffect(() => {
     let cancelled = false;
@@ -68,6 +83,7 @@ export function Stats() {
         if (supRes.ok) setSupply((await supRes.text()).trim());
         if (cRes.ok) setCustodyAddrs((await cRes.json()) as CustodyAddrsPayload);
         setErr(null);
+        setLastFetchMs(Date.now());
       } catch (e: any) {
         if (!cancelled) setErr(e?.message ?? "load failed");
       }
@@ -75,9 +91,13 @@ export function Stats() {
 
     load();
     const t = setInterval(load, REFRESH_MS);
+    // Separate 1s ticker so the "next refresh in Xs" countdown actually
+    // counts down — REFRESH_MS itself only fires every 30s.
+    const ui = setInterval(() => setTickNow(Date.now()), 1000);
     return () => {
       cancelled = true;
       clearInterval(t);
+      clearInterval(ui);
     };
   }, []);
 
@@ -105,18 +125,41 @@ export function Stats() {
   }
 
   const w = stats ? stats.volume[tab] : null;
+  const inflow = w ? inflowGrains(w) : 0n;
+  const outflow = w ? outflowGrains(w) : 0n;
+  const net = inflow - outflow;
+
+  // 30s refresh tick; show seconds remaining so it's visible that the
+  // page is live (G called this out 2026-05-31 — felt static even
+  // though it polled every 30s).
+  const secsSinceFetch = Math.max(0, Math.floor((tickNow - lastFetchMs) / 1000));
+  const secsToNext = Math.max(0, Math.ceil((REFRESH_MS - (tickNow - lastFetchMs)) / 1000));
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12 space-y-12">
       <div>
-        <h1 className="text-3xl font-extrabold mb-2">Bridge Stats</h1>
+        <div className="flex items-start justify-between gap-4 flex-wrap mb-2">
+          <h1 className="text-3xl font-extrabold">Bridge Stats</h1>
+          <div
+            className="flex items-center gap-2 text-[11px] text-gray-400 tabular-nums"
+            title={`Auto-refreshes every ${REFRESH_MS / 1000}s. Last refresh ${secsSinceFetch}s ago.`}
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+            </span>
+            <span>
+              Live · refresh in {secsToNext}s
+            </span>
+          </div>
+        </div>
         <p className="text-gray-400 text-sm">
           Live bridge usage. TVL and fees come from the on-chain custody
           scan (same source as the{" "}
           <Link to="/audit" className="text-[#00e5d0] hover:underline">
             audit page
           </Link>
-          ). Volume counts are server-side bridge events. Refreshes every 30s.
+          ). Volume counts are server-side bridge events. Auto-refreshes every 30s.
         </p>
         {err && (
           <p className="text-xs text-red-400 mt-2">Last refresh failed: {err}</p>
@@ -180,37 +223,100 @@ export function Stats() {
 
         {w ? (
           <>
-            <div className="glass rounded-2xl p-5">
-              <div className="text-gray-400 text-[11px] uppercase tracking-wide mb-1">
-                Total volume ({tab === "all" ? "all-time" : tab})
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="glass rounded-2xl p-5">
+                <div className="text-[#00e5d0] text-[11px] uppercase tracking-wide mb-1 flex items-center gap-1.5">
+                  <span aria-hidden>↓</span>
+                  <span>Inflow</span>
+                </div>
+                <div className="text-3xl font-extrabold text-[#00e5d0] tabular-nums">
+                  {grainsToWholePrlWithCommas(inflow)}
+                </div>
+                <div className="text-[10px] text-gray-500 mt-0.5">
+                  PRL locked → WPRL minted
+                </div>
+                <div className="text-[11px] text-gray-400 mt-2 tabular-nums">
+                  {w.mint.count.toLocaleString("en-US")} deposits
+                </div>
               </div>
-              <div className="text-3xl font-extrabold text-white tabular-nums">
-                {grainsToWholePrlWithCommas(sumBucket(w))} PRL
+
+              <div className="glass rounded-2xl p-5">
+                <div className="text-amber-400 text-[11px] uppercase tracking-wide mb-1 flex items-center gap-1.5">
+                  <span aria-hidden>↑</span>
+                  <span>Outflow</span>
+                </div>
+                <div className="text-3xl font-extrabold text-amber-400 tabular-nums">
+                  {grainsToWholePrlWithCommas(outflow)}
+                </div>
+                <div className="text-[10px] text-gray-500 mt-0.5">
+                  WPRL burned → PRL unlocked
+                </div>
+                <div className="text-[11px] text-gray-400 mt-2 tabular-nums">
+                  {(w.burn.count + w.intermediary.count).toLocaleString("en-US")} unlocks
+                </div>
               </div>
-              <div className="text-[11px] text-gray-500 mt-1 tabular-nums">
-                {countBucket(w).toLocaleString("en-US")} bridge events
+
+              <div className="glass rounded-2xl p-5">
+                <div className="text-gray-400 text-[11px] uppercase tracking-wide mb-1">
+                  Net flow
+                </div>
+                <div
+                  className={`text-3xl font-extrabold tabular-nums ${
+                    net > 0n ? "text-[#00e5d0]" : net < 0n ? "text-amber-400" : "text-white"
+                  }`}
+                >
+                  {netSignedString(net)}
+                </div>
+                <div className="text-[10px] text-gray-500 mt-0.5">
+                  Inflow − Outflow ({tab === "all" ? "all-time" : tab})
+                </div>
+                <div className="text-[11px] text-gray-400 mt-2">
+                  {net > 0n
+                    ? "more PRL coming in than going out"
+                    : net < 0n
+                      ? "more PRL leaving than entering"
+                      : "balanced"}
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <DirectionCard
-                label="Deposit → WPRL"
-                copy="PRL locked, WPRL minted on Ethereum."
-                bucket={w.mint}
-                accent="text-[#00e5d0]"
-              />
-              <DirectionCard
-                label="WPRL → Pearl"
-                copy="WPRL burned on Ethereum, PRL unlocked."
-                bucket={w.burn}
-                accent="text-emerald-400"
-              />
-              <DirectionCard
-                label="Intermediary"
-                copy="Direct WPRL-funded unwraps for partners."
-                bucket={w.intermediary}
-                accent="text-sky-400"
-              />
+            <div className="glass rounded-2xl p-4">
+              <div className="text-gray-400 text-[11px] uppercase tracking-wide mb-2">
+                Breakdown
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[12px]">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-gray-400">Deposit → WPRL</span>
+                  <span className="font-semibold text-[#00e5d0] tabular-nums">
+                    {fmtPrl(w.mint.grains)}{" "}
+                    <span className="text-[10px] text-gray-500">
+                      ({w.mint.count.toLocaleString("en-US")})
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-gray-400">WPRL → Pearl</span>
+                  <span className="font-semibold text-emerald-400 tabular-nums">
+                    {fmtPrl(w.burn.grains)}{" "}
+                    <span className="text-[10px] text-gray-500">
+                      ({w.burn.count.toLocaleString("en-US")})
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-gray-400">Intermediary</span>
+                  <span className="font-semibold text-sky-400 tabular-nums">
+                    {fmtPrl(w.intermediary.grains)}{" "}
+                    <span className="text-[10px] text-gray-500">
+                      ({w.intermediary.count.toLocaleString("en-US")})
+                    </span>
+                  </span>
+                </div>
+              </div>
+              <p className="text-[10px] text-gray-500 mt-3 leading-relaxed">
+                Intermediary unwraps are partner-funded WPRL → PRL conversions
+                that still release locked PRL, so they count toward outflow.
+              </p>
             </div>
           </>
         ) : (
@@ -229,32 +335,3 @@ export function Stats() {
   );
 }
 
-function DirectionCard({
-  label,
-  copy,
-  bucket,
-  accent,
-}: {
-  label: string;
-  copy: string;
-  bucket: Bucket;
-  accent: string;
-}) {
-  return (
-    <div className="glass rounded-2xl p-4">
-      <div className="text-gray-400 text-[11px] uppercase tracking-wide mb-1">
-        {label}
-      </div>
-      <div className={`text-2xl font-extrabold ${accent} tabular-nums`}>
-        {fmtPrl(bucket.grains)}
-      </div>
-      <div className="text-[10px] text-gray-500 mt-0.5">PRL</div>
-      <div className="text-[11px] text-gray-400 mt-2 tabular-nums">
-        {bucket.count.toLocaleString("en-US")} txs
-      </div>
-      <div className="text-[10px] text-gray-500 mt-2 leading-relaxed">
-        {copy}
-      </div>
-    </div>
-  );
-}

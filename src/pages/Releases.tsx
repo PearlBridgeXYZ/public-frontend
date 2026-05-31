@@ -12,6 +12,23 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.33",
+    date: "2026-05-31",
+    title: "Stats page: at-a-glance Inflow / Outflow / Net flow + visible live-refresh indicator",
+    summary:
+      "Rewrites the /stats volume layout so the dominant question — \"is PRL going in or coming out right now?\" — is answered immediately. Replaces the single aggregated \"Total volume\" hero (which hid direction by summing mint + burn + intermediary together) with three side-by-side cards: Inflow (deposits → WPRL minted), Outflow (WPRL burned + intermediary unwraps → PRL unlocked), and Net flow (signed difference). Adds a small live-refresh pill at the top with a 1s countdown to the next 30s fetch so the page no longer looks static between polls. Underlying API and 30s polling cadence unchanged.",
+    highlights: [
+      "Three-card hero: Inflow (teal, ↓ arrow), Outflow (amber, ↑ arrow), Net flow (sign-coloured). Window toggle (24h / 7d / all-time) re-skins all three at once.",
+      "Outflow groups burn + intermediary together — intermediary unwraps are partner-funded WPRL → PRL conversions that still release locked PRL, so they belong on the same side of the ledger.",
+      "Net flow card shows +/− with a one-line human-readable annotation (\"more PRL coming in than going out\" / \"more PRL leaving than entering\" / \"balanced\").",
+      "Live-refresh indicator: pulsing emerald dot + \"Live · refresh in Xs\" countdown driven by a 1s UI tick. Title attr surfaces \"last refresh Xs ago\" on hover so the freshness is auditable.",
+      "Breakdown row preserved underneath: Deposit → WPRL, WPRL → Pearl, Intermediary as a compact table with grains + tx counts, so the three feeder series remain inspectable without a second tab.",
+      "No backend change — same /api/stats payload, same /api/supply and /api/custody/addresses sources, same 30s poll. Pure presentation fix.",
+      "Source of truth for the inflow / outflow definition is documented as comments in Stats.tsx so the next maintainer can't accidentally re-sum the buckets.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.32",
     date: "2026-05-31",
     title: "Chain-pin writeContract calls + submitted_stuck mint UX + auto-hide duplicate-payout banner on return",
@@ -27,7 +44,7 @@ const RELEASES: Release[] = [
       "Failure mode: a fetch error or relay 503 keeps the banner visible. A briefly stale banner for someone who already returned is harmless; suppressing a banner for someone who hasn't is the loss case.",
       "No contracts touched. No relay business-logic change for the duplicate-payout module. Mint state machine unchanged frontend-side — UI only reads new state names from the existing /api/mint endpoint.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.31",
