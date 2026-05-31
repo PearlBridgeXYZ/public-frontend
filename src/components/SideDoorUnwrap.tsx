@@ -12,7 +12,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAccount, useBlockNumber, useChainId, useSignMessage, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { type Hex } from "viem";
-import { WPRL_ABI, ADDRESSES, NETWORK } from "../lib/contracts";
+import { WPRL_ABI, ADDRESSES, NETWORK, EXPECTED_CHAIN_ID } from "../lib/contracts";
 import { PEARL_EXPLORER_BASE, ethExplorerTxUrl } from "../lib/config";
 import { isPlausiblePearlAddress } from "../lib/pearlAddress";
 import { shortAddress, parseToGrains, grainsToDisplay } from "../lib/utils";
@@ -271,6 +271,7 @@ export function SideDoorUnwrap() {
         abi: WPRL_ABI,
         functionName: "transfer",
         args: [intermediary, amountGrains],
+        chainId: EXPECTED_CHAIN_ID,
       });
       setTxHash(hash);
     } catch (e: any) {

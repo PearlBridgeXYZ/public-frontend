@@ -483,6 +483,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
     const closeToDone =
       mintStatus?.state === "signing" ||
       mintStatus?.state === "submitted" ||
+      mintStatus?.state === "submitted_stuck" ||
       mintStatus?.state === "attesting";
     const handle = setInterval(poll, closeToDone ? 3_000 : 15_000);
     return () => {
@@ -989,7 +990,51 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
         </div>
       )}
 
-      {step === "waiting" && mintStatus?.state !== "queued" && mintStatus?.state !== "cancelled" && mintStatus?.state !== "under_review" && (
+      {step === "waiting" && mintStatus?.state === "submitted_stuck" && (
+        <div
+          className="space-y-4"
+          role="status"
+          aria-label="mint broadcast but awaiting inclusion"
+        >
+          <div className="text-center py-6 space-y-3">
+            <div className="text-4xl text-yellow-300" aria-hidden="true">&#9888;</div>
+            <p className="text-yellow-200 font-semibold">
+              Mint broadcast &mdash; awaiting inclusion
+            </p>
+            <p className="text-sm text-gray-300 max-w-md mx-auto">
+              The mint transaction is broadcast on Ethereum but has not been
+              mined within the expected window (usually a gas-price floor
+              change or a brief mempool eviction). The relay will resubmit
+              automatically; no action is required.
+            </p>
+            {mintTxHash && (() => {
+              const url = ethExplorerTxUrl(mintTxHash);
+              return url ? (
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-[#00e5d0] hover:underline"
+                >
+                  View mint tx on Etherscan &rarr;
+                </a>
+              ) : (
+                <p className="text-xs text-gray-500 font-mono break-all">
+                  Mint tx: {mintTxHash}
+                </p>
+              );
+            })()}
+            {receiptId && (
+              <p className="text-xs text-gray-500 pt-2">
+                You can close this tab and return any time at{" "}
+                <span className="font-mono text-gray-400">/bridge/{receiptId}</span>.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {step === "waiting" && mintStatus?.state !== "queued" && mintStatus?.state !== "cancelled" && mintStatus?.state !== "under_review" && mintStatus?.state !== "submitted_stuck" && (
         <div
           className="space-y-4"
           role="status"

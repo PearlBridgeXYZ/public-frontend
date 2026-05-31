@@ -9,7 +9,7 @@ import {
   useSignTypedData,
 } from "wagmi";
 import { parseToGrains, grainsToDisplay, computeFee } from "../lib/utils";
-import { WPRL_ABI, BRIDGE_CONTROLLER_ABI, ADDRESSES } from "../lib/contracts";
+import { WPRL_ABI, BRIDGE_CONTROLLER_ABI, ADDRESSES, EXPECTED_CHAIN_ID } from "../lib/contracts";
 import { isPlausiblePearlAddress } from "../lib/pearlAddress";
 import { BURN_FEE_BPS, NETWORK, PEARL_EXPLORER_BASE, RELAY_API_BASE } from "../lib/config";
 import { StepIndicator } from "./StepIndicator";
@@ -297,6 +297,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
       abi: WPRL_ABI,
       functionName: "approve",
       args: [ADDRS.BRIDGE_CONTROLLER, maxUint256],
+      chainId: EXPECTED_CHAIN_ID,
     });
     setStep("approve");
   }
@@ -309,6 +310,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
       abi: BRIDGE_CONTROLLER_ABI,
       functionName: "requestBurn",
       args: [grains, pearlAddress],
+      chainId: EXPECTED_CHAIN_ID,
     });
     setStep("burn");
   }

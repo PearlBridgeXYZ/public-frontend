@@ -13,17 +13,19 @@ type Release = {
 const RELEASES: Release[] = [
   {
     tag: "RC5.32",
-    date: "2026-05-29",
-    title: "Auto-hide the duplicate-payout banner once the surplus has been returned to the lock address",
+    date: "2026-05-31",
+    title: "Chain-pin writeContract calls + submitted_stuck mint UX + auto-hide duplicate-payout banner on return",
     summary:
-      "Wires the RC5.30 per-wallet duplicate-payout banner to a new relay endpoint (`/api/duplicate-payout-status?addr=`) so the banner disappears for any affected wallet whose surplus has been observed returning to the bridge lock address on-chain. The relay scans the lock address's recent inbound txs, matches a ±1-grain equality on the owed amount, caches the result for 60 seconds per ETH address, and returns `status: \"returned\"` once the per-wallet total meets the owed amount. Frontend fetches the endpoint on mount and renders null once status flips to returned; any fetch failure leaves the banner visible (safe default).",
+      "Two convergent frontend fixes on top of the RC5.30/5.31 duplicate-payout work. (1) Every writeContract / writeContractAsync call now passes `chainId: EXPECTED_CHAIN_ID` so wagmi v2 rejects the write if the wallet's current chain ≠ expected — defends against a mid-flow wallet chain switch silently signing approve/burn on the wrong chain. (2) The in-flow mint waiting screen now branches on the relay's `submitted_stuck` state with an honest yellow warn pill (instead of falling through to the generic \"relay is processing your mint\" spinner) so users see immediately that the broadcast is awaiting inclusion and the relay will resubmit. Polling cadence at `submitted_stuck` shares the 3s close-to-done interval so the recovery shows up promptly. Plus: wires the RC5.30 per-wallet duplicate-payout banner to a new relay endpoint (`/api/duplicate-payout-status?addr=`) so the banner disappears for any affected wallet whose surplus has been observed returning to the bridge lock address on-chain.",
     highlights: [
-      "Detection strategy: incoming txs at the lock address whose value-paid-to-lock equals the owed amount ±1 grain. Robust to whichever wallet the user sends from (recipient pearl, downstream wallet, CEX withdraw to a fresh wallet) — no graph-walk needed.",
+      "Chain-pin hardening: BurnAndUnlock approve + requestBurn and SideDoorUnwrap WPRL transfer now pass chainId: EXPECTED_CHAIN_ID on the wagmi write. Wagmi v2 rejects the write when the wallet's current chain doesn't match — closes a mid-flow wallet-switch attack window.",
+      "submitted_stuck UI: LockAndMint waiting screen now renders a dedicated yellow warn card (\"Mint broadcast — awaiting inclusion\") plus the Etherscan link to the broadcast tx, instead of silently falling through to the generic relay-processing spinner. Mint-status polling stays at the 3s close-to-done cadence at submitted_stuck so the user sees the recovery when the relay resubmits.",
+      "Duplicate-payout return detection: relay endpoint scans the lock address's recent inbound txs and matches ±1-grain equality on the owed amount — robust to whichever wallet the user sends from (recipient pearl, downstream wallet, CEX withdraw to a fresh wallet); no graph-walk needed.",
       "New relay module: src/relay/duplicate-payout-returns.ts. searchrawtransactions scan over the lock address (count=2000), in-memory cache with 60s TTL per ETH address, stale-cache fallback on RPC blips.",
       "New endpoint: GET /api/duplicate-payout-status?addr=<eth>. Returns { owedGrains, owedPrl, returnedGrains, returnedPrl, status, returnTxs[], lastScanAt }. 404 for any address not in the four-wallet list — keeps the surface narrow.",
       "Frontend: DuplicatePayoutNotice.tsx fetches the endpoint on mount, hides the banner when status === \"returned\". Frozen client-side table still gates which wallets ever see the banner.",
       "Failure mode: a fetch error or relay 503 keeps the banner visible. A briefly stale banner for someone who already returned is harmless; suppressing a banner for someone who hasn't is the loss case.",
-      "No contracts touched. No relay business-logic change. The new module is read-only against Pearl RPC.",
+      "No contracts touched. No relay business-logic change for the duplicate-payout module. Mint state machine unchanged frontend-side — UI only reads new state names from the existing /api/mint endpoint.",
     ],
     status: "primary-gtm",
   },
