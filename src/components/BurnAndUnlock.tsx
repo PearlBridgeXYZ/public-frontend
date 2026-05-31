@@ -29,6 +29,7 @@ import {
   BURN_POLL_TIMEOUT_MS,
   type UiBurnState,
 } from "../lib/burnTracker";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 
 interface Props {
   ethAddress: `0x${string}` | undefined;
@@ -71,6 +72,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
   const chainId = useChainId();
   const { isAdvanced } = useBridgeMode();
   const { signTypedDataAsync } = useSignTypedData();
+  const { openConnectModal } = useConnectModal();
 
   const grains = parseToGrains(amount);
   const { fee, net } = grains ? computeFee(grains, BURN_FEE_BPS) : { fee: 0n, net: 0n };
@@ -311,14 +313,6 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
     setStep("burn");
   }
 
-  if (!ethAddress) {
-    return (
-      <div className="text-center py-8 text-gray-400">
-        Connect your Ethereum wallet to continue.
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-5">
       <StepIndicator
@@ -451,8 +445,19 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
 
           {/* Single button that flips between Approve and Burn based on
               live allowance. `approveSuccess` short-circuits the gate so we
-              don't get stuck on "Approve" while wagmi is still refetching. */}
-          {needsApproval && !approveSuccess ? (
+              don't get stuck on "Approve" while wagmi is still refetching.
+              When wallet isn't connected, the button opens the RainbowKit
+              connect modal instead of attempting an action — same UX pattern
+              as LockAndMint, lets the user preview the form first. */}
+          {!ethAddress ? (
+            <button
+              disabled={!grains || grains <= 0n}
+              onClick={() => openConnectModal?.()}
+              className="w-full bg-gradient-to-r from-[#00e5d0] to-[#00b8aa] hover:from-[#00f0da] hover:to-[#00c5b5] disabled:from-gray-700 disabled:to-gray-700 disabled:text-gray-500 text-black font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[#00e5d0]/20 disabled:shadow-none"
+            >
+              Connect wallet to continue
+            </button>
+          ) : needsApproval && !approveSuccess ? (
             <button
               disabled={!grains || grains <= 0n || blockSubmit || (step === "approve" && !approveSuccess && !!approveTxHash)}
               onClick={handleApprove}

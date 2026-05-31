@@ -1,6 +1,12 @@
 import { http, createConfig } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { mainnet, sepolia, hardhat } from "wagmi/chains";
+import { connectorsForWallets } from "@rainbow-me/rainbowkit";
+import {
+  metaMaskWallet,
+  rabbyWallet,
+  coinbaseWallet,
+} from "@rainbow-me/rainbowkit/wallets";
 
 const DEVNET_RPC_URL = import.meta.env.VITE_DEVNET_RPC_URL || "http://127.0.0.1:8545";
 
@@ -9,36 +15,55 @@ const DEVNET_RPC_URL = import.meta.env.VITE_DEVNET_RPC_URL || "http://127.0.0.1:
 // connect modal was confusing and not necessary.
 const BUILD_NETWORK = (import.meta.env.VITE_NETWORK as "mainnet" | "sepolia" | "devnet" | undefined) ?? "mainnet";
 
-// Use wagmi's native `injected()` connector and let wagmi v2's built-in
-// EIP-6963 multi-injected-provider discovery surface each installed wallet
-// as its own connector. Every modern wallet extension (MetaMask, Rabby,
-// Phantom EVM, Coinbase Wallet, OKX, Brave, Frame, etc.) announces itself
-// over EIP-6963 with its own name, icon, and dedicated provider handle.
+// Connect-modal connectors. Two layers, stacked in this order:
 //
-// We *intentionally* do NOT wrap with RainbowKit's `injectedWallet()` here.
-// That wrapper snapshots `window.ethereum.providers[0]` (or `window.ethereum`)
-// at module-load time and captures it in the connector's closure forever.
-// On Windows with multiple wallet extensions installed (e.g. Phantom for
-// Solana + MetaMask + Coinbase Wallet), Chrome loads them in a non-
-// deterministic order and the snapshotted provider is frequently NOT the
-// one the user picked in the connect modal. The user clicks "Connect" on
-// MetaMask, the modal shows MetaMask's address, but then `personal_sign`
-// routes through the snapshotted handle (which is now stale because
-// Phantom/Coinbase reset `window.ethereum` after our snapshot) — the
-// signature comes back signed by a different key, the recovered signer
-// doesn't match the address in the SIWE message, and the backend returns
-// 401 → RainbowKit shows "An error occurred while verifying the signature,
-// please try again!".
+//   1. RainbowKit's named wallets (MetaMask, Rabby, Coinbase) — these always
+//      appear in the modal, and when the user doesn't have them installed
+//      they render a "Get" / install link to the wallet's download page.
+//      That's what surfaces install hints in the "Get a Wallet" panel for
+//      new-to-crypto visitors who don't have any wallet yet. Each of these
+//      uses dedicated rdns-based EIP-6963 discovery, so they connect to the
+//      RIGHT provider when the user clicks them (no `window.ethereum`
+//      snapshotting — see the snapshot-bug section below).
 //
+//   2. wagmi's bare `injected()` connector as a fallback so wagmi v2's
+//      built-in EIP-6963 multi-injected-provider discovery still surfaces
+//      *other* installed wallets (Phantom EVM, OKX, Brave, Frame, Trust,
+//      etc.) as their own connectors in the modal. RainbowKit dedupes
+//      against named wallets by rdns, so MetaMask / Rabby / Coinbase won't
+//      appear twice when installed.
+//
+// We deliberately do NOT use RainbowKit's `injectedWallet()` here. That
+// wrapper snapshots `window.ethereum.providers[0]` (or `window.ethereum`)
+// at module-load time and captures it in closure forever. On Windows with
+// multiple wallet extensions installed (e.g. Phantom for Solana + MetaMask
+// + Coinbase Wallet), Chrome loads them in a non-deterministic order and
+// the snapshotted provider is frequently NOT the one the user picked. The
+// user clicks "Connect" on MetaMask, the modal shows MetaMask's address,
+// then `personal_sign` routes through the snapshotted handle (now stale
+// because Phantom/Coinbase reset `window.ethereum` after our snapshot) —
+// the signature comes back signed by a different key, the recovered signer
+// doesn't match the address in the SIWE message, the backend returns 401,
+// and RainbowKit shows "An error occurred while verifying the signature."
 // The bare `wagmi/connectors` `injected()` does a fresh `window.ethereum`
 // lookup every call (no snapshot), and the EIP-6963 connectors that wagmi
 // auto-creates each have a direct reference to their specific wallet's
-// provider object — no shared `window.ethereum` to race over. The bare
-// `injected()` stays as a fallback for extensions that don't announce via
-// EIP-6963 (rare in 2026); it does not eager-connect (wagmi gates that
-// behind the `injected.connected` storage flag) so it won't clash with the
-// EIP-6963-discovered ones.
-const connectors = [injected()];
+// provider object — no shared `window.ethereum` to race over.
+//
+// `connectorsForWallets` requires a `projectId` for any WalletConnect-based
+// entries; none of MetaMask/Rabby/Coinbase use WalletConnect (all injected),
+// so the value is unused at runtime — a placeholder is fine.
+const rkConnectors = connectorsForWallets(
+  [
+    {
+      groupName: "Recommended",
+      wallets: [metaMaskWallet, rabbyWallet, coinbaseWallet],
+    },
+  ],
+  { appName: "PearlBridge", projectId: "pearlbridge" },
+);
+
+const connectors = [...rkConnectors, injected()];
 
 export const wagmiConfig =
   BUILD_NETWORK === "mainnet"

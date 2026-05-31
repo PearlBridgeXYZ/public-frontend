@@ -35,6 +35,7 @@ import {
   getConsumedPearlTxIds,
 } from "../lib/bridgeReceipts";
 import { requiredConfFor, estimatedWaitLabel } from "../lib/confTiers";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 
 interface Props {
   ethAddress: `0x${string}` | undefined;
@@ -108,6 +109,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
   const chainId = useChainId();
   const { isAdvanced } = useBridgeMode();
   const { signTypedDataAsync } = useSignTypedData();
+  const { openConnectModal } = useConnectModal();
   const navigate = useNavigate();
   const { receiptId: urlReceiptId } = useParams<{ receiptId: string }>();
   const hydratedRef = useRef(false);
@@ -571,14 +573,6 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mintReceipt?.status, mintReceipt?.logs, mintTxHash, step]);
 
-  if (!ethAddress) {
-    return (
-      <div className="text-center py-8 text-gray-400">
-        Connect your Ethereum wallet to continue.
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-5">
       <StepIndicator steps={["Amount", "Send PRL", "Waiting", "Done"]} current={
@@ -731,11 +725,11 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
           )}
 
           <button
-            disabled={!grains || grains <= 0n || blockSubmit}
-            onClick={handleProceed}
+            disabled={!grains || grains <= 0n || (!!ethAddress && blockSubmit)}
+            onClick={ethAddress ? handleProceed : () => openConnectModal?.()}
             className="w-full bg-gradient-to-r from-[#00e5d0] to-[#00b8aa] hover:from-[#00f0da] hover:to-[#00c5b5] disabled:from-gray-700 disabled:to-gray-700 disabled:text-gray-500 text-black font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[#00e5d0]/20 disabled:shadow-none"
           >
-            {bridgePaused ? "Bridge paused" : "Continue"}
+            {bridgePaused ? "Bridge paused" : !ethAddress ? "Connect wallet to continue" : "Continue"}
           </button>
         </>
       )}
