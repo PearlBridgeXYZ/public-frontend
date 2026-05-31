@@ -32,6 +32,7 @@ import { Operator } from "./Operator";
 import { OrderStatus } from "./OrderStatus";
 import { UnwrapStatus } from "./UnwrapStatus";
 import { NETWORK } from "../lib/config";
+import { BUILD_LABEL } from "../lib/buildLabel";
 import { BRIDGE_CONTROLLER_ABI, CONTRACTS, EXPECTED_CHAIN_ID } from "../lib/contracts";
 import {
   grainsToWholePrlWithCommas,
@@ -177,7 +178,7 @@ export function App() {
                     <a href="https://t.me/pearlbridgedev" target="_blank" rel="noopener noreferrer"
                       className="text-[#00e5d0] hover:underline">Need help? Reach the bridge dev on Telegram &rarr;</a>
                   </p>
-                  <p className="text-gray-700">Build {__APP_VERSION__} &middot; {NETWORK}</p>
+                  <p className="text-gray-700">Build {BUILD_LABEL} &middot; {NETWORK}</p>
                 </footer>
               </div>
 

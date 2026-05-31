@@ -56,12 +56,14 @@ point the URLs at your local Hardhat node, then `npm run dev -- --mode devnet`.
 
 ## Versioning
 
-The footer renders `Build {version}` from `package.json` via Vite's `define`.
-Every change that lands on `main` or `next` **must** bump the `version`
-field in `package.json` (patch for fixes/UI tweaks, minor for new flows,
-major for breaking changes). This lets operators verify a deploy landed
-just by reading the footer — no guesswork about which build the CDN is
-serving.
+The footer renders `Build {BUILD_LABEL}`, where `BUILD_LABEL` lives in
+[`src/lib/buildLabel.ts`](src/lib/buildLabel.ts). Releases use an RC
+scheme (RC5.27, RC5.28, …) tracked in [`src/pages/Releases.tsx`](src/pages/Releases.tsx).
+
+Every change that lands on `main` or `next` **must** bump `BUILD_LABEL`
+to the next RC tag (RC5.27 → RC5.28 → RC5.29 …). Bump on every push, even
+tiny copy tweaks. This lets operators verify a deploy landed just by
+reading the footer — no guesswork about which build the CDN is serving.
 
 ## Reproducibility
 
