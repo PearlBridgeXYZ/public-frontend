@@ -217,7 +217,7 @@ export function OrderStatus() {
       cancelled = true;
       if (interval) clearInterval(interval);
     };
-  }, [pearlTxId, validTxid, status?.state]);
+  }, [pearlTxId, validTxid, status?.state, status?.refundedAt]);
 
   useEffect(() => {
     if (status?.state !== "queued") return;

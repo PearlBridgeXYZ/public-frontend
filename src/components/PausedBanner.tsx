@@ -24,7 +24,12 @@ export function PausedBanner() {
   const { paused } = useBridgePaused();
   if (!paused) return null;
 
-  const resumeSeconds = Math.max(0, DEPOSIT_RESUMES_AT_UNIX - nowSec);
+  const resumeSeconds = DEPOSIT_RESUMES_AT_UNIX - nowSec;
+  // Past the scheduled 24h-lock mark but on-chain `paused()` still true —
+  // operator unpause tx hasn't landed yet. Swap the countdown for an
+  // "imminent" line instead of pinning at 00:00:00 (which lies for users by
+  // implying the bridge resumes "right now" every render).
+  const lockPeriodElapsed = resumeSeconds <= 0;
 
   return (
     <div
@@ -53,17 +58,30 @@ export function PausedBanner() {
             <div className="flex items-baseline justify-between gap-2 flex-wrap">
               <p className="text-gray-300 text-[11px]">
                 <span className="text-white font-semibold">Deposits &amp; withdrawals</span>
-                <span className="text-gray-500"> resume in</span>
+                <span className="text-gray-500">
+                  {lockPeriodElapsed ? " status" : " resume in"}
+                </span>
               </p>
-              <p
-                className="text-[#00e5d0]/90 text-[11px] font-semibold tabular-nums"
-                aria-label={`deposits and withdrawals resume in ${formatCountdown(resumeSeconds)}`}
-              >
-                {formatCountdown(resumeSeconds)}
-              </p>
+              {lockPeriodElapsed ? (
+                <p
+                  className="text-[#00e5d0]/90 text-[11px] font-semibold uppercase tracking-wide"
+                  aria-label="24-hour lock period elapsed, unpause imminent"
+                >
+                  resume imminent
+                </p>
+              ) : (
+                <p
+                  className="text-[#00e5d0]/90 text-[11px] font-semibold tabular-nums"
+                  aria-label={`deposits and withdrawals resume in ${formatCountdown(resumeSeconds)}`}
+                >
+                  {formatCountdown(resumeSeconds)}
+                </p>
+              )}
             </div>
             <p className="text-gray-500 text-[10px] leading-relaxed -mt-0.5">
-              Side door (paid withdrawals) remains open until then.
+              {lockPeriodElapsed
+                ? "24-hour lock period elapsed; awaiting operator unpause transaction. Side door (paid withdrawals) remains open."
+                : "Side door (paid withdrawals) remains open until then."}
             </p>
           </div>
         </div>
