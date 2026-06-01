@@ -3,7 +3,6 @@ import { injected } from "wagmi/connectors";
 import { mainnet, sepolia, hardhat } from "wagmi/chains";
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import {
-  metaMaskWallet,
   rabbyWallet,
   coinbaseWallet,
   walletConnectWallet,
@@ -36,11 +35,11 @@ const WC_PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "";
 
 // Connect-modal wallets. Three groups:
 //
-//   1. "Recommended" — the most likely path for our actual user base:
-//      MetaMask + Rabby (top desktop extensions), Coinbase, and
-//      WalletConnect (the only viable path for mobile users not in an
-//      in-app wallet browser; QR + deeplink to Trust/Rainbow/MetaMask
-//      Mobile/Ledger Live/etc.).
+//   1. "Recommended" — Rabby (top desktop EVM extension, our pick over
+//      MetaMask), Coinbase (broadest end-user reach), and WalletConnect
+//      (the only viable path for mobile users not in an in-app wallet
+//      browser; QR + deeplink to Trust/Rainbow/MetaMask Mobile/Ledger
+//      Live/etc.). MetaMask is NOT in the named list — see below.
 //
 //   2. "More wallets" — named entry points (with install links) for the
 //      next tier: Trust, Rainbow, Phantom, Ledger, Brave, OKX, Frame.
@@ -49,9 +48,23 @@ const WC_PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "";
 //
 //   3. wagmi's bare `injected()` connector as a final fallback so wagmi
 //      v2's built-in EIP-6963 multi-injected-provider discovery still
-//      surfaces any OTHER installed extension we haven't named (Safe,
-//      Backpack, Tally, etc.). RainbowKit dedupes against named wallets
-//      by rdns so installed Metamask/Rabby/etc. won't appear twice.
+//      surfaces any installed extension we haven't named — including
+//      MetaMask. Users who already have MetaMask installed will see it
+//      auto-discovered via EIP-6963; users without it won't see a
+//      MetaMask button at all (intentional — see below).
+//
+// MetaMask is deliberately omitted from the named list (G ask 2026-06-01,
+// msg #34652). Two reasons:
+//   - RainbowKit's `metaMaskWallet` falls into a WalletConnect-deeplink
+//     fallback path when no MM extension is detected, and that path
+//     reliably blanks the connect modal in current RK v2 (reproduced on
+//     desktop without MM installed — modal closes / page goes blank
+//     mid-flow). Removing the named entry removes the broken click path.
+//   - We don't want to recommend MetaMask given Rabby's better security
+//     posture (clearer txn previews, fewer phishing surfaces).
+// Net effect: MM-installed users still connect (via the injected fallback
+// + EIP-6963 auto-discovery); MM-not-installed users never see a button
+// to click → no blank-screen bug.
 //
 // We deliberately do NOT use RainbowKit's `injectedWallet()` here. That
 // wrapper snapshots `window.ethereum.providers[0]` (or `window.ethereum`)
@@ -70,8 +83,8 @@ const WC_PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "";
 // auto-creates each have a direct reference to their specific wallet's
 // provider object — no shared `window.ethereum` to race over.
 const recommendedWallets = WC_PROJECT_ID
-  ? [metaMaskWallet, rabbyWallet, coinbaseWallet, walletConnectWallet]
-  : [metaMaskWallet, rabbyWallet, coinbaseWallet];
+  ? [rabbyWallet, coinbaseWallet, walletConnectWallet]
+  : [rabbyWallet, coinbaseWallet];
 
 const rkConnectors = connectorsForWallets(
   [

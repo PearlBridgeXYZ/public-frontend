@@ -12,6 +12,22 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.35",
+    date: "2026-06-01",
+    title: "Connect modal: Rabby as the recommended desktop wallet; drop named MetaMask entry (kills the blank-screen bug)",
+    summary:
+      "Two convergent connect-modal fixes after RC5.34 smoke testing. (1) Rabby moves to the top of the \"Recommended\" group, replacing MetaMask's first-position slot. Rabby has a cleaner transaction-preview UX and tighter phishing defenses, and we'd rather not endorse MetaMask as the default. (2) The named MetaMask entry is removed entirely from both groups. RainbowKit's metaMaskWallet falls into a WalletConnect-deeplink fallback path when no MM extension is detected, and that path reliably blanks the connect modal in RK v2 (reproduced live on next.pearlbridge.xyz — click MetaMask on a desktop without the extension → modal closes / page goes blank). MM-installed users still connect via wagmi's bare injected() connector + EIP-6963 auto-discovery, so the only behavior change is that users without MetaMask no longer see a button that would dead-end them.",
+    highlights: [
+      "Recommended group reorders to: Rabby (1st), Coinbase, WalletConnect — MetaMask removed.",
+      "More wallets group unchanged: Trust, Rainbow, Phantom, Ledger, Brave, OKX, Frame.",
+      "MetaMask discoverability preserved for users who have the extension installed: wagmi v2's EIP-6963 multi-injected-provider discovery picks up io.metamask via the bare injected() fallback connector with no named-entry needed.",
+      "Net effect: zero new dead-end clicks for users without MetaMask; identical successful-connect flow for users with MetaMask.",
+      "Rationale documented as a code comment in src/lib/wagmi.ts so a future maintainer doesn't reflexively re-add MM and reintroduce the blank-screen bug.",
+      "No backend / SIWE / contract / CSP change vs RC5.34.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.34",
     date: "2026-06-01",
     title: "Wallet connect: WalletConnect v2 + broader named-wallet list + programmatic chain switch on wrong-network",
@@ -25,7 +41,7 @@ const RELEASES: Release[] = [
       "Backend unchanged. SIWE flow unchanged. No contract changes.",
       "Fallback path preserved: wagmi's bare injected() connector still ships as a final fallback so any installed EIP-6963 extension we haven't named (Safe, Backpack, Tally, etc.) surfaces as its own option in the modal.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.33",
