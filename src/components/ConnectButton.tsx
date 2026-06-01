@@ -1,10 +1,18 @@
 import { ConnectButton as RKConnectButton } from "@rainbow-me/rainbowkit";
+import { useSwitchChain } from "wagmi";
+import { EXPECTED_CHAIN_ID } from "../lib/contracts";
 
 // Thin styled wrapper around RainbowKit's ConnectButton. The default RK
 // render uses its own theming; we use the custom render so the button
 // matches PearlBridge's teal-gradient pill aesthetic.
 
 export function ConnectButton() {
+  // wagmi's switchChain triggers `wallet_switchEthereumChain` on the
+  // connected provider. Used for the wrong-network branch below — we can't
+  // use RainbowKit's openChainModal there because the wagmi config is
+  // single-chain (only Ethereum mainnet), which renders an empty modal.
+  const { switchChain, isPending: switching } = useSwitchChain();
+
   return (
     <RKConnectButton.Custom>
       {({
@@ -12,7 +20,6 @@ export function ConnectButton() {
         chain,
         openConnectModal,
         openAccountModal,
-        openChainModal,
         authenticationStatus,
         mounted,
       }) => {
@@ -46,18 +53,15 @@ export function ConnectButton() {
         if (chain.unsupported) {
           return (
             <button
-              onClick={openChainModal}
-              className="text-sm bg-red-500/20 border border-red-500/50 text-red-300 font-bold px-4 py-2 rounded-xl"
+              onClick={() => switchChain({ chainId: EXPECTED_CHAIN_ID })}
+              disabled={switching}
+              className="text-sm bg-red-500/20 border border-red-500/50 text-red-300 font-bold px-4 py-2 rounded-xl hover:bg-red-500/30 transition-all disabled:opacity-60"
             >
-              Wrong network
+              {switching ? "Switching…" : "Switch to Ethereum"}
             </button>
           );
         }
 
-        // The chain switcher pill is intentionally not rendered: PearlBridge
-        // is wired to a single network per build (Ethereum on mainnet), so
-        // there is nothing to switch to. Wrong-network is still surfaced via
-        // the `chain.unsupported` branch above.
         return (
           <button
             onClick={openAccountModal}

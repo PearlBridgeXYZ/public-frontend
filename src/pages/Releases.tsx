@@ -12,11 +12,27 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.34",
+    date: "2026-06-01",
+    title: "Wallet connect: WalletConnect v2 + broader named-wallet list + programmatic chain switch on wrong-network",
+    summary:
+      "Three convergent fixes to the connect-modal flow after users reported they couldn't connect their wallets — particularly on mobile. (1) Adds the WalletConnect v2 connector to RainbowKit's named-wallet list so mobile-Safari / mobile-Chrome users can finally pair via QR code or wallet-deeplink (previously the only mobile path was opening the site inside MetaMask/Coinbase Wallet's in-app browser). (2) Broadens the modal's named-wallet list from 3 → 11 (adds Trust, Rainbow, Phantom, Ledger Live, Brave, OKX, Frame) so new-to-crypto visitors who want one of these get an in-modal install link instead of having to know to install first. (3) Replaces the wrong-network branch's no-op `openChainModal` call (which opened an empty modal because the wagmi config is single-chain) with a programmatic `wallet_switchEthereumChain` request via wagmi's useSwitchChain — one click switches the user's wallet to Ethereum mainnet.",
+    highlights: [
+      "WalletConnect v2: walletConnectWallet added to the \"Recommended\" group when VITE_WALLETCONNECT_PROJECT_ID is provisioned (falsy → graceful degrade, WC silently omitted, injected-only flow still works for desktop-extension users). projectId is a public client-side identifier (ships in the bundle, used only by WC Cloud for analytics + project allowlist).",
+      "More wallets group: trustWallet, rainbowWallet, phantomWallet, ledgerWallet, braveWallet, okxWallet, frameWallet — each renders with an install link when not detected, so new users without any wallet have a path. RainbowKit dedupes against installed extensions by rdns so already-installed wallets don't appear twice.",
+      "Programmatic chain switch: ConnectButton's wrong-network branch now uses wagmi useSwitchChain → wallet_switchEthereumChain(0x1) instead of RainbowKit's openChainModal (which was a no-op because the wagmi config has only mainnet). Button copy: \"Switch to Ethereum\" / \"Switching…\". Disabled while pending.",
+      "CSP expanded: connect-src adds *.walletconnect.com, *.walletconnect.org, relay.walletconnect.{com,org} (HTTPS + WSS), pulse.walletconnect.org, verify.walletconnect.{com,org}, api.web3modal.{com,org}. frame-src adds verify.walletconnect.{com,org} (WC scam-guard iframe). img-src adds blob: for QR-code rendering.",
+      "Backend unchanged. SIWE flow unchanged. No contract changes.",
+      "Fallback path preserved: wagmi's bare injected() connector still ships as a final fallback so any installed EIP-6963 extension we haven't named (Safe, Backpack, Tally, etc.) surfaces as its own option in the modal.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.33",
     date: "2026-05-31",
     title: "Stats page: at-a-glance Inflow / Outflow / Net flow + visible live-refresh indicator",
     summary:
-      "Rewrites the /stats volume layout so the dominant question — \"is PRL going in or coming out right now?\" — is answered immediately. Replaces the single aggregated \"Total volume\" hero (which hid direction by summing mint + burn + intermediary together) with three side-by-side cards: Inflow (deposits → WPRL minted), Outflow (WPRL burned + intermediary unwraps → PRL unlocked), and Net flow (signed difference). Adds a small live-refresh pill at the top with a 1s countdown to the next 30s fetch so the page no longer looks static between polls. Underlying API and 30s polling cadence unchanged.",
+      "Rewrites the /stats volume layout so the dominant question — \"is PRL going in or coming out right now?\" — is answered immediately. Replaces the single aggregated \"Total volume\" hero (which hid direction by summing mint + burn + intermediary together) with three side-by-side cards: Inflow (deposits → WPRL minted), Outflow (WPRL burned + intermediary unwraps → PRL unlocked), and Net flow (signed difference). Adds a small live-refresh pill at the top with a 1s countdown to the next 30s fetch so the page no longer looks static between polls. Underlying API and 30s polling cadence unchanged. Superseded by RC5.34 as primary-gtm.",
     highlights: [
       "Three-card hero: Inflow (teal, ↓ arrow), Outflow (amber, ↑ arrow), Net flow (sign-coloured). Window toggle (24h / 7d / all-time) re-skins all three at once.",
       "Outflow groups burn + intermediary together — intermediary unwraps are partner-funded WPRL → PRL conversions that still release locked PRL, so they belong on the same side of the ledger.",
@@ -26,7 +42,7 @@ const RELEASES: Release[] = [
       "No backend change — same /api/stats payload, same /api/supply and /api/custody/addresses sources, same 30s poll. Pure presentation fix.",
       "Source of truth for the inflow / outflow definition is documented as comments in Stats.tsx so the next maintainer can't accidentally re-sum the buckets.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.32",

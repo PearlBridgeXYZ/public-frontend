@@ -6,6 +6,14 @@ import {
   metaMaskWallet,
   rabbyWallet,
   coinbaseWallet,
+  walletConnectWallet,
+  trustWallet,
+  rainbowWallet,
+  phantomWallet,
+  ledgerWallet,
+  braveWallet,
+  okxWallet,
+  frameWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 
 const DEVNET_RPC_URL = import.meta.env.VITE_DEVNET_RPC_URL || "http://127.0.0.1:8545";
@@ -15,23 +23,35 @@ const DEVNET_RPC_URL = import.meta.env.VITE_DEVNET_RPC_URL || "http://127.0.0.1:
 // connect modal was confusing and not necessary.
 const BUILD_NETWORK = (import.meta.env.VITE_NETWORK as "mainnet" | "sepolia" | "devnet" | undefined) ?? "mainnet";
 
-// Connect-modal connectors. Two layers, stacked in this order:
+// WalletConnect projectId. Required for the WalletConnect connector to
+// initialize — without it WC silently drops out of the modal. The value
+// is a PUBLIC client-side identifier (it ships in the bundle, and that's
+// fine — WalletConnect Cloud uses it only for project-level analytics and
+// allowlist gating). Provision from https://dashboard.reown.com.
 //
-//   1. RainbowKit's named wallets (MetaMask, Rabby, Coinbase) — these always
-//      appear in the modal, and when the user doesn't have them installed
-//      they render a "Get" / install link to the wallet's download page.
-//      That's what surfaces install hints in the "Get a Wallet" panel for
-//      new-to-crypto visitors who don't have any wallet yet. Each of these
-//      uses dedicated rdns-based EIP-6963 discovery, so they connect to the
-//      RIGHT provider when the user clicks them (no `window.ethereum`
-//      snapshotting — see the snapshot-bug section below).
+// Falsy → WalletConnect is omitted from the modal (graceful degrade to
+// injected-only). Don't throw — desktop-extension users should still be
+// able to connect even if the projectId isn't configured.
+const WC_PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "";
+
+// Connect-modal wallets. Three groups:
 //
-//   2. wagmi's bare `injected()` connector as a fallback so wagmi v2's
-//      built-in EIP-6963 multi-injected-provider discovery still surfaces
-//      *other* installed wallets (Phantom EVM, OKX, Brave, Frame, Trust,
-//      etc.) as their own connectors in the modal. RainbowKit dedupes
-//      against named wallets by rdns, so MetaMask / Rabby / Coinbase won't
-//      appear twice when installed.
+//   1. "Recommended" — the most likely path for our actual user base:
+//      MetaMask + Rabby (top desktop extensions), Coinbase, and
+//      WalletConnect (the only viable path for mobile users not in an
+//      in-app wallet browser; QR + deeplink to Trust/Rainbow/MetaMask
+//      Mobile/Ledger Live/etc.).
+//
+//   2. "More wallets" — named entry points (with install links) for the
+//      next tier: Trust, Rainbow, Phantom, Ledger, Brave, OKX, Frame.
+//      New-to-crypto users who want one of these get a "Get" link in the
+//      modal instead of having to know to install it first.
+//
+//   3. wagmi's bare `injected()` connector as a final fallback so wagmi
+//      v2's built-in EIP-6963 multi-injected-provider discovery still
+//      surfaces any OTHER installed extension we haven't named (Safe,
+//      Backpack, Tally, etc.). RainbowKit dedupes against named wallets
+//      by rdns so installed Metamask/Rabby/etc. won't appear twice.
 //
 // We deliberately do NOT use RainbowKit's `injectedWallet()` here. That
 // wrapper snapshots `window.ethereum.providers[0]` (or `window.ethereum`)
@@ -49,18 +69,30 @@ const BUILD_NETWORK = (import.meta.env.VITE_NETWORK as "mainnet" | "sepolia" | "
 // lookup every call (no snapshot), and the EIP-6963 connectors that wagmi
 // auto-creates each have a direct reference to their specific wallet's
 // provider object — no shared `window.ethereum` to race over.
-//
-// `connectorsForWallets` requires a `projectId` for any WalletConnect-based
-// entries; none of MetaMask/Rabby/Coinbase use WalletConnect (all injected),
-// so the value is unused at runtime — a placeholder is fine.
+const recommendedWallets = WC_PROJECT_ID
+  ? [metaMaskWallet, rabbyWallet, coinbaseWallet, walletConnectWallet]
+  : [metaMaskWallet, rabbyWallet, coinbaseWallet];
+
 const rkConnectors = connectorsForWallets(
   [
     {
       groupName: "Recommended",
-      wallets: [metaMaskWallet, rabbyWallet, coinbaseWallet],
+      wallets: recommendedWallets,
+    },
+    {
+      groupName: "More wallets",
+      wallets: [
+        trustWallet,
+        rainbowWallet,
+        phantomWallet,
+        ledgerWallet,
+        braveWallet,
+        okxWallet,
+        frameWallet,
+      ],
     },
   ],
-  { appName: "PearlBridge", projectId: "pearlbridge" },
+  { appName: "PearlBridge", projectId: WC_PROJECT_ID || "pearlbridge" },
 );
 
 const connectors = [...rkConnectors, injected()];
