@@ -1,58 +1,58 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-06-08T00:00:01Z",
-  "next_refresh_at": "2026-06-09T00:00:00Z",
-  "narrative": "PRL stabilized after yesterday's crash: volume-weighted price drifted -1.65% to $0.607 on just $32.4k of cross-venue volume — turnover halved as the move bled out. The bridge kept absorbing flow: custody +11,381 PRL to 556,659 and minted WPRL +14,745 to 551,970, with mint settlement actually outpacing deposits and tightening surplus 1.50% → 0.85% as the relay worked through yesterday's backlog. Network hashrate recovered +30.6% to 32.85 EH/s on a +2 GPU MinePRL footprint (21 → 23), with block cadence steady at ~151s. Code velocity continued to taper as the rolling 7-day window sheds RC5.33–RC5.36 (8 commits combined), while pearl-research-labs/pearl quietly added +3 stars to 203 — fourth straight day of star inflow.",
+  "updated_at": "2026-06-09T00:00:01Z",
+  "next_refresh_at": "2026-06-10T00:00:00Z",
+  "narrative": "Largest single-day bridge flow of the cycle: custody jumped +30.1% to 724,372 PRL (+167,713 in 24h) and minted WPRL surged +166,507 to 718,477 — the cumulative inbound of the prior week landed in a single session. Volume on-DEX rebounded too: $243.4k across the same six pairs (7.5× yesterday's $32k), nearly all of it through the main WPRL/USDT v3 pool. Price stayed under pressure even with the volume burst — volume-weighted -4.88% to $0.5776 — consistent with sellers exiting size via the bridge. Surplus widened to 0.95% (6,851 PRL) with a ~956 PRL in-flight mint still settling. Network hashrate eased -6.5% to 30.71 EH/s while MinePRL added +4 GPUs to 27 and lifted pool share back to ~0.028%. Code velocity tapered further (5 commits/7d combined as last week's RC5.3x burst rolled off), but pearl-research-labs/pearl shipped its first commit since 2026-05-30 (pool share difficulty handling, PR #161) and added +4 stars to 207.",
   "market": {
-    "prl_price_usd": 0.607,
-    "prl_change_24h_pct": -1.65,
-    "prl_volume_24h_usd": 32428.7,
-    "prl_market_cap_usd": 112370313,
-    "prl_circulating_supply": 185112540,
+    "prl_price_usd": 0.5776,
+    "prl_change_24h_pct": -4.88,
+    "prl_volume_24h_usd": 243364.8,
+    "prl_market_cap_usd": 107751468,
+    "prl_circulating_supply": 186551686,
     "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 1, before the first halving)",
-    "wprl_price_usd": 0.607,
+    "wprl_price_usd": 0.5776,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap V3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 32118.75,
-        "liquidity_usd": 204598.91,
+        "volume_24h_usd": 241196.02,
+        "liquidity_usd": 200559.72,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap V3 (Ethereum)",
         "pair": "WPRL/WETH",
-        "volume_24h_usd": 185.85,
-        "liquidity_usd": 2618.05,
+        "volume_24h_usd": 1155.71,
+        "liquidity_usd": 2574.31,
         "url": "https://dexscreener.com/ethereum/0x558a92bbcadb2a48465194dd07f10db8b1e779cb"
       },
       {
         "venue": "Uniswap V4 (Ethereum)",
         "pair": "WPRL/USDC",
-        "volume_24h_usd": 81.38,
-        "liquidity_usd": 1034.45,
+        "volume_24h_usd": 519.49,
+        "liquidity_usd": 997.98,
         "url": "https://dexscreener.com/ethereum/0x985c125c42698febb1e0ccb95664115c449cece3d012139d8fe63ae2f8bfd5e4"
       },
       {
         "venue": "Uniswap V4 (Ethereum)",
         "pair": "WPRL/ETH",
-        "volume_24h_usd": 27.99,
-        "liquidity_usd": 300.71,
+        "volume_24h_usd": 370.84,
+        "liquidity_usd": 295.13,
         "url": "https://dexscreener.com/ethereum/0x44c98565f6df4ac7660761cad1ebfd5343f0b397ff89837d3e1c9b5c2ac6c42b"
       },
       {
         "venue": "Uniswap V4 (Ethereum)",
         "pair": "WPRL/USDC",
-        "volume_24h_usd": 12.24,
-        "liquidity_usd": 928.89,
+        "volume_24h_usd": 104.67,
+        "liquidity_usd": 895.33,
         "url": "https://dexscreener.com/ethereum/0x1b174c744e638f68d86e97bc98f2e273e4f4d3bb8f03f440163af7e74d7e6cb9"
       },
       {
         "venue": "Uniswap V4 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 2.49,
-        "liquidity_usd": 915.46,
+        "volume_24h_usd": 18.07,
+        "liquidity_usd": 880.23,
         "url": "https://dexscreener.com/ethereum/0x6bd5a29eb6f81406ad4ec12c4a20e5f5b795df9e7fbd203abdb59dc9a4a75813"
       }
     ],
@@ -62,36 +62,38 @@
     ]
   },
   "network": {
-    "hashrate": "32.85 EH/s",
-    "difficulty": "0x18011302",
-    "block_height": 69587,
-    "block_time_sec": 151,
-    "active_workers": 23,
+    "hashrate": "30.71 EH/s",
+    "difficulty": "0x180109c1",
+    "block_height": 70128,
+    "block_time_sec": 160,
+    "active_workers": 27,
     "active_workers_scope": "MinePRL pool only — network-wide miner count is not exposed by Pearl RPC",
-    "pool_share_pct": 0.01,
+    "pool_share_pct": 0.028,
     "sources": [
       "pool.mineprl.com/v1/public/summary (network.network_hashrate_hps, network.height, network.chain_nbits, economics.active_gpus, economics.network_share)"
     ]
   },
   "bridge": {
-    "tvl_prl": 556658.7,
-    "tvl_usd": 337912.88,
-    "minted_wprl": 551970,
-    "surplus_prl": 4688.69,
-    "surplus_pct": 0.85,
+    "tvl_prl": 724371.96,
+    "tvl_usd": 418394.19,
+    "minted_wprl": 718476.81,
+    "surplus_prl": 6851.41,
+    "surplus_pct": 0.95,
     "deposits_24h_prl": null,
     "burns_24h_prl": null,
     "fast_lane_used_pct": null,
     "active_addresses_24h": null,
     "anomalies": [
-      "Volume halved ($65.5k → $32.4k) as the post-crash dust settled — main WPRL/USDT v3 pool carried 99% of the day's turnover.",
-      "Bridge mints outpaced deposits in 24h (+14,745 WPRL vs +11,381 PRL custody) — first day the relay cleared backlog faster than new flow arrived; surplus tightened 1.50% → 0.85%.",
-      "Network hashrate +30.6% to 32.85 EH/s recovered most of yesterday's -29% post-ATH retracement; non-pool capacity remains the swing factor (MinePRL only +2 GPUs)."
+      "ANOMALY (>20% TVL swing): custody +167,713 PRL (+30.13%) and minted WPRL +166,507 in 24h — by far the largest single-day inbound of the cycle. Numbers verified across two consecutive relay reads (custody/supply consistent). 49 new deposit addresses (2,044 → 2,093) — looks like one or a few size depositors, not retail.",
+      "On-DEX volume rebounded 7.5× to $243.4k against the bridge inflow — sellers appear to be exiting size via the bridge → main USDT pool path while price continues to slide (-4.88% to $0.5776).",
+      "/api/supply (718,476.81 PRL) leads totalSupplyGrains (717,520.55 PRL) by ~956 PRL — in-flight mint still settling, consistent with prior days during high-volume settles.",
+      "Network hashrate -6.5% to 30.71 EH/s; MinePRL pool +4 GPUs to 27 and pool share recovered to ~0.028%.",
+      "pearl-research-labs/pearl shipped its first commit since 2026-05-30 — PR #161 adding nbits_override to verify_plain_proof for pool share difficulty."
     ]
   },
   "social": {
     "sentiment": "neutral",
-    "summary": "No coordinated chatter visible on @prlnet or @pearlbridgexyz despite back-to-back -18% and -1.6% sessions and the 550k WPRL milestone. Steady GitHub attention on pearl-research-labs/pearl (+3 stars to 203, fourth consecutive day of inflow) remains the only concrete attention signal.",
+    "summary": "No coordinated chatter despite the 30% TVL jump and the loud on-DEX volume spike — @prlnet and @pearlbridgexyz feeds remained quiet, no incident reports. pearl-research-labs/pearl crossed 207 stars and shipped the first core commit in nine days (pool share difficulty handling).",
     "mentions_24h": null,
     "tracked_accounts": [
       "@prlnet",
@@ -110,7 +112,7 @@
       "url": "https://github.com/PearlBridgeXYZ/public-frontend",
       "stars": 0,
       "open_prs": 0,
-      "commits_7d": 8,
+      "commits_7d": 4,
       "last_commit_at": "2026-06-04T20:49:08Z",
       "last_commit_msg": "ux(RC5.36): hide slow-lane explainer when fast-lane has plenty of room"
     },
@@ -126,11 +128,11 @@
     {
       "repo": "pearl-research-labs/pearl",
       "url": "https://github.com/pearl-research-labs/pearl",
-      "stars": 203,
-      "open_prs": 36,
-      "commits_7d": 0,
-      "last_commit_at": "2026-05-30T23:09:38Z",
-      "last_commit_msg": "fix(rpc): use chain.IsCurrent for getblocktemplate IBD check (#125)"
+      "stars": 207,
+      "open_prs": 35,
+      "commits_7d": 1,
+      "last_commit_at": "2026-06-08T19:54:26Z",
+      "last_commit_msg": "Add nbits_override to verify_plain_proof for pool share difficulty (#161)"
     }
   ],
   "ecosystem": [
