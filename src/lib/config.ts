@@ -27,6 +27,16 @@ export const MIN_BRIDGE_FEE_GRAINS = BigInt(
 
 export const RELAY_API_BASE = import.meta.env.VITE_RELAY_API_BASE ?? "https://api.pearlbridge.xyz";
 
+// Absolute base for the public /v1 API. RELAY_API_BASE compiles to "" on
+// mainnet (.env.mainnet sets VITE_RELAY_API_BASE= empty, and ?? doesn't
+// catch empty strings) — that's deliberate for the legacy /api/* routes,
+// which ride the zone's same-origin /api/* → relay routing and need
+// same-origin cookies for SIWE. The /v1/* paths have NO same-origin route
+// (a relative fetch gets the SPA's index.html back), and v1 is open-CORS
+// by design, so consume it cross-origin like any third party would.
+// `||` (not ??) so the empty string falls through to the absolute host.
+export const PUBLIC_API_BASE = import.meta.env.VITE_RELAY_API_BASE || "https://api.pearlbridge.xyz";
+
 // Public Pearl block explorer — used for "View on Explorer" links so users can
 // independently verify their deposit txid. Confirmation counts come from the
 // relay (`/api/pearl-tx/:txid`), not the explorer; the link is informational.

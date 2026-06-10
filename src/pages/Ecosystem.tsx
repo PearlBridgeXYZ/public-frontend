@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { RELAY_API_BASE } from "../lib/config";
+import { PUBLIC_API_BASE } from "../lib/config";
 
 // Live bridge-flow overlay sourced from the relay's public API at render
 // time. The daily ecosystem.json snapshot never carried these fields (they
@@ -30,8 +30,8 @@ async function fetchLiveBridgeFlow(): Promise<LiveBridgeFlow> {
   // Independent best-effort fetches: a failing one leaves its fields null
   // so the snapshot fallback (or an em-dash) renders instead.
   const [stats, status] = await Promise.allSettled([
-    fetch(`${RELAY_API_BASE}/v1/stats`).then((r) => (r.ok ? r.json() : null)),
-    fetch(`${RELAY_API_BASE}/v1/status`).then((r) => (r.ok ? r.json() : null)),
+    fetch(`${PUBLIC_API_BASE}/v1/stats`).then((r) => (r.ok ? r.json() : null)),
+    fetch(`${PUBLIC_API_BASE}/v1/status`).then((r) => (r.ok ? r.json() : null)),
   ]);
   if (stats.status === "fulfilled" && stats.value?.volume?.["24h"]) {
     const day = stats.value.volume["24h"];
