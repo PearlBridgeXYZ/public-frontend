@@ -1,0 +1,279 @@
+import { Link } from "react-router-dom";
+
+// Static reference for the public /v1 REST API served at
+// https://api.pearlbridge.xyz. Shapes documented here are a published
+// contract: additive changes only — renames/removals go to /v2.
+// Keep the examples in lockstep with the relay's v1 routes; the relay's
+// /v1 index endpoint is the machine-readable source of truth.
+
+const API_BASE = "https://api.pearlbridge.xyz";
+
+type Endpoint = {
+  method: "GET";
+  path: string;
+  title: string;
+  description: string;
+  params?: { name: string; in: "path" | "query"; description: string }[];
+  curl: string;
+  response: string;
+  notes?: string[];
+};
+
+const ENDPOINTS: Endpoint[] = [
+  {
+    method: "GET",
+    path: "/v1/status",
+    title: "Bridge status",
+    description:
+      "Live operational state read from the BridgeController contract on Ethereum mainnet: pause flag, fee schedule, daily caps with the remaining capacity in the current 24h windows, slow-lane delay, and the Pearl confirmation policy. Cached for 30 seconds.",
+    curl: `curl ${API_BASE}/v1/status`,
+    response: `{
+  "paused": false,
+  "fees": { "mintFeeBps": 0, "burnFeeBps": 0 },
+  "limits": {
+    "dailyMintLimitGrains": "500000000000000",
+    "dailyBurnLimitGrains": "100000000000000",
+    "dailyFastMintLimitGrains": "50000000000000",
+    "mintWindowRemainingGrains": "499604390509712",
+    "fastMintWindowRemainingGrains": "49604390509712",
+    "slowMintDelaySeconds": 86400
+  },
+  "confirmations": { "pearlMinConfirmations": 6 },
+  "contracts": {
+    "network": "mainnet",
+    "wprl": "0x07696DcaB55E62cfef953666b29Fe1970518cB00",
+    "bridgeController": "0xA6571B73489d4eBFA269a107208665dF7C80Aef5"
+  },
+  "decimals": 8,
+  "timestamp": 1781067290202
+}`,
+    notes: [
+      "Deposits that fit inside fastMintWindowRemaining mint synchronously after confirmation; the excess queues for slowMintDelaySeconds (24h slow lane).",
+    ],
+  },
+  {
+    method: "GET",
+    path: "/v1/supply",
+    title: "WPRL total supply",
+    description:
+      "WPRL totalSupply on Ethereum, as raw grains and as a fixed-point decimal string. For the plain-text number consumed by aggregators (CoinGecko/CMC), use /api/supply.",
+    curl: `curl ${API_BASE}/v1/supply`,
+    response: `{
+  "totalSupplyGrains": "76175838130195",
+  "totalSupply": "761758.38130195",
+  "decimals": 8,
+  "timestamp": 1781067290216
+}`,
+  },
+  {
+    method: "GET",
+    path: "/v1/stats",
+    title: "Bridge volume",
+    description:
+      "Per-direction transfer counts and grain totals over the last 24 hours, 7 days, and all time. Directions: mint (PRL→WPRL), burn (WPRL→PRL), intermediary (partner-funded unwrap).",
+    curl: `curl ${API_BASE}/v1/stats`,
+    response: `{
+  "volume": {
+    "24h": { "mint": { "count": 72, "grains": "6574698578130" },
+             "burn": { "count": 10, "grains": "1127822855771" },
+             "intermediary": { "count": 0, "grains": "0" } },
+    "7d":  { "...": "same shape" },
+    "all": { "...": "same shape" }
+  },
+  "decimals": 8,
+  "timestamp": 1781065826758
+}`,
+  },
+  {
+    method: "GET",
+    path: "/v1/custody",
+    title: "Proof of reserves",
+    description:
+      "Pearl-side custody snapshot vs. WPRL supply — the same data backing the Audit page's solvency card. Heavy UTXO scan under the hood; served from a cache with stale-while-revalidate semantics, so the timestamp tells you snapshot age.",
+    curl: `curl ${API_BASE}/v1/custody`,
+    response: `{
+  "lockGrains": "…",
+  "treasuryGrains": "…",
+  "supplyGrains": "…",
+  "timestamp": 1781067290000
+}  // see live response for the full field set`,
+  },
+  {
+    method: "GET",
+    path: "/v1/mints/{pearlTxid}",
+    title: "Mint (deposit) status",
+    description:
+      "Lifecycle of a Pearl→Ethereum deposit by its Pearl txid. States pass through the relay's pipeline: pending → attested → submitted → minted, with queued (slow lane), under_review, cancelled, failed, stuck, and refund fields where applicable.",
+    params: [
+      { name: "pearlTxid", in: "path", description: "64-hex-char Pearl transaction id (0x prefix optional)" },
+    ],
+    curl: `curl ${API_BASE}/v1/mints/<pearl-txid>`,
+    response: `{
+  "txid": "…",
+  "state": "minted",
+  "amountGrains": "123000000",
+  "recipient": "0x…",
+  "mintTxHash": "0x…",
+  "queuedAt": null,
+  "readyAt": null,
+  "cancelledAt": null,
+  "cancelReason": null,
+  "anomalyReason": null,
+  "refundPrlTxId": null,
+  "refundedAt": null
+}`,
+    notes: ["404 means the relay has never indexed the txid — deposits become visible after the watcher sees them on Pearl (≈1–2 minutes after broadcast)."],
+  },
+  {
+    method: "GET",
+    path: "/v1/burns/{ethTxHash}",
+    title: "Burn (unlock) status",
+    description:
+      "Status of a WPRL burn and its native-PRL payout, by the Ethereum transaction hash of the burn.",
+    params: [
+      { name: "ethTxHash", in: "path", description: "0x-prefixed 64-hex-char Ethereum tx hash" },
+    ],
+    curl: `curl ${API_BASE}/v1/burns/0x<eth-tx-hash>`,
+    response: `{
+  "hash": "0x…",
+  "state": "unlocked",
+  "pearlTxId": "…",
+  "anomalyReason": null
+}`,
+    notes: ["Unknown hashes return 200 with state: null (poll-friendly) — the watcher may simply not have indexed the burn yet."],
+  },
+  {
+    method: "GET",
+    path: "/v1/pearl-tx/{txid}",
+    title: "Pearl transaction lookup",
+    description:
+      "Live confirmation count for any Pearl transaction, served by the bridge's federated Pearl RPC pool. Useful while waiting for a deposit to reach the confirmation threshold.",
+    params: [
+      { name: "txid", in: "path", description: "64-hex-char Pearl transaction id (0x prefix optional)" },
+    ],
+    curl: `curl ${API_BASE}/v1/pearl-tx/<pearl-txid>`,
+    response: `{ "found": true, "confirmations": 6, "blockHeight": 512345 }
+// or { "found": false } when the txid is unknown to the pool`,
+  },
+  {
+    method: "GET",
+    path: "/v1/deposit-address",
+    title: "Deposit address derivation",
+    description:
+      "Derives the unique Pearl deposit address bound to an Ethereum wallet. PRL sent to this address bridges to the given wallet automatically — no OP_RETURN construction needed.",
+    params: [
+      { name: "ethAddress", in: "query", description: "0x-prefixed Ethereum address that will receive the WPRL" },
+    ],
+    curl: `curl "${API_BASE}/v1/deposit-address?ethAddress=0xYourAddress"`,
+    response: `{
+  "pearlAddress": "prl1p…",
+  "ethAddress": "0xyouraddress"
+}`,
+    notes: ["Rate-limited per IP. Funds sent to a derived address are credited to the bound ETH wallet only — double-check the ethAddress you derive for."],
+  },
+];
+
+function MethodBadge({ method }: { method: string }) {
+  return (
+    <span className="inline-block rounded bg-[#00e5d0]/10 text-[#00e5d0] border border-[#00e5d0]/30 px-2 py-0.5 text-xs font-bold tracking-wide">
+      {method}
+    </span>
+  );
+}
+
+function CodeBlock({ children }: { children: string }) {
+  return (
+    <pre className="bg-black/40 border border-white/10 rounded-lg p-4 text-xs leading-relaxed text-gray-300 overflow-x-auto">
+      <code>{children}</code>
+    </pre>
+  );
+}
+
+export function Api() {
+  return (
+    <div className="max-w-4xl mx-auto px-6 py-12 space-y-10">
+      <div className="space-y-4">
+        <h1 className="text-4xl font-extrabold tracking-tight">
+          API <span className="bg-gradient-to-r from-[#00e5d0] to-white bg-clip-text text-transparent">reference</span>
+        </h1>
+        <p className="text-gray-400 text-base leading-relaxed max-w-3xl">
+          PearlBridge exposes a public, read-only REST API for integrators: bridge status, supply,
+          volume, proof of reserves, and per-transaction lifecycle lookups. No authentication, no
+          API key. CORS is open (<code className="text-gray-300">Access-Control-Allow-Origin: *</code>),
+          so it works from browsers, servers, and curl alike.
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5 space-y-3 text-sm text-gray-300">
+        <div>
+          <span className="text-gray-500">Base URL</span>{" "}
+          <code className="text-[#00e5d0]">{API_BASE}</code>
+        </div>
+        <ul className="list-disc list-inside space-y-1 text-gray-400">
+          <li>
+            <span className="text-gray-300">Amounts are grains:</span> 1 PRL = 10<sup>8</sup> grains,
+            serialized as decimal strings to avoid float precision loss. WPRL has 8 decimals.
+          </li>
+          <li>
+            <span className="text-gray-300">Versioning:</span> shapes under <code>/v1</code> only change
+            additively. Breaking changes ship as <code>/v2</code>.
+          </li>
+          <li>
+            <span className="text-gray-300">Rate limits:</span> enforced at the edge; sustained
+            high-volume polling may be throttled. Status/supply/stats responses are cached ~30s
+            server-side — polling faster than that buys nothing.
+          </li>
+          <li>
+            <span className="text-gray-300">Discovery:</span> <code>GET /v1</code> returns a
+            machine-readable index of all endpoints.
+          </li>
+        </ul>
+      </div>
+
+      <div className="space-y-10">
+        {ENDPOINTS.map((ep) => (
+          <section key={ep.path} className="space-y-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              <MethodBadge method={ep.method} />
+              <code className="text-base text-white font-semibold">{ep.path}</code>
+            </div>
+            <h2 className="text-xl font-bold tracking-tight text-gray-100">{ep.title}</h2>
+            <p className="text-gray-400 text-sm leading-relaxed max-w-3xl">{ep.description}</p>
+            {ep.params && (
+              <table className="w-full text-sm text-left">
+                <thead>
+                  <tr className="text-gray-500 border-b border-white/10">
+                    <th className="py-1 pr-4 font-medium">Parameter</th>
+                    <th className="py-1 pr-4 font-medium">In</th>
+                    <th className="py-1 font-medium">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ep.params.map((p) => (
+                    <tr key={p.name} className="border-b border-white/5">
+                      <td className="py-1.5 pr-4"><code className="text-[#00e5d0]">{p.name}</code></td>
+                      <td className="py-1.5 pr-4 text-gray-500">{p.in}</td>
+                      <td className="py-1.5 text-gray-400">{p.description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            <CodeBlock>{ep.curl}</CodeBlock>
+            <CodeBlock>{ep.response}</CodeBlock>
+            {ep.notes?.map((n) => (
+              <p key={n} className="text-xs text-gray-500 leading-relaxed">— {n}</p>
+            ))}
+          </section>
+        ))}
+      </div>
+
+      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5 text-sm text-gray-400 leading-relaxed">
+        Building something on the bridge? The{" "}
+        <Link to="/audit" className="text-[#00e5d0] hover:underline">audit reports</Link> cover the
+        on-chain contracts, and the <Link to="/stats" className="text-[#00e5d0] hover:underline">stats page</Link>{" "}
+        is a live consumer of this API. Found an issue? Use the bug-bounty link in the footer.
+      </div>
+    </div>
+  );
+}
