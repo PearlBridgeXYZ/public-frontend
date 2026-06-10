@@ -11,4 +11,4 @@
 //
 // Codebase is built off RC5.27 baseline. Next ship = RC5.28. Bump on
 // every push, even tiny copy tweaks, per G's directive 2026-05-31.
-export const BUILD_LABEL = "RC5.39";
+export const BUILD_LABEL = "RC5.40";

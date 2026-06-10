@@ -147,11 +147,12 @@ export function App() {
                       <Link to="/releases" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Releases</Link>
                       <a href="https://explorer.pearlresearch.ai" target="_blank" rel="noopener noreferrer"
                         className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Explorer</a>
-                      {/* Wallet link removed 2026-06-10: pearlwallet.xyz is
-                          false-positive-flagged as malware by browser
-                          safe-browsing lists; linking it from here hurts
-                          trust until the flag is appealed. Restore once the
-                          listing clears. */}
+                      {/* Wallet moved to the wallet.pearlbridge.xyz alias
+                          2026-06-10 — the pearlwallet.xyz hostname is
+                          false-positive-flagged by safe-browsing lists, so
+                          link the clean subdomain. Opens in a new tab. */}
+                      <a href="https://wallet.pearlbridge.xyz" target="_blank" rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Wallet</a>
                       <BridgeModeToggle />
                       <ConnectButton />
                     </nav>
