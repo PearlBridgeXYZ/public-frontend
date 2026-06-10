@@ -22,12 +22,21 @@
 
 // Verified against relay route table 2026-05-26 — only real GET endpoints
 // that are safe to share across anonymous viewers (no per-user state).
+//
+// burn-status / mint-status added 2026-06-10: per-tx public lookups keyed
+// by the query string (the cache key includes the full URL, so distinct
+// hashes never collide). They carry no per-user state — anyone with the
+// tx hash sees the same answer. Caching them means the unwrap/mint status
+// pages degrade to last-known-state instead of 502 when the relay origin
+// is unreachable.
 const SWR_CACHEABLE_PATHS = new Set([
   "/api/supply",
   "/api/custody",
   "/api/custody/addresses",
   "/api/stuck-deposits",
   "/api/relayers",
+  "/api/burn-status",
+  "/api/mint-status",
 ]);
 
 const PRIMARY_HOST = "api.pearlbridge.xyz";
@@ -120,6 +129,9 @@ async function handleSWR(ctx) {
       "cache-control",
       `public, max-age=${FRESH_TTL_SECS}, s-maxage=${STALE_TTL_SECS}`,
     );
+    // The cache is shared across anonymous viewers — never let a session
+    // cookie ride along into it, even if an origin misbehaves one day.
+    cloned.headers.delete("set-cookie");
     cloned.headers.set("x-swr-cached-at", new Date().toISOString());
     ctx.waitUntil(cache.put(key, cloned));
 
