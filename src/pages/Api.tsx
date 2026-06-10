@@ -36,6 +36,7 @@ const ENDPOINTS: Endpoint[] = [
     "dailyFastMintLimitGrains": "50000000000000",
     "mintWindowRemainingGrains": "499604390509712",
     "fastMintWindowRemainingGrains": "49604390509712",
+    "burnWindowRemainingGrains": "99788751193552",
     "slowMintDelaySeconds": 86400
   },
   "confirmations": { "pearlMinConfirmations": 6 },
@@ -97,6 +98,99 @@ const ENDPOINTS: Endpoint[] = [
   "supplyGrains": "…",
   "timestamp": 1781067290000
 }  // see live response for the full field set`,
+  },
+  {
+    method: "GET",
+    path: "/v1/quote/mint",
+    title: "Mint quote",
+    description:
+      "Quote a prospective PRL→WPRL deposit before funds move: fee, net WPRL, and whether the amount clears the fast lane (mints right after confirmation) or queues in the 24h slow lane. Quotes derive from the same 30s-cached status the /v1/status route serves.",
+    params: [
+      { name: "amountGrains", in: "query", description: "deposit amount in grains (positive integer)" },
+    ],
+    curl: `curl "${API_BASE}/v1/quote/mint?amountGrains=10000000000"`,
+    response: `{
+  "direction": "mint",
+  "amountGrains": "10000000000",
+  "feeBps": 0, "feeGrains": "0", "netGrains": "10000000000",
+  "paused": false,
+  "lane": "fast",
+  "slowLaneDelaySeconds": 0,
+  "withinDailyCap": true,
+  "fastLaneRemainingGrains": "49592906146322",
+  "dailyRemainingGrains": "499592906146322",
+  "confirmationsRequired": 6,
+  "next": "GET /v1/deposit-address?ethAddress=0x… then send PRL to the derived address",
+  "timestamp": 1781069735508
+}`,
+  },
+  {
+    method: "GET",
+    path: "/v1/quote/burn",
+    title: "Burn quote + transaction plan",
+    description:
+      "Quote a WPRL→PRL redemption AND get the exact contract calls to submit: a conditional ERC-20 approve (only when the user's WPRL allowance for the BridgeController is below the amount) followed by requestBurn. A wallet can sign the returned steps as-is — no ABI archaeology required. Pass pearlAddress to have the payout address pre-validated in the same call.",
+    params: [
+      { name: "amountGrains", in: "query", description: "burn amount in grains (positive integer)" },
+      { name: "pearlAddress", in: "query", description: "optional — Pearl payout address to validate (P2TR, prl1p…)" },
+    ],
+    curl: `curl "${API_BASE}/v1/quote/burn?amountGrains=10000000000&pearlAddress=prl1p…"`,
+    response: `{
+  "direction": "burn",
+  "amountGrains": "10000000000",
+  "feeBps": 0, "feeGrains": "0", "netGrains": "10000000000",
+  "paused": false,
+  "withinDailyCap": true,
+  "burnWindowRemainingGrains": "99788751193552",
+  "addressCheck": { "pearlAddress": "prl1p…", "valid": true, "format": "p2tr" },
+  "transaction": {
+    "chainId": 1,
+    "steps": [
+      { "step": "approve",
+        "requiredWhen": "allowance(owner, bridgeController) < amountGrains",
+        "to": "0x07696Dca… (WPRL)",
+        "abi": "function approve(address spender, uint256 amount) returns (bool)",
+        "args": ["0xA6571B73… (BridgeController)", "10000000000"] },
+      { "step": "requestBurn",
+        "to": "0xA6571B73… (BridgeController)",
+        "abi": "function requestBurn(uint256 grossAmount, string pearlAddress)",
+        "args": ["10000000000", "prl1p…"] }
+    ],
+    "track": "GET /v1/burns/{ethTxHash of the requestBurn transaction}"
+  },
+  "timestamp": 1781069737123
+}`,
+  },
+  {
+    method: "GET",
+    path: "/v1/validate-address",
+    title: "Pearl address validation",
+    description:
+      "Validate a Pearl payout address before burning. Runs the same strict decode the payout signer enforces — P2TR only (witness v1, 32-byte program, prl prefix) — so valid: true is a guarantee the unlock path can actually pay the address. Always call this before requestBurn.",
+    params: [
+      { name: "pearlAddress", in: "query", description: "Pearl address to check (prl1p…)" },
+    ],
+    curl: `curl "${API_BASE}/v1/validate-address?pearlAddress=prl1p…"`,
+    response: `{ "pearlAddress": "prl1p…", "valid": true, "format": "p2tr" }
+// or { "valid": false, "format": null, "reason": "Not a witness v1 address" }`,
+  },
+  {
+    method: "GET",
+    path: "/v1/deposits/recent",
+    title: "Recent deposit discovery",
+    description:
+      "Most recent in-flight deposit bound to an ETH wallet. Use it when your user funded the derived deposit address from an exchange withdrawal and you never saw the Pearl txid — once the watcher indexes the deposit, this returns the txid to track.",
+    params: [
+      { name: "ethAddress", in: "query", description: "0x-prefixed Ethereum address the deposit address was derived for" },
+    ],
+    curl: `curl "${API_BASE}/v1/deposits/recent?ethAddress=0xYourAddress"`,
+    response: `{
+  "txid": "…",
+  "state": "pending",
+  "amountGrains": "10000000000",
+  "createdAt": 1781069000000
+}
+// or { "txid": null } when nothing is in flight`,
   },
   {
     method: "GET",
@@ -228,6 +322,36 @@ export function Api() {
             machine-readable index of all endpoints.
           </li>
         </ul>
+      </div>
+
+      <div className="rounded-xl border border-[#00e5d0]/20 bg-[#00e5d0]/[0.03] p-5 space-y-5">
+        <h2 className="text-xl font-bold tracking-tight text-gray-100">Integration flows</h2>
+        <div className="grid sm:grid-cols-2 gap-6 text-sm">
+          <div className="space-y-2">
+            <h3 className="font-semibold text-[#00e5d0]">PRL → WPRL (deposit &amp; mint)</h3>
+            <ol className="list-decimal list-inside space-y-1.5 text-gray-400 leading-relaxed">
+              <li><code>GET /v1/quote/mint</code> — fee, net WPRL, fast-vs-slow lane for the amount</li>
+              <li><code>GET /v1/deposit-address</code> — the unique Pearl address bound to the recipient ETH wallet</li>
+              <li>User sends PRL to that address — any wallet or exchange withdrawal, no OP_RETURN needed</li>
+              <li>Track confirmations via <code>GET /v1/pearl-tx/{"{txid}"}</code>; if you never saw the txid (exchange withdrawal), poll <code>GET /v1/deposits/recent</code></li>
+              <li>Poll <code>GET /v1/mints/{"{pearlTxid}"}</code> until <code>state: "minted"</code> — <code>mintTxHash</code> is the Ethereum tx</li>
+            </ol>
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-semibold text-[#00e5d0]">WPRL → PRL (burn &amp; unlock)</h3>
+            <ol className="list-decimal list-inside space-y-1.5 text-gray-400 leading-relaxed">
+              <li><code>GET /v1/validate-address</code> — reject payout-address typos before funds move</li>
+              <li><code>GET /v1/quote/burn</code> — fee, net PRL, window fit, and the exact contract calls</li>
+              <li>User submits the returned steps from their own wallet (approve only when allowance is short)</li>
+              <li>Poll <code>GET /v1/burns/{"{ethTxHash}"}</code> until <code>state: "unlocked"</code> — <code>pearlTxId</code> is the Pearl payout</li>
+            </ol>
+          </div>
+        </div>
+        <p className="text-xs text-gray-500 leading-relaxed">
+          The API never holds keys and never signs: deposits are plain Pearl sends to a derived
+          address, and burns are transactions the user signs in their own wallet. The machine-readable
+          version of these flows ships in <code>GET /v1</code>.
+        </p>
       </div>
 
       <div className="space-y-10">
