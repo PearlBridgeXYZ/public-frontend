@@ -148,7 +148,7 @@
     {
       "name": "PearlWallet",
       "category": "wallet",
-      "url": "https://pearlwallet.xyz",
+      "url": "https://wallet.pearlbridge.xyz",
       "description": "Open-source non-custodial browser wallet for Pearl L1 and WPRL with native bridge integration.",
       "status": "beta",
       "first_seen": "2026-05-26",
