@@ -140,7 +140,7 @@ export function App() {
                         <Link to="/history" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">History</Link>
                       ) : null}
                       <Link to="/status" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Status</Link>
-                      <Link to="/stats" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Stats</Link>
+                      {/* /stats is intentionally UNLISTED — reachable by direct URL only, not in nav (G, 2026-06-10) */}
                       <Link to="/ecosystem" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Ecosystem</Link>
                       <Link to="/infrastructure" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Infrastructure</Link>
                       <Link to="/audit" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Audit</Link>

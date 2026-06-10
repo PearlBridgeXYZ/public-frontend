@@ -395,8 +395,7 @@ export function Api() {
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5 text-sm text-gray-400 leading-relaxed">
         Building something on the bridge? The{" "}
         <Link to="/audit" className="text-[#00e5d0] hover:underline">audit reports</Link> cover the
-        on-chain contracts, and the <Link to="/stats" className="text-[#00e5d0] hover:underline">stats page</Link>{" "}
-        is a live consumer of this API. Found an issue? Use the bug-bounty link in the footer.
+        on-chain contracts. Found an issue? Use the bug-bounty link in the footer.
       </div>
     </div>
   );
