@@ -1,5 +1,58 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { RELAY_API_BASE } from "../lib/config";
+
+// Live bridge-flow overlay sourced from the relay's public API at render
+// time. The daily ecosystem.json snapshot never carried these fields (they
+// shipped as schema-seeded nulls), so deposits/burns/fast-lane rendered
+// blank or a day stale. Live wins; the snapshot value is the fallback when
+// the API is unreachable.
+type LiveBridgeFlow = {
+  deposits24hPrl: number | null;
+  burns24hPrl: number | null;
+  fastLaneUsedPct: number | null;
+  fastLaneLeftPrl: number | null;
+};
+
+function grainsToPrl(grains: string | undefined): number | null {
+  if (!grains) return null;
+  const n = Number(grains);
+  return Number.isFinite(n) ? n / 1e8 : null;
+}
+
+async function fetchLiveBridgeFlow(): Promise<LiveBridgeFlow> {
+  const out: LiveBridgeFlow = {
+    deposits24hPrl: null,
+    burns24hPrl: null,
+    fastLaneUsedPct: null,
+    fastLaneLeftPrl: null,
+  };
+  // Independent best-effort fetches: a failing one leaves its fields null
+  // so the snapshot fallback (or an em-dash) renders instead.
+  const [stats, status] = await Promise.allSettled([
+    fetch(`${RELAY_API_BASE}/v1/stats`).then((r) => (r.ok ? r.json() : null)),
+    fetch(`${RELAY_API_BASE}/v1/status`).then((r) => (r.ok ? r.json() : null)),
+  ]);
+  if (stats.status === "fulfilled" && stats.value?.volume?.["24h"]) {
+    const day = stats.value.volume["24h"];
+    out.deposits24hPrl = grainsToPrl(day.mint?.grains);
+    // Burns leaving Ethereum = direct burns + intermediary unwraps; both
+    // release locked PRL (same outflow convention as the Stats page).
+    const burn = grainsToPrl(day.burn?.grains);
+    const intermediary = grainsToPrl(day.intermediary?.grains);
+    out.burns24hPrl =
+      burn === null && intermediary === null ? null : (burn ?? 0) + (intermediary ?? 0);
+  }
+  if (status.status === "fulfilled" && status.value?.limits) {
+    const cap = grainsToPrl(status.value.limits.dailyFastMintLimitGrains);
+    const left = grainsToPrl(status.value.limits.fastMintWindowRemainingGrains);
+    if (cap !== null && left !== null && cap > 0) {
+      out.fastLaneUsedPct = Math.max(0, Math.min(100, ((cap - left) / cap) * 100));
+      out.fastLaneLeftPrl = left;
+    }
+  }
+  return out;
+}
 
 type VenueVolume = {
   venue: string;
@@ -414,10 +467,23 @@ function Stat({
 export function Ecosystem() {
   const [data, setData] = useState<EcosystemData | null>(null);
   const [history, setHistory] = useState<EcosystemHistory | null>(null);
+  const [live, setLive] = useState<LiveBridgeFlow | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const bust = Date.now();
+
+    // Live bridge flow from the relay API — best-effort, refreshed every
+    // 60s while the page is open so the fast-lane gauge tracks the window.
+    let cancelled = false;
+    const loadLive = () =>
+      fetchLiveBridgeFlow()
+        .then((v) => {
+          if (!cancelled) setLive(v);
+        })
+        .catch(() => undefined);
+    loadLive();
+    const liveTimer = setInterval(loadLive, 60_000);
     fetch(`/data/ecosystem.json?t=${bust}`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -432,6 +498,11 @@ export function Ecosystem() {
       .then((r) => (r.ok ? (r.json() as Promise<EcosystemHistory>) : null))
       .then((h) => setHistory(h))
       .catch(() => setHistory(null));
+
+    return () => {
+      cancelled = true;
+      clearInterval(liveTimer);
+    };
   }, []);
 
   if (error) {
@@ -578,10 +649,15 @@ export function Ecosystem() {
         />
       </section>
 
-      {/* Second row — bridge flow + network detail. Shown only when any value
-          is populated; on a fresh schema-seeded payload this stays hidden so
-          the page doesn't render a wall of em-dashes. */}
-      {(data.bridge.deposits_24h_prl !== null ||
+      {/* Second row — bridge flow + network detail. Bridge flow prefers the
+          live relay API (24h mint/burn volume, fast-lane window) and falls
+          back to the daily snapshot; the row renders whenever either source
+          has a value. */}
+      {((live !== null &&
+        (live.deposits24hPrl !== null ||
+          live.burns24hPrl !== null ||
+          live.fastLaneUsedPct !== null)) ||
+        data.bridge.deposits_24h_prl !== null ||
         data.bridge.burns_24h_prl !== null ||
         data.bridge.fast_lane_used_pct !== null ||
         data.network.difficulty !== null ||
@@ -590,27 +666,29 @@ export function Ecosystem() {
         <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
           <Stat
             label="Bridge deposits 24h"
-            value={
-              data.bridge.deposits_24h_prl !== null
-                ? `${fmtCompact(data.bridge.deposits_24h_prl)} PRL`
-                : "—"
-            }
+            value={(() => {
+              const v = live?.deposits24hPrl ?? data.bridge.deposits_24h_prl;
+              return v !== null && v !== undefined ? `${fmtCompact(v)} PRL` : "—";
+            })()}
+            sub={live?.deposits24hPrl !== null && live?.deposits24hPrl !== undefined ? "live" : undefined}
           />
           <Stat
             label="Bridge burns 24h"
-            value={
-              data.bridge.burns_24h_prl !== null
-                ? `${fmtCompact(data.bridge.burns_24h_prl)} PRL`
-                : "—"
-            }
+            value={(() => {
+              const v = live?.burns24hPrl ?? data.bridge.burns_24h_prl;
+              return v !== null && v !== undefined ? `${fmtCompact(v)} PRL` : "—";
+            })()}
+            sub={live?.burns24hPrl !== null && live?.burns24hPrl !== undefined ? "live" : undefined}
           />
           <Stat
-            label="Bridge fast lane"
-            value={fmtPct(data.bridge.fast_lane_used_pct)}
+            label="Fast lane used (24h)"
+            value={fmtPct(live?.fastLaneUsedPct ?? data.bridge.fast_lane_used_pct)}
             sub={
-              data.bridge.active_addresses_24h !== null
-                ? `${fmtNum(data.bridge.active_addresses_24h)} addrs`
-                : undefined
+              live?.fastLaneLeftPrl !== null && live?.fastLaneLeftPrl !== undefined
+                ? `${fmtCompact(live.fastLaneLeftPrl)} PRL left`
+                : data.bridge.active_addresses_24h !== null
+                  ? `${fmtNum(data.bridge.active_addresses_24h)} addrs`
+                  : undefined
             }
           />
           <Stat label="Difficulty" value={data.network.difficulty ?? "—"} />

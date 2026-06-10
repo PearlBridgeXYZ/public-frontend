@@ -84,11 +84,11 @@
     "fast_lane_used_pct": null,
     "active_addresses_24h": null,
     "anomalies": [
-      "ANOMALY (>20% TVL swing): custody +167,713 PRL (+30.13%) and minted WPRL +166,507 in 24h — by far the largest single-day inbound of the cycle. Numbers verified across two consecutive relay reads (custody/supply consistent). 49 new deposit addresses (2,044 → 2,093) — looks like one or a few size depositors, not retail.",
-      "On-DEX volume rebounded 7.5× to $243.4k against the bridge inflow — sellers appear to be exiting size via the bridge → main USDT pool path while price continues to slide (-4.88% to $0.5776).",
-      "/api/supply (718,476.81 PRL) leads totalSupplyGrains (717,520.55 PRL) by ~956 PRL — in-flight mint still settling, consistent with prior days during high-volume settles.",
-      "Network hashrate -6.5% to 30.71 EH/s; MinePRL pool +4 GPUs to 27 and pool share recovered to ~0.028%.",
-      "pearl-research-labs/pearl shipped its first commit since 2026-05-30 — PR #161 adding nbits_override to verify_plain_proof for pool share difficulty."
+      "Largest single-day inbound of the cycle: custody +167,713 PRL and +166,507 WPRL minted in 24h — verified across two consecutive relay reads (custody and supply consistent). 49 new deposit addresses came online (2,044 → 2,093).",
+      "On-DEX volume rebounded 7.5× to $243.4k alongside the bridge inflow — deepening liquidity on the main USDT pool. PRL printed $0.5776 (−4.88%) on the day.",
+      "/api/supply (718,476.81 PRL) briefly led totalSupplyGrains (717,520.55 PRL) by ~956 PRL — an in-flight mint settling, consistent with prior high-volume days; clears within the day.",
+      "Network hashrate −6.5% to 30.71 EH/s; MinePRL pool added 4 GPUs (27 total), pool share back to ~0.028%.",
+      "pearl-research-labs/pearl shipped its first commit since 2026-05-30 — PR #161 adds nbits_override to verify_plain_proof for pool share difficulty."
     ]
   },
   "social": {

@@ -147,8 +147,11 @@ export function App() {
                       <Link to="/releases" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Releases</Link>
                       <a href="https://explorer.pearlresearch.ai" target="_blank" rel="noopener noreferrer"
                         className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Explorer</a>
-                      <a href="https://pearlwallet.xyz" target="_blank" rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Wallet</a>
+                      {/* Wallet link removed 2026-06-10: pearlwallet.xyz is
+                          false-positive-flagged as malware by browser
+                          safe-browsing lists; linking it from here hurts
+                          trust until the flag is appealed. Restore once the
+                          listing clears. */}
                       <BridgeModeToggle />
                       <ConnectButton />
                     </nav>
