@@ -12,6 +12,21 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.37",
+    date: "2026-06-10",
+    title: "Public API + docs page; Ecosystem live bridge flow; wallet link removed",
+    summary:
+      "Ships alongside relay v1.6.x. The bridge now has a versioned public REST API at api.pearlbridge.xyz (/v1) for third-party integrators — status, supply, volume, proof of reserves, mint/burn lifecycle lookups, and deposit-address derivation — documented on the new /developers page (\"API\" in the header). The Ecosystem page's bridge-flow row (deposits 24h, burns 24h, fast-lane used) now reads live from the API instead of rendering the daily snapshot's empty fields, refreshing every 60s while open. The external wallet link is removed from the header while a safe-browsing false-positive listing is appealed.",
+    highlights: [
+      "New /developers page: endpoint-by-endpoint reference with curl examples, response shapes, grains/versioning conventions.",
+      "/v1 namespace is read-only with open CORS; SIWE-gated and operator endpoints remain on /api.",
+      "Ecosystem bridge cards prefer live API values (tagged \"live\") and fall back to the daily snapshot when unreachable.",
+      "Fast-lane card now shows percent of the 24h fast window used plus PRL remaining.",
+      "Anomaly-strip copy style tightened to observable facts.",
+    ],
+    status: "primary-gtm",
+  },
+  {
     tag: "RC5.35",
     date: "2026-06-01",
     title: "Connect modal: Rabby as the recommended desktop wallet; drop named MetaMask entry (kills the blank-screen bug)",
@@ -25,7 +40,7 @@ const RELEASES: Release[] = [
       "Rationale documented as a code comment in src/lib/wagmi.ts so a future maintainer doesn't reflexively re-add MM and reintroduce the blank-screen bug.",
       "No backend / SIWE / contract / CSP change vs RC5.34.",
     ],
-    status: "primary-gtm",
+    status: "shipped",
   },
   {
     tag: "RC5.34",
