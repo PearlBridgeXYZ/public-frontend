@@ -143,7 +143,7 @@ export function App() {
                       <Link to="/ecosystem" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Ecosystem</Link>
                       <Link to="/infrastructure" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Infrastructure</Link>
                       <Link to="/audit" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Audit</Link>
-                      <Link to="/api" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">API</Link>
+                      <Link to="/developers" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">API</Link>
                       <Link to="/releases" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Releases</Link>
                       <a href="https://explorer.pearlresearch.ai" target="_blank" rel="noopener noreferrer"
                         className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Explorer</a>
@@ -161,7 +161,7 @@ export function App() {
                     <Route path="/bridge/:receiptId" element={<HomePage />} />
                     <Route path="/status" element={<Status />} />
                     <Route path="/stats" element={<Stats />} />
-                    <Route path="/api" element={<Api />} />
+                    <Route path="/developers" element={<Api />} />
                     <Route path="/order/:pearlTxId" element={<OrderStatus />} />
                     <Route path="/unwrap/:ethTxHash" element={<UnwrapStatus />} />
                     <Route path="/history" element={<History />} />
