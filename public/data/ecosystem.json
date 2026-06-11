@@ -1,59 +1,52 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-06-09T00:00:01Z",
-  "next_refresh_at": "2026-06-10T00:00:00Z",
-  "narrative": "Largest single-day bridge flow of the cycle: custody jumped +30.1% to 724,372 PRL (+167,713 in 24h) and minted WPRL surged +166,507 to 718,477 — the cumulative inbound of the prior week landed in a single session. Volume on-DEX rebounded too: $243.4k across the same six pairs (7.5× yesterday's $32k), nearly all of it through the main WPRL/USDT v3 pool. Price stayed under pressure even with the volume burst — volume-weighted -4.88% to $0.5776 — consistent with sellers exiting size via the bridge. Surplus widened to 0.95% (6,851 PRL) with a ~956 PRL in-flight mint still settling. Network hashrate eased -6.5% to 30.71 EH/s while MinePRL added +4 GPUs to 27 and lifted pool share back to ~0.028%. Code velocity tapered further (5 commits/7d combined as last week's RC5.3x burst rolled off), but pearl-research-labs/pearl shipped its first commit since 2026-05-30 (pool share difficulty handling, PR #161) and added +4 stars to 207.",
+  "updated_at": "2026-06-11T00:06:02Z",
+  "next_refresh_at": "2026-06-12T00:00:00Z",
+  "narrative": "Nockchain's launch of day-one Pearl merge-mining dominated the conversation (183 tracked X mentions in 24h) — a second network choosing to build on Pearl's proof-of-useful-work one month into mainnet. The bridge cleared volume in both directions, 20,178 PRL in and 7,994 PRL out over 24h, lifting custody to a new high of 766,700 PRL (~$410k). Price drifted -3.54% to $0.5354 on light $34k DEX volume after the prior snapshot's $243k burst; network hashrate eased to 28.52 EH/s. Dev cadence re-accelerated: 36 commits across four tracked repos in 7 days, led by the bridge frontend's RC5.4x series and PearlWallet v0.4.3.",
   "market": {
-    "prl_price_usd": 0.5776,
-    "prl_change_24h_pct": -4.88,
-    "prl_volume_24h_usd": 243364.8,
-    "prl_market_cap_usd": 107751468,
-    "prl_circulating_supply": 186551686,
+    "prl_price_usd": 0.5354,
+    "prl_change_24h_pct": -3.54,
+    "prl_volume_24h_usd": 33890.34,
+    "prl_market_cap_usd": 100843990,
+    "prl_circulating_supply": 188352615,
     "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 1, before the first halving)",
-    "wprl_price_usd": 0.5776,
+    "wprl_price_usd": 0.5354,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
-        "venue": "Uniswap V3 (Ethereum)",
+        "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 241196.02,
-        "liquidity_usd": 200559.72,
+        "volume_24h_usd": 33682.74,
+        "liquidity_usd": 193110.31,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
-        "venue": "Uniswap V3 (Ethereum)",
+        "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/WETH",
-        "volume_24h_usd": 1155.71,
-        "liquidity_usd": 2574.31,
+        "volume_24h_usd": 168.42,
+        "liquidity_usd": 2425.76,
         "url": "https://dexscreener.com/ethereum/0x558a92bbcadb2a48465194dd07f10db8b1e779cb"
       },
       {
-        "venue": "Uniswap V4 (Ethereum)",
-        "pair": "WPRL/USDC",
-        "volume_24h_usd": 519.49,
-        "liquidity_usd": 997.98,
-        "url": "https://dexscreener.com/ethereum/0x985c125c42698febb1e0ccb95664115c449cece3d012139d8fe63ae2f8bfd5e4"
-      },
-      {
-        "venue": "Uniswap V4 (Ethereum)",
+        "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/ETH",
-        "volume_24h_usd": 370.84,
-        "liquidity_usd": 295.13,
+        "volume_24h_usd": 26.27,
+        "liquidity_usd": 282.97,
         "url": "https://dexscreener.com/ethereum/0x44c98565f6df4ac7660761cad1ebfd5343f0b397ff89837d3e1c9b5c2ac6c42b"
       },
       {
-        "venue": "Uniswap V4 (Ethereum)",
+        "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDC",
-        "volume_24h_usd": 104.67,
-        "liquidity_usd": 895.33,
+        "volume_24h_usd": 11.66,
+        "liquidity_usd": 862.93,
         "url": "https://dexscreener.com/ethereum/0x1b174c744e638f68d86e97bc98f2e273e4f4d3bb8f03f440163af7e74d7e6cb9"
       },
       {
-        "venue": "Uniswap V4 (Ethereum)",
-        "pair": "WPRL/USDT",
-        "volume_24h_usd": 18.07,
-        "liquidity_usd": 880.23,
-        "url": "https://dexscreener.com/ethereum/0x6bd5a29eb6f81406ad4ec12c4a20e5f5b795df9e7fbd203abdb59dc9a4a75813"
+        "venue": "Uniswap v4 (Ethereum)",
+        "pair": "WPRL/USDC",
+        "volume_24h_usd": 1.25,
+        "liquidity_usd": 983.18,
+        "url": "https://dexscreener.com/ethereum/0x985c125c42698febb1e0ccb95664115c449cece3d012139d8fe63ae2f8bfd5e4"
       }
     ],
     "sources": [
@@ -62,48 +55,71 @@
     ]
   },
   "network": {
-    "hashrate": "30.71 EH/s",
-    "difficulty": "0x180109c1",
-    "block_height": 70128,
+    "hashrate": "28.52 EH/s",
+    "difficulty": "0x1800ff3f",
+    "block_height": 70805,
     "block_time_sec": 160,
-    "active_workers": 27,
+    "active_workers": 24,
     "active_workers_scope": "MinePRL pool only — network-wide miner count is not exposed by Pearl RPC",
-    "pool_share_pct": 0.028,
+    "pool_share_pct": 0.0283,
     "sources": [
-      "pool.mineprl.com/v1/public/summary (network.network_hashrate_hps, network.height, network.chain_nbits, economics.active_gpus, economics.network_share)"
+      "pool.mineprl.com/v1/public/summary (network.network_hashrate_hps, network.height, network.chain_nbits, economics.active_gpus, economics.network_share) — pool snapshot generated 2026-06-10T06:40Z"
     ]
   },
   "bridge": {
-    "tvl_prl": 724371.96,
-    "tvl_usd": 418394.19,
-    "minted_wprl": 718476.81,
-    "surplus_prl": 6851.41,
-    "surplus_pct": 0.95,
-    "deposits_24h_prl": null,
-    "burns_24h_prl": null,
-    "fast_lane_used_pct": null,
+    "tvl_prl": 766700.23,
+    "tvl_usd": 410491.3,
+    "minted_wprl": 760898.88,
+    "surplus_prl": 6045.35,
+    "surplus_pct": 0.79,
+    "deposits_24h_prl": 20177.82,
+    "burns_24h_prl": 7993.75,
+    "fast_lane_used_pct": 0,
     "active_addresses_24h": null,
     "anomalies": [
-      "Largest single-day inbound of the cycle: custody +167,713 PRL and +166,507 WPRL minted in 24h — verified across two consecutive relay reads (custody and supply consistent). 49 new deposit addresses came online (2,044 → 2,093).",
-      "On-DEX volume rebounded 7.5× to $243.4k alongside the bridge inflow — deepening liquidity on the main USDT pool. PRL printed $0.5776 (−4.88%) on the day.",
-      "/api/supply (718,476.81 PRL) briefly led totalSupplyGrains (717,520.55 PRL) by ~956 PRL — an in-flight mint settling, consistent with prior high-volume days; clears within the day.",
-      "Network hashrate −6.5% to 30.71 EH/s; MinePRL pool added 4 GPUs (27 total), pool share back to ~0.028%.",
-      "pearl-research-labs/pearl shipped its first commit since 2026-05-30 — PR #161 adds nbits_override to verify_plain_proof for pool share difficulty."
+      "Bridge cleared volume both directions over the last 24h — 20,178 PRL deposited (47 mints) and 7,994 PRL redeemed (5 burns). Custody reached a new high of 766,700 PRL; redemptions settling alongside deposits is the bridge working as designed.",
+      "/api/supply (760,898.88 WPRL) reads ~244 PRL ahead of custody totalSupplyGrains (760,654.88) across two consecutive reads — consistent with a mint settling between counters; prior occurrences cleared within the day.",
+      "Fast-lane usage reads 0% because this snapshot was taken moments after the daily 00:00 UTC window reset; the live Stats page shows intraday usage.",
+      "No 2026-06-10 snapshot was recorded (collector did not run that day); bridge deltas versus the previous snapshot span two days. Network height/hashrate reflect the pool API snapshot of 2026-06-10T06:40Z."
     ]
   },
   "social": {
     "sentiment": "neutral",
-    "summary": "No coordinated chatter despite the 30% TVL jump and the loud on-DEX volume spike — @prlnet and @pearlbridgexyz feeds remained quiet, no incident reports. pearl-research-labs/pearl crossed 207 stars and shipped the first core commit in nine days (pool share difficulty handling).",
-    "mentions_24h": null,
+    "summary": "The day's conversation centered on Nockchain's announcement that its AI Compute Network merge-mines Pearl from day one — debated as validation of Pearl's proof-of-useful-work versus a competitive 'vampire attack,' with GPU miners noting they earn both tokens from the same work. Separate threads speculated about a Google Cloud connection teased in the Pearl Discord, and a detailed technical exchange continued on the PoUW security paper.",
+    "mentions_24h": 183,
     "tracked_accounts": [
       "@prlnet",
       "@pearlbridgexyz",
       "@pearl_research"
     ],
-    "sample_tweets": [],
+    "sample_tweets": [
+      {
+        "handle": "@CryptoSGiants",
+        "url": "https://x.com/CryptoSGiants/status/2064768260558536795",
+        "snippet": "IT'S A $NOCK OUT! Live today. @nockchain's AI Compute Network will merge-mine Pearl from day one.",
+        "posted_at": "2026-06-10T17:54:49Z"
+      },
+      {
+        "handle": "@BassManTV",
+        "url": "https://x.com/BassManTV/status/2064764209829954007",
+        "snippet": "you think $NOCK doing merge mining with $PRL is a good move? buy. you don't get the vision? sell.",
+        "posted_at": "2026-06-10T17:38:43Z"
+      },
+      {
+        "handle": "@ZanaVentures",
+        "url": "https://x.com/ZanaVentures/status/2064807495189622842",
+        "snippet": "Taiwan, $GOOG, and $PRL… what's the connection here? seeing a Mag7 name appear (@googlecloud banner)",
+        "posted_at": "2026-06-10T20:30:43Z"
+      },
+      {
+        "handle": "@kimsan95053034",
+        "url": "https://x.com/kimsan95053034/status/2064839874843128009",
+        "snippet": "GPU miner here running Pearl 24/7. Merge-mining PRL + NOCK simultaneously = zero extra cost",
+        "posted_at": "2026-06-10T22:39:23Z"
+      }
+    ],
     "sources": [
-      "x.com/prlnet (public profile)",
-      "x.com/pearlbridgexyz (public profile)"
+      "api.x.com/2/tweets/search/recent + /2/tweets/counts/recent (query: (@prlnet OR @pearlbridgexyz OR \"$PRL\") -is:retweet lang:en, last 24h — count includes some unrelated \"PRL\" acronym noise)"
     ]
   },
   "github": [
@@ -112,27 +128,36 @@
       "url": "https://github.com/PearlBridgeXYZ/public-frontend",
       "stars": 0,
       "open_prs": 0,
-      "commits_7d": 4,
-      "last_commit_at": "2026-06-04T20:49:08Z",
-      "last_commit_msg": "ux(RC5.36): hide slow-lane explainer when fast-lane has plenty of room"
+      "commits_7d": 22,
+      "last_commit_at": "2026-06-10T07:48:16Z",
+      "last_commit_msg": "chore: RC5.46 — vite 8 toolchain promotion"
     },
     {
       "repo": "PearlBridgeXYZ/pearlwallet",
       "url": "https://github.com/PearlBridgeXYZ/pearlwallet",
       "stars": 3,
       "open_prs": 1,
-      "commits_7d": 0,
-      "last_commit_at": "2026-05-30T22:50:37Z",
-      "last_commit_msg": "docs: tidy mirror references and audit attributions"
+      "commits_7d": 8,
+      "last_commit_at": "2026-06-10T17:08:19Z",
+      "last_commit_msg": "v0.4.3: fix multi-model re-audit findings C1-C8"
     },
     {
       "repo": "pearl-research-labs/pearl",
       "url": "https://github.com/pearl-research-labs/pearl",
-      "stars": 207,
-      "open_prs": 35,
+      "stars": 214,
+      "open_prs": 39,
       "commits_7d": 1,
       "last_commit_at": "2026-06-08T19:54:26Z",
       "last_commit_msg": "Add nbits_override to verify_plain_proof for pool share difficulty (#161)"
+    },
+    {
+      "repo": "pearl-research-labs/pips",
+      "url": "https://github.com/pearl-research-labs/pips",
+      "stars": 3,
+      "open_prs": 0,
+      "commits_7d": 5,
+      "last_commit_at": "2026-06-05T18:56:51Z",
+      "last_commit_msg": "Potential fix for code scanning alert no. 3: Workflow does not contain permissions (#5)"
     }
   ],
   "ecosystem": [
@@ -225,6 +250,15 @@
       "status": "live",
       "first_seen": "2026-05-26",
       "source": "pearlresearch.ai homepage link"
+    },
+    {
+      "name": "Nockchain",
+      "category": "other",
+      "url": "https://nockchain.org",
+      "description": "AI compute chain that began merge-mining Pearl on 2026-06-10 — miners earn PRL and NOCK from the same proof-of-useful-work attempt.",
+      "status": "live",
+      "first_seen": "2026-06-11",
+      "source": "x.com announcement 2026-06-10 (@nockchain) + nockchain.org"
     }
   ],
   "incidents": []
