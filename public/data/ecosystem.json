@@ -1,85 +1,78 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-06-12T00:02:54Z",
-  "next_refresh_at": "2026-06-13T00:00:00Z",
-  "narrative": "KTX Exchange announced it will be the first centralized exchange to list PRL spot (\"tradable soon\") — the loudest item in 124 tracked X mentions, alongside a perp venue adding PRL maker rebates. The bridge cleared balanced two-way flow: 6,292 PRL in and 6,474 PRL out over 24h, with custody steady at 765,453 PRL (~$402k) and both supply counters in exact agreement. Price eased -1.69% to $0.5256 on $18k DEX volume; network hashrate read 26.01 EH/s with the MinePRL pool reporting 14 active GPUs (24 yesterday). Core kept shipping: wallet 2.0.0 landed in pearl-research-labs/pearl, PIP-2 was finalized, and 34 commits landed across the four tracked repos in 7 days.",
+  "updated_at": "2026-06-13T00:03:03Z",
+  "next_refresh_at": "2026-06-14T00:00:00Z",
+  "narrative": "Deposits kept flowing: 8,726 PRL entered the bridge across 20 mints in 24h against one 47 PRL redemption, lifting custody to a new high of 771,308 PRL even as price slid -7.38% to $0.484 on $27k DEX volume. unMineable — one of the largest multi-coin mining services — added PRL support, the second external mining venue after MinePRL. Network hashrate rebounded +17.8% to 30.63 EH/s, and the core repo added 8 stars (225) with 33 commits across the four tracked repos in 7 days. One month in, the catalog stands at 12 shipped projects.",
   "market": {
-    "prl_price_usd": 0.5256,
-    "prl_change_24h_pct": -1.69,
-    "prl_volume_24h_usd": 17648.75,
-    "prl_market_cap_usd": 100204763,
-    "prl_circulating_supply": 190648332,
+    "prl_price_usd": 0.484,
+    "prl_change_24h_pct": -7.38,
+    "prl_volume_24h_usd": 26996.78,
+    "prl_market_cap_usd": 92939439,
+    "prl_circulating_supply": 192023635,
     "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 1, before the first halving)",
-    "wprl_price_usd": 0.5256,
+    "wprl_price_usd": 0.484,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 17564.5,
-        "liquidity_usd": 191383.37,
+        "volume_24h_usd": 26622.13,
+        "liquidity_usd": 186199.22,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/WETH",
-        "volume_24h_usd": 75.49,
-        "liquidity_usd": 2431.95,
+        "volume_24h_usd": 344.52,
+        "liquidity_usd": 2360.95,
         "url": "https://dexscreener.com/ethereum/0x558a92bbcadb2a48465194dd07f10db8b1e779cb"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDC",
-        "volume_24h_usd": 4.41,
-        "liquidity_usd": 846.23,
+        "volume_24h_usd": 30.13,
+        "liquidity_usd": 822.49,
         "url": "https://dexscreener.com/ethereum/0x1b174c744e638f68d86e97bc98f2e273e4f4d3bb8f03f440163af7e74d7e6cb9"
-      },
-      {
-        "venue": "Uniswap v4 (Ethereum)",
-        "pair": "WPRL/ETH",
-        "volume_24h_usd": 4.35,
-        "liquidity_usd": 284.24,
-        "url": "https://dexscreener.com/ethereum/0x44c98565f6df4ac7660761cad1ebfd5343f0b397ff89837d3e1c9b5c2ac6c42b"
       }
     ],
     "sources": [
-      "api.dexscreener.com/latest/dex/search?q=WPRL (filtered chainId==ethereum, baseToken==0x07696DcaB55E62cfef953666b29Fe1970518cB00)",
+      "api.dexscreener.com/latest/dex/search?q=WPRL (filtered chainId==ethereum, baseToken==0x07696DcaB55E62cfef953666b29Fe1970518cB00 — multichain \"Perle\" tokens sharing the PRL ticker excluded)",
       "pool.mineprl.com/v1/public/summary (network.height, network.block_reward_prl for circulating supply approximation)"
     ]
   },
   "network": {
-    "hashrate": "26.01 EH/s",
-    "difficulty": "0x1800f5ea",
-    "block_height": 71668,
+    "hashrate": "30.63 EH/s",
+    "difficulty": "0x1800ef55",
+    "block_height": 72185,
     "block_time_sec": 160,
-    "active_workers": 14,
+    "active_workers": 19,
     "active_workers_scope": "MinePRL pool only — network-wide miner count is not exposed by Pearl RPC",
-    "pool_share_pct": 0.0049,
+    "pool_share_pct": 0.0191,
     "sources": [
-      "pool.mineprl.com/v1/public/summary (network.network_hashrate_hps, network.height, network.chain_nbits, economics.active_gpus, economics.network_share) — pool snapshot generated 2026-06-12T00:00:11Z"
+      "pool.mineprl.com/v1/public/summary (network.network_hashrate_hps, network.height, network.chain_nbits, economics.active_gpus, economics.network_share) — pool snapshot generated 2026-06-12T23:59:51Z"
     ]
   },
   "bridge": {
-    "tvl_prl": 765453.24,
-    "tvl_usd": 402322.22,
-    "minted_wprl": 759591.17,
-    "surplus_prl": 5862.07,
-    "surplus_pct": 0.77,
-    "deposits_24h_prl": 6291.95,
-    "burns_24h_prl": 6474.15,
+    "tvl_prl": 771308.26,
+    "tvl_usd": 373313.2,
+    "minted_wprl": 758543.79,
+    "surplus_prl": 12764.47,
+    "surplus_pct": 1.68,
+    "deposits_24h_prl": 8725.54,
+    "burns_24h_prl": 47.3,
     "fast_lane_used_pct": 0,
     "active_addresses_24h": null,
     "anomalies": [
-      "Balanced two-way throughput over the last 24h: 6,292 PRL deposited (13 mints) and 6,474 PRL redeemed (3 burns) — both directions clearing is the bridge working as designed.",
-      "Yesterday's ~244 PRL gap between /api/supply and custody totalSupplyGrains cleared within the day as expected — both counters read 759,591.17 WPRL exactly today.",
+      "Custody surplus widened to 12,764 PRL (1.68%) from 5,862: the 8,726 PRL deposited over the last 24h queues through the 24-hour slow-mint delay before WPRL issuance, so custody leads minted supply while the queue settles. Verified across two relay reads; both supply counters agree exactly. Expected to converge as pending mints clear.",
+      "Strong inbound day: 20 mints totaling 8,726 PRL against one 47 PRL redemption — custody reached a new high of 771,308 PRL.",
       "Fast-lane usage reads 0% because this snapshot is taken moments after the daily 00:00 UTC window reset; the live Stats page shows intraday usage.",
-      "MinePRL pool reports 14 active GPUs (24 in the prior snapshot) and ~0.005% network share; network hashrate eased to 26.01 EH/s while block production stayed on cadence (height +863 since the prior pool snapshot)."
+      "Network hashrate +17.8% to 30.63 EH/s; MinePRL pool reports 19 active GPUs (14 in the prior snapshot)."
     ]
   },
   "social": {
-    "sentiment": "bullish",
-    "summary": "KTX Exchange announced it will be the first centralized exchange to list PRL spot, and a perp venue added a 5bps maker rebate for PRL orders — the first off-DEX market access for the asset. Pearl also featured in several curated lists of proof-of-useful-work projects, and a mining-channel video covering the audited Pearl wallets premiered. Scattered caution (token-unlock chatter) stayed isolated, with no coordinated criticism.",
-    "mentions_24h": 124,
+    "sentiment": "neutral",
+    "summary": "unMineable, one of the largest multi-coin mining services, announced PRL (PearlPow) support with flexible payout assets — the day's most concrete development. Mining-economics content discussed rising difficulty as more miners join, and Pearl continued to appear in proof-of-useful-work project roundups. Note: a separate \"Perle\" token (also ticker PRL, on BSC/Solana) ran a Binance Wallet Alpha trading competition — unrelated to Pearl Network and excluded from this summary.",
+    "mentions_24h": 143,
     "tracked_accounts": [
       "@prlnet",
       "@pearlbridgexyz",
@@ -87,32 +80,32 @@
     ],
     "sample_tweets": [
       {
-        "handle": "@KTX_Exchange",
-        "url": "https://x.com/KTX_Exchange/status/2065028367196578278",
-        "snippet": "KTX is proud to be the world's first exchange to list $PRL — $PRL spot will be tradable soon",
-        "posted_at": "2026-06-11T11:08:23Z"
+        "handle": "@un_mineable",
+        "url": "https://x.com/un_mineable/status/2065550118984560872",
+        "snippet": "Mining $PRL and getting paid directly in $USDT? Or $BTC, $DOGE, $ETH… Get maximum flexibility from your PearlPow gains!",
+        "posted_at": "2026-06-12T21:41:39Z"
       },
       {
-        "handle": "@margin_trade",
-        "url": "https://x.com/margin_trade/status/2065112569162162495",
-        "snippet": "we've adjusted the fee structure for $PRL — every $PRL perp limit order you place earns a 5bps maker rebate",
-        "posted_at": "2026-06-11T16:42:59Z"
+        "handle": "@honeywithcrypto",
+        "url": "https://x.com/honeywithcrypto/status/2065548363941249358",
+        "snippet": "Pearl ($PRL) Profitability Dropping! If your daily $PRL earnings are dipping, here is exactly why: rising mining difficulty…",
+        "posted_at": "2026-06-12T21:34:40Z"
       },
       {
-        "handle": "@CryptoGoldAct",
-        "url": "https://x.com/CryptoGoldAct/status/2065165273229860974",
-        "snippet": "Out now! Why Pearl ($PRL) disrupts the PoW & AI ecosystem — report covers accumulation and partnerships",
-        "posted_at": "2026-06-11T20:12:24Z"
+        "handle": "@EmersonDickie",
+        "url": "https://x.com/EmersonDickie/status/2065468824770503084",
+        "snippet": "2 of the absolute largest TAMs. Store-of-Value assets. Assets that represent AI ownership. @prlnet",
+        "posted_at": "2026-06-12T16:18:37Z"
       },
       {
-        "handle": "@Eli5defi",
-        "url": "https://x.com/Eli5defi/status/2064998810242466127",
-        "snippet": "Mentioned several protocols here, but please DYOR: @prlnet @nockchain @ambient_xyz @gonka_ai @quipnetwork @_Qubic_",
-        "posted_at": "2026-06-11T09:10:56Z"
+        "handle": "@0xSrM3ta",
+        "url": "https://x.com/0xSrM3ta/status/2065473499406246019",
+        "snippet": "Tech upgrade. Keep building. $prl @prlnet",
+        "posted_at": "2026-06-12T16:37:11Z"
       }
     ],
     "sources": [
-      "api.x.com/2/tweets/search/recent + /2/tweets/counts/recent (query: (@prlnet OR @pearlbridgexyz OR \"$PRL\") -is:retweet lang:en, last 24h — count includes some unrelated \"PRL\" acronym noise)"
+      "api.x.com/2/tweets/search/recent + /2/tweets/counts/recent (query: (@prlnet OR @pearlbridgexyz OR \"$PRL\") -is:retweet lang:en, last 24h — count includes unrelated \"PRL\" acronym noise and the separate Perle (PRL) token)"
     ]
   },
   "github": [
@@ -121,7 +114,7 @@
       "url": "https://github.com/PearlBridgeXYZ/public-frontend",
       "stars": 0,
       "open_prs": 0,
-      "commits_7d": 20,
+      "commits_7d": 19,
       "last_commit_at": "2026-06-10T07:48:16Z",
       "last_commit_msg": "chore: RC5.46 — vite 8 toolchain promotion"
     },
@@ -137,18 +130,18 @@
     {
       "repo": "pearl-research-labs/pearl",
       "url": "https://github.com/pearl-research-labs/pearl",
-      "stars": 217,
-      "open_prs": 38,
-      "commits_7d": 4,
-      "last_commit_at": "2026-06-11T20:17:12Z",
-      "last_commit_msg": "chore(wallet,spv): bump wallet to 2.0.0 and derive neutrino UA from monorepo version (#176)"
+      "stars": 225,
+      "open_prs": 40,
+      "commits_7d": 5,
+      "last_commit_at": "2026-06-12T10:35:47Z",
+      "last_commit_msg": "check top_k=0 if e=0 (#177)"
     },
     {
       "repo": "pearl-research-labs/pips",
       "url": "https://github.com/pearl-research-labs/pips",
       "stars": 3,
       "open_prs": 0,
-      "commits_7d": 2,
+      "commits_7d": 1,
       "last_commit_at": "2026-06-11T19:52:41Z",
       "last_commit_msg": "make pip2 final (#6)"
     }
@@ -252,6 +245,15 @@
       "status": "live",
       "first_seen": "2026-06-11",
       "source": "x.com announcement 2026-06-10 (@nockchain) + nockchain.org"
+    },
+    {
+      "name": "unMineable (PRL)",
+      "category": "pool",
+      "url": "https://unmineable.com/coins/PRL",
+      "description": "Multi-coin mining service that added PRL (PearlPow) support — miners earn PRL and get paid out in BTC, ETH, DOGE, USDT and other assets.",
+      "status": "live",
+      "first_seen": "2026-06-13",
+      "source": "@un_mineable announcement 2026-06-12 + unmineable.com/coins/PRL"
     }
   ],
   "incidents": []
