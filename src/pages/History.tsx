@@ -8,6 +8,7 @@ import {
   ethExplorerTxUrl,
 } from "../lib/config";
 import { grainsToDisplay, shortAddress } from "../lib/utils";
+import { historyStateTone, historyToneClasses } from "../lib/historyState";
 import { getAuthStatus, subscribeAuthStatus } from "../lib/authStore";
 
 // Server-shape: /api/history returns string grains so JS can keep BigInt.
@@ -61,22 +62,11 @@ function relativeTime(epochMs: number): string {
   return `${Math.floor(diff / 86_400_000)}d ago`;
 }
 
-// RC4.0 state palette:
-//   green  — terminal success: completed, minted, unlocked
-//   red    — terminal failure: failed, rejected, cancelled (NEW — was bucketed
-//            into "yellow in-progress" pre-RC4.1 which lied to users)
-//   blue   — slow-lane queued (NEW — distinct from yellow pending so users
-//            with infinite-timer mints can tell their mint hasn't stalled)
-//   yellow — true in-progress: pending, attesting, anything unknown
+// State palette + the "finalized" success fix live in lib/historyState (pure +
+// unit-tested). green=terminal success (incl. finalized), red=terminal failure,
+// sky=slow-lane queued, yellow=in-progress/unknown.
 function StateBadge({ state, title }: { state: string; title?: string }) {
-  const tone =
-    state === "completed" || state === "minted" || state === "unlocked"
-      ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
-      : state === "failed" || state === "rejected" || state === "cancelled"
-        ? "bg-red-500/15 text-red-300 border-red-500/30"
-        : state === "queued"
-          ? "bg-sky-500/15 text-sky-300 border-sky-500/30"
-          : "bg-yellow-500/15 text-yellow-300 border-yellow-500/30";
+  const tone = historyToneClasses(historyStateTone(state));
   return (
     <span
       className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border ${tone}`}
