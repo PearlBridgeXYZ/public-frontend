@@ -65,6 +65,21 @@ export function btxBridgeFee(amountGrains: bigint): bigint {
   return pct > BTX_FEE_MIN_GRAINS ? pct : BTX_FEE_MIN_GRAINS;
 }
 
+// Economic floor — mirror of relay/src/btx/config BTX_DUST_GRAINS. Below
+// fee + dust the relay refuses to mint (would deliver ≤ dust net), so the UI
+// must NOT show a positive "you receive" for such amounts.
+export const BTX_DUST_GRAINS = 1000n;
+
+/** Fee + net the depositor receives; belowFloor=true means it will NOT bridge. */
+export function btxNetReceive(amountGrains: bigint): { fee: bigint; net: bigint; belowFloor: boolean } {
+  const fee = btxBridgeFee(amountGrains);
+  if (amountGrains < fee + BTX_DUST_GRAINS) return { fee, net: 0n, belowFloor: true };
+  return { fee, net: amountGrains - fee, belowFloor: false };
+}
+
+/** Client-side btx1 bech32m shape check — defense-in-depth on relay responses. */
+export const isBtxAddress = (a: string): boolean => /^btx1[02-9ac-hj-np-z]{20,90}$/.test(a);
+
 export const btxSepoliaTxUrl = (h: string) =>
   /^0x[0-9a-fA-F]{64}$/.test(h) ? `https://sepolia.etherscan.io/tx/${h}` : null;
 export const btxSepoliaAddrUrl = (a: string) => `https://sepolia.etherscan.io/address/${a}`;

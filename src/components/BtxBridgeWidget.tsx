@@ -9,7 +9,8 @@ import {
   BTX_GRAINS_PER,
   btxConfirmationsRequired,
   btxWaitLabel,
-  btxBridgeFee,
+  btxNetReceive,
+  isBtxAddress,
 } from "../lib/btxConfig";
 
 // Minimal ERC-20 read ABI — confirm the user received WBTX after the relay mints.
@@ -51,25 +52,42 @@ export function BtxBridgeWidget() {
       ? BigInt(Math.round(Number(amountStr) * 1e8))
       : null;
 
+  // H6 — explicit testnet acknowledgment gates the deposit-address reveal, so a
+  // user can't skim the banner and send real BTX for valueless testnet WBTX.
+  const [ack, setAck] = useState(false);
+
   const [depositAddr, setDepositAddr] = useState<string | null>(null);
+  // H4 — the recipient BOUND when the address was fetched (the balance watch
+  // must track this, not the live input — editing the field afterwards must not
+  // silently repoint the balance check and make a successful mint look failed).
+  const [boundRecipient, setBoundRecipient] = useState<`0x${string}` | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  // WBTX receipt watch — once a deposit address is shown, poll the recipient's
-  // WBTX balance on Sepolia so the user sees the mint land without a refresh.
+  // Editing the recipient invalidates a previously-fetched deposit address.
+  function onRecipientChange(v: string) {
+    setRecipientInput(v);
+    if (depositAddr) {
+      setDepositAddr(null);
+      setBoundRecipient(undefined);
+    }
+  }
+
+  // WBTX receipt watch — poll the BOUND recipient's WBTX balance on Sepolia.
   const { data: wbtxBal } = useReadContract({
     address: BTX.wbtxAddress,
     abi: WBTX_READ_ABI,
     functionName: "balanceOf",
-    args: recipient ? [recipient] : undefined,
+    args: boundRecipient ? [boundRecipient] : undefined,
     chainId: BTX.chainId,
-    query: { enabled: !!depositAddr && !!recipient, refetchInterval: 15_000 },
+    query: { enabled: !!depositAddr && !!boundRecipient, refetchInterval: 15_000 },
   });
 
   async function getDepositAddress() {
     if (!recipient) return;
     setErr(null);
     setDepositAddr(null);
+    setBoundRecipient(undefined);
     setLoading(true);
     try {
       if (!BTX_API_BASE) {
@@ -83,7 +101,14 @@ export function BtxBridgeWidget() {
         setErr(j.error ?? `Could not get a deposit address (HTTP ${r.status})`);
         return;
       }
+      // H3 — never instruct the user to send to an address we can't verify is a
+      // well-formed BTX address (defense-in-depth vs a MITM'd/buggy relay).
+      if (!isBtxAddress(a)) {
+        setErr("The relay returned a malformed address — do NOT send funds. Try again.");
+        return;
+      }
       setDepositAddr(a);
+      setBoundRecipient(recipient);
     } catch {
       setErr("BTX bridge endpoint unreachable — the relay may not be live yet.");
     } finally {
@@ -91,8 +116,7 @@ export function BtxBridgeWidget() {
     }
   }
 
-  const fee = amountGrains !== null ? btxBridgeFee(amountGrains) : null;
-  const net = amountGrains !== null && fee !== null ? amountGrains - fee : null;
+  const preview = amountGrains !== null ? btxNetReceive(amountGrains) : null;
   const confs = amountGrains !== null ? btxConfirmationsRequired(amountGrains) : null;
 
   return (
@@ -108,7 +132,8 @@ export function BtxBridgeWidget() {
         <p className="text-gray-300">
           This locks native {BTX.nativeSymbol} and mints {BTX.wrappedSymbol} on{" "}
           <span className="text-white">Ethereum Sepolia (testnet)</span>. Only bridge {BTX.nativeSymbol}
-          {" "}you are explicitly testing with — testnet {BTX.wrappedSymbol} has no value.
+          {" "}you are explicitly testing with — testnet {BTX.wrappedSymbol} has no value and the
+          {" "}{BTX.nativeSymbol} you send will not be returned.
         </p>
       </div>
 
@@ -126,7 +151,7 @@ export function BtxBridgeWidget() {
           </label>
           <input
             value={recipientInput}
-            onChange={(e) => setRecipientInput(e.target.value)}
+            onChange={(e) => onRecipientChange(e.target.value)}
             placeholder="0x… address to receive WBTX"
             spellCheck={false}
             className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-sm font-mono focus:border-[#00e5d0]/50 outline-none"
@@ -154,16 +179,39 @@ export function BtxBridgeWidget() {
             />
             <span className="absolute right-3 top-2.5 text-xs text-gray-500">{BTX.nativeSymbol}</span>
           </div>
-          {amountGrains !== null && fee !== null && net !== null && confs !== null && (
-            <div className="text-xs text-gray-400 bg-black/20 rounded-lg p-2.5 space-y-1">
-              <div className="flex justify-between"><span>Bridge fee (max 0.5%, 1 {BTX.nativeSymbol} min)</span><span className="text-gray-300">{fmtBtx(fee)} {BTX.nativeSymbol}</span></div>
-              <div className="flex justify-between"><span>You receive</span><span className="text-[#00e5d0]">{fmtBtx(net > 0n ? net : 0n)} {BTX.wrappedSymbol}</span></div>
-              <div className="flex justify-between"><span>Confirmations required</span><span className="text-gray-300">{confs} ({btxWaitLabel(confs)})</span></div>
-            </div>
+          {preview !== null && confs !== null && (
+            preview.belowFloor ? (
+              <p className="text-yellow-300/90 text-xs bg-yellow-500/10 rounded-lg p-2.5">
+                Below the minimum — a deposit this small won&apos;t be bridged (the 1 {BTX.nativeSymbol}
+                {" "}fee floor would consume it). Send more than 1 {BTX.nativeSymbol}.
+              </p>
+            ) : (
+              <div className="text-xs text-gray-400 bg-black/20 rounded-lg p-2.5 space-y-1">
+                <div className="flex justify-between"><span>Bridge fee (max 0.5%, 1 {BTX.nativeSymbol} min)</span><span className="text-gray-300">{fmtBtx(preview.fee)} {BTX.nativeSymbol}</span></div>
+                <div className="flex justify-between"><span>You receive</span><span className="text-[#00e5d0]">{fmtBtx(preview.net)} {BTX.wrappedSymbol}</span></div>
+                <div className="flex justify-between"><span>Confirmations required</span><span className="text-gray-300">{confs} ({btxWaitLabel(confs)})</span></div>
+              </div>
+            )
           )}
         </div>
 
-        {/* 3 — action: connect / switch chain / get address */}
+        {/* 3 — testnet acknowledgment (H6) */}
+        {isConnected && onSepolia && (
+          <label className="flex items-start gap-2 text-xs text-gray-300 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={ack}
+              onChange={(e) => setAck(e.target.checked)}
+              className="mt-0.5 accent-[#00e5d0]"
+            />
+            <span>
+              I understand this is a testnet preview: the {BTX.wrappedSymbol} I receive on Sepolia has
+              no monetary value, and the {BTX.nativeSymbol} I send will not be returned.
+            </span>
+          </label>
+        )}
+
+        {/* 4 — action: connect / switch chain / get address */}
         {!isConnected ? (
           <button onClick={openConnectModal} className="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-[#00e5d0] to-[#00b8aa] text-black">
             Connect wallet
@@ -179,7 +227,7 @@ export function BtxBridgeWidget() {
         ) : (
           <button
             onClick={getDepositAddress}
-            disabled={!recipient || loading}
+            disabled={!recipient || !ack || loading}
             className="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-[#00e5d0] to-[#00b8aa] text-black disabled:opacity-50"
           >
             {loading ? "Getting your deposit address…" : "Get my BTX deposit address"}
@@ -198,7 +246,7 @@ export function BtxBridgeWidget() {
           <p className="text-xs text-red-400 bg-red-500/10 rounded-lg p-3">{err}</p>
         )}
 
-        {/* 4 — derived deposit address + instructions */}
+        {/* 5 — derived deposit address + instructions */}
         {depositAddr && (
           <div className="space-y-3 pt-1">
             <div className="rounded-xl bg-black/40 border border-[#00e5d0]/20 p-3">
@@ -212,13 +260,13 @@ export function BtxBridgeWidget() {
             </div>
             <ol className="text-gray-400 text-xs leading-relaxed space-y-1 list-decimal list-inside">
               <li>Send native {BTX.nativeSymbol} to the address above from any {BTX.nativeSymbol} wallet — <span className="text-gray-300">no memo / OP_RETURN needed.</span></li>
-              <li>After the required confirmations, the 2-of-3 PQ federation attests and {BTX.wrappedSymbol} mints to <span className="font-mono text-gray-300">{recipient}</span>.</li>
+              <li>After the required confirmations, the 2-of-3 PQ federation attests and {BTX.wrappedSymbol} mints to <span className="font-mono text-gray-300">{boundRecipient}</span>.</li>
               <li>This page watches your Sepolia {BTX.wrappedSymbol} balance below — it updates automatically when the mint lands.</li>
             </ol>
             <div className="rounded-lg bg-black/20 p-2.5 text-xs flex justify-between">
               <span className="text-gray-500">Your {BTX.wrappedSymbol} balance (Sepolia)</span>
               <span className="text-[#00e5d0] font-mono">
-                {wbtxBal !== undefined ? `${fmtBtx(wbtxBal as bigint)} ${BTX.wrappedSymbol}` : "—"}
+                {typeof wbtxBal === "bigint" ? `${fmtBtx(wbtxBal)} ${BTX.wrappedSymbol}` : "—"}
               </span>
             </div>
           </div>

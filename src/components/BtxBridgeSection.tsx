@@ -63,17 +63,21 @@ export function BtxBridgeSection() {
         <div className="rounded-xl bg-black/30 p-4">
           <AddressRow label={`${BTX.wrappedSymbol} token`} value={BTX.tokenAddress} href={SEPOLIA_ADDR(BTX.tokenAddress)} />
           <AddressRow label="BridgeController" value={BTX.bridgeController} href={SEPOLIA_ADDR(BTX.bridgeController)} />
-          <AddressRow label={`${BTX.nativeSymbol} lock address`} value={BTX.lockAddress} />
+          <AddressRow label="Federation lock (custody — NOT a deposit address)" value={BTX.lockAddress} />
         </div>
       </div>
 
       <div className="glass rounded-2xl p-5 text-sm">
         <p className="text-[#00e5d0] font-semibold text-xs uppercase tracking-wide mb-2">How a BTX deposit works</p>
         <ol className="text-gray-400 text-xs leading-relaxed space-y-1.5 list-decimal list-inside">
-          <li>Send native {BTX.nativeSymbol} to the lock address above.</li>
           <li>
-            Include an <span className="font-mono text-gray-300">OP_RETURN</span> output binding your
-            Ethereum address (the bridge UI builds this for you when deposits open).
+            Use the widget above to get <span className="text-gray-300">your unique {BTX.nativeSymbol} deposit
+            address</span> — it&apos;s bound to your Ethereum address by the relay.
+          </li>
+          <li>
+            Send native {BTX.nativeSymbol} to that address from any wallet —{" "}
+            <span className="text-gray-300">no memo or OP_RETURN needed.</span> Do NOT send to the
+            federation lock address; that is custody only, not a deposit destination.
           </li>
           <li>
             After the size-scaled confirmation count, the 2-of-3 federation attests
