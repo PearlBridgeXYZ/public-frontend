@@ -200,8 +200,12 @@ describe("burnTracker — state mapping", () => {
     assert.equal(mapBurnState("signing"), "processing");
   });
 
-  test("failed maps to failed", () => {
-    assert.equal(mapBurnState("failed"), "failed");
+  test("failed maps to delayed (relay auto-retries; not a terminal failure)", () => {
+    // The relay's "failed" is a release-timeout that the burn-submit-watcher
+    // recovers; surfacing it as non-terminal "delayed" keeps the UI polling so
+    // it flips to "complete" when the retry lands (fixes the false-failure that
+    // stranded customer unwraps which actually finalized — 2026-06-25).
+    assert.equal(mapBurnState("failed"), "delayed");
   });
 
   test("reorged maps to reorged (was previously hidden as pending)", () => {
@@ -218,10 +222,11 @@ describe("burnTracker — state mapping", () => {
     assert.equal(mapBurnState("some-future-state-we-dont-know"), "pending");
   });
 
-  test("isTerminalUiState is true only for complete / failed / reorged", () => {
+  test("isTerminalUiState is true only for complete / failed / reorged / under_review; delayed keeps polling", () => {
     assert.equal(isTerminalUiState("complete"), true);
     assert.equal(isTerminalUiState("failed"), true);
     assert.equal(isTerminalUiState("reorged"), true);
+    assert.equal(isTerminalUiState("delayed"), false); // recoverable → keep polling
     assert.equal(isTerminalUiState("pending"), false);
     assert.equal(isTerminalUiState("processing"), false);
     assert.equal(isTerminalUiState("broadcast"), false);
