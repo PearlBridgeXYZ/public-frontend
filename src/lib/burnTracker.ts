@@ -149,7 +149,8 @@ export type UiBurnState =
   | "processing"     // signing / broadcasting in progress
   | "broadcast"      // tx is on Pearl mempool, waiting for confirmation
   | "complete"       // confirmed on Pearl, PRL delivered
-  | "failed"         // unrecoverable — show error
+  | "delayed"        // release didn't confirm in the first window — relay is RETRYING (recoverable, non-terminal)
+  | "failed"         // unrecoverable — show error (no relay state maps here today; reserved)
   | "reorged"        // Eth reorg killed it before release — show recovery copy
   | "under_review";  // RC5.15 — anomaly detector parked the burn for manual review
 
@@ -163,8 +164,15 @@ export function mapBurnState(raw: string | null | undefined): UiBurnState {
       return "broadcast";
     case "signing":
       return "processing";
+    // The relay marks "failed" when the PRL release doesn't confirm within its
+    // ~30-min window — but the burn-submit-watcher then auto-retries and the
+    // release almost always finalizes (observed: customer unwraps flagged
+    // "failed" later confirmed with 200+ confs). So this is a DELAY, not a
+    // terminal failure: surface "delayed" (non-terminal → keep polling) so the
+    // UI flips to "complete" when the retry lands, instead of stranding the
+    // user on a false "Unlock failed" for a release that actually succeeds.
     case "failed":
-      return "failed";
+      return "delayed";
     case "reorged":
       return "reorged";
     case "under_review":

@@ -55,6 +55,12 @@ const STATE_COPY: Record<UiBurnState | "unknown", {
       "The relay flagged this unlock for manual review before releasing PRL. The WPRL was burned on Ethereum and the PRL is held in the bridge custodial set. An operator will release the unlock or initiate a refund.",
     tone: "warn",
   },
+  delayed: {
+    label: "Still finalizing — taking longer than usual",
+    detail:
+      "The PRL release is taking longer than the typical window to confirm. Your funds are safe in the bridge custodial set and the relay automatically keeps retrying until the release lands — no action is needed. This page updates the moment it completes.",
+    tone: "warn",
+  },
   failed: {
     label: "Unlock failed",
     detail:
@@ -278,7 +284,7 @@ export function UnwrapStatus() {
                 View PRL release on Pearl Explorer &rarr;
               </a>
             )}
-            {(stateKey === "under_review" || stateKey === "failed") && (
+            {(stateKey === "under_review" || stateKey === "failed" || stateKey === "delayed") && (
               <a
                 href={`mailto:bridgedev@mailbox.org?subject=${encodeURIComponent(
                   `Bridge unwrap: ${ethTxHash}`,
