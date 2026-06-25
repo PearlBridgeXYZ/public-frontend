@@ -114,8 +114,18 @@ export const wagmiConfig =
   BUILD_NETWORK === "mainnet"
     ? createConfig({
         connectors,
-        chains: [mainnet],
-        transports: { [mainnet.id]: http(import.meta.env.VITE_ETH_RPC_URL || "") },
+        // Pearl runs on mainnet; the BTX bridge (isolated, second asset) targets
+        // Sepolia for its testnet preview, so the mainnet build ALSO carries
+        // Sepolia — the BTX widget switches the wallet to it. The Pearl flow
+        // gates strictly on EXPECTED_CHAIN_ID (mainnet), so the extra chain is
+        // inert for it; only the BTX widget reads/switches to Sepolia.
+        chains: [mainnet, sepolia],
+        transports: {
+          [mainnet.id]: http(import.meta.env.VITE_ETH_RPC_URL || ""),
+          [sepolia.id]: http(
+            import.meta.env.VITE_SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com",
+          ),
+        },
         ssr: false,
       })
     : BUILD_NETWORK === "sepolia"

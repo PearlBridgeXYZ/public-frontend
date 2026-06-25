@@ -1,12 +1,11 @@
 import { CopyButton } from "./CopyButton";
+import { BtxBridgeWidget } from "./BtxBridgeWidget";
 
-// BTX bridge section. The EVM contracts are deployed + verified on Sepolia
-// (2026-06-24); the native-side relay (deposit watcher + mint) is being wired
-// next, so this is the testnet preview: it surfaces the verified on-chain
-// addresses, the deposit mechanics (lock address + the OP_RETURN binding that
-// ties a BTX deposit to an Ethereum recipient), and the custody model. It
-// deliberately does NOT yet expose a one-click deposit — we don't show a mint
-// flow we can't honor. The wrap/unwrap widget drops in here once the relay ships.
+// BTX bridge section. Renders the interactive deposit widget (Sepolia testnet
+// preview) on top of the reference panels (verified on-chain addresses + custody
+// model). The widget uses DERIVED-ADDRESS binding — each recipient gets a unique
+// BTX deposit address, NO OP_RETURN (G directive 2026-06-24). It degrades
+// gracefully to a "relay not live yet" state until the BTX relay stands up.
 
 // Sepolia testnet deployment (deploy-btx.ts). When BTX mainnet ships, gate these
 // on the build network exactly as the Pearl side does in contracts.ts.
@@ -45,18 +44,20 @@ function AddressRow({ label, value, href }: { label: string; value: string; href
 export function BtxBridgeSection() {
   return (
     <div className="w-full max-w-lg mx-auto space-y-4">
+      {/* Interactive deposit flow (Sepolia preview) */}
+      <BtxBridgeWidget />
+
+      {/* Reference: verified deployment + custody model */}
       <div className="glass rounded-2xl p-6 border border-amber-500/20 space-y-4">
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold">BTX Bridge</span>
+          <span className="text-lg font-bold">Deployment &amp; custody</span>
           <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded border bg-amber-500/15 text-amber-300 border-amber-500/30">
-            Sepolia Testnet
+            Reference
           </span>
         </div>
         <p className="text-gray-300 text-sm leading-relaxed">
           The {BTX.wrappedSymbol} contracts are deployed and verified on Sepolia.
-          The native-side relay (deposit watcher + mint) is being wired next —
-          one-click deposits open once it&apos;s live. The verified addresses and
-          deposit mechanics are below so you can review the deployment now.
+          Verify the addresses independently before depositing.
         </p>
 
         <div className="rounded-xl bg-black/30 p-4">
