@@ -11,6 +11,7 @@ import {
   btxWaitLabel,
   btxNetReceive,
   isBtxAddress,
+  parseBtxToGrains,
 } from "../lib/btxConfig";
 
 // Minimal ERC-20 read ABI — confirm the user received WBTX after the relay mints.
@@ -46,11 +47,12 @@ export function BtxBridgeWidget() {
   const recipient = recipientCheck.kind !== "invalid" ? recipientCheck.address : undefined;
 
   // Optional amount preview — drives the fee + confirmation-tier display.
+  // Parse via the shared string→grains helper (NO float/Number arithmetic —
+  // Math.round(Number(x)*1e8) loses precision past ~7 significant digits and
+  // misrendered the fee/confirmations preview for large or fine-grained amounts).
   const [amountStr, setAmountStr] = useState("");
-  const amountGrains =
-    amountStr && /^\d*\.?\d*$/.test(amountStr) && Number(amountStr) > 0
-      ? BigInt(Math.round(Number(amountStr) * 1e8))
-      : null;
+  const parsedGrains = parseBtxToGrains(amountStr);
+  const amountGrains = parsedGrains !== null && parsedGrains > 0n ? parsedGrains : null;
 
   // H6 — explicit testnet acknowledgment gates the deposit-address reveal, so a
   // user can't skim the banner and send real BTX for valueless testnet WBTX.
@@ -70,8 +72,15 @@ export function BtxBridgeWidget() {
     if (depositAddr) {
       setDepositAddr(null);
       setBoundRecipient(undefined);
+      setBaselineBal(null);
     }
   }
+
+  // Baseline WBTX balance captured at the moment the deposit address is issued.
+  // The status line below compares the live balance to this baseline so it can
+  // say "watching for your mint" vs "mint detected" — polling raw balance alone
+  // can't tell a fresh mint from a pre-existing balance.
+  const [baselineBal, setBaselineBal] = useState<bigint | null>(null);
 
   // WBTX receipt watch — poll the BOUND recipient's WBTX balance on Sepolia.
   const { data: wbtxBal } = useReadContract({
@@ -83,11 +92,22 @@ export function BtxBridgeWidget() {
     query: { enabled: !!depositAddr && !!boundRecipient, refetchInterval: 15_000 },
   });
 
+  // Capture the baseline the first time we get a reading after issuing an address.
+  useEffect(() => {
+    if (depositAddr && baselineBal === null && typeof wbtxBal === "bigint") {
+      setBaselineBal(wbtxBal as bigint);
+    }
+  }, [depositAddr, baselineBal, wbtxBal]);
+
+  const mintDetected =
+    typeof wbtxBal === "bigint" && baselineBal !== null && (wbtxBal as bigint) > baselineBal;
+
   async function getDepositAddress() {
     if (!recipient) return;
     setErr(null);
     setDepositAddr(null);
     setBoundRecipient(undefined);
+    setBaselineBal(null);
     setLoading(true);
     try {
       if (!BTX_API_BASE) {
@@ -263,11 +283,28 @@ export function BtxBridgeWidget() {
               <li>After the required confirmations, the 2-of-3 PQ federation attests and {BTX.wrappedSymbol} mints to <span className="font-mono text-gray-300">{boundRecipient}</span>.</li>
               <li>This page watches your Sepolia {BTX.wrappedSymbol} balance below — it updates automatically when the mint lands.</li>
             </ol>
-            <div className="rounded-lg bg-black/20 p-2.5 text-xs flex justify-between">
-              <span className="text-gray-500">Your {BTX.wrappedSymbol} balance (Sepolia)</span>
-              <span className="text-[#00e5d0] font-mono">
-                {typeof wbtxBal === "bigint" ? `${fmtBtx(wbtxBal)} ${BTX.wrappedSymbol}` : "—"}
-              </span>
+            {/* Minimal mint-status line — compares live balance to the baseline
+                captured when the address was issued, so it can distinguish a
+                fresh mint from a pre-existing balance. */}
+            <div className="rounded-lg bg-black/20 p-2.5 text-xs space-y-1.5">
+              <div className="flex items-center gap-2">
+                {mintDetected ? (
+                  <span className="text-[#00e5d0]" aria-hidden="true">&#10003;</span>
+                ) : (
+                  <span className="w-3 h-3 rounded-full border-2 border-[#00e5d0] border-t-transparent animate-spin" aria-hidden="true" />
+                )}
+                <span className={mintDetected ? "text-[#00e5d0]" : "text-gray-400"}>
+                  {mintDetected
+                    ? `Mint detected — ${BTX.wrappedSymbol} credited`
+                    : `Watching for your deposit — ${BTX.wrappedSymbol} mints automatically after confirmations`}
+                </span>
+              </div>
+              <div className="flex justify-between border-t border-white/5 pt-1.5">
+                <span className="text-gray-500">Your {BTX.wrappedSymbol} balance (Sepolia)</span>
+                <span className="text-[#00e5d0] font-mono">
+                  {typeof wbtxBal === "bigint" ? `${fmtBtx(wbtxBal)} ${BTX.wrappedSymbol}` : "—"}
+                </span>
+              </div>
             </div>
           </div>
         )}

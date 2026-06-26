@@ -12,6 +12,24 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.51",
+    date: "2026-06-26",
+    title: "BTX burn → unlock widget; BTX tab single-source addresses + on-chain integrity check",
+    summary:
+      "Adds the WBTX → native-BTX redemption flow to the BTX tab (Sepolia testnet preview), mirroring the Pearl burn-and-unlock UX. Connect → enforce Sepolia → show WBTX balance → amount (string-decimal → 8-dec grains, no float) → btx1 destination with full bech32m checksum validation → live fee + you-receive preview → approve WBTX → requestBurn(amount, pearlAddress) on the BridgeController. The contract is the fee authority (burnFeeBps read live, 50 bps default). A deposit/burn toggle switches the two flows. Audit hygiene: the BTX tab now imports all addresses from the single btxConfig source (removed a stale inline duplicate), verifies on load that WBTX.bridgeController() and BridgeController.token match the configured addresses (refusing the burn action on mismatch), and the deposit widget gained a mint-status line and a precise bigint amount parse.",
+    highlights: [
+      "New BtxBurnWidget: chain-gated to Sepolia, approve + requestBurn via wagmi writeContract, explicit testnet acknowledgment, on-chain burn-tx receipt + Etherscan link.",
+      "bech32m destination validation does a real BIP-350 checksum decode (HRP=btx), not a shape regex — rejects prl1…, tampered, and mixed-case inputs.",
+      "Amount parsing uses a shared string→grains helper (no Number/1e8 float drift); deposit preview migrated onto it too.",
+      "On-chain integrity guard: WBTX.bridgeController() == BridgeController and BridgeController token getter == WBTX, surfaced as a blocking warning if mismatched.",
+      "BtxBridgeSection no longer carries a duplicate address block — single source of truth in btxConfig.",
+      "Relay not yet live: the flow stops at the confirmed on-chain burn; native BTX release lands when the BTX relay/federation stands up.",
+    ],
+    contracts:
+      "Sepolia — WBTX 0x6fb27979cD0673805DC14934ba1a90E70DFcf0C4, BridgeController 0x31CC7F7Ec1b7E29f409dEDa3EF9d8A67e816428B",
+    status: "shipped",
+  },
+  {
     tag: "RC5.37",
     date: "2026-06-10",
     title: "Public API + docs page; Ecosystem live bridge flow; wallet link removed",

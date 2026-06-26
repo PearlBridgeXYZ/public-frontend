@@ -1,22 +1,18 @@
+import { useState } from "react";
 import { CopyButton } from "./CopyButton";
 import { BtxBridgeWidget } from "./BtxBridgeWidget";
+import { BtxBurnWidget } from "./BtxBurnWidget";
+import { BTX, btxSepoliaAddrUrl } from "../lib/btxConfig";
 
-// BTX bridge section. Renders the interactive deposit widget (Sepolia testnet
-// preview) on top of the reference panels (verified on-chain addresses + custody
-// model). The widget uses DERIVED-ADDRESS binding — each recipient gets a unique
-// BTX deposit address, NO OP_RETURN (G directive 2026-06-24). It degrades
-// gracefully to a "relay not live yet" state until the BTX relay stands up.
-
-// Sepolia testnet deployment (deploy-btx.ts). When BTX mainnet ships, gate these
-// on the build network exactly as the Pearl side does in contracts.ts.
-const BTX = {
-  wrappedSymbol: "WBTX",
-  nativeSymbol: "BTX",
-  tokenAddress: "0x5eb454555AF2F7383958e9fc47624984D3f80016",
-  bridgeController: "0x09398a38e7f1fc4391b763bf03dEcE5dF47933bC",
-  lockAddress: "btx1zz0xqu4y5keq8cuzrazdsagacfnyv7mclf3azqvktglp200k94sxsuk7kdn",
-} as const;
-const SEPOLIA_ADDR = (a: string) => `https://sepolia.etherscan.io/address/${a}`;
+// BTX bridge section. Two flows side-by-side: the deposit widget (lock native BTX
+// → mint WBTX, DERIVED-ADDRESS binding, NO OP_RETURN — G directive 2026-06-24)
+// and the burn widget (burn WBTX → release native BTX). Both are Sepolia testnet
+// previews and are fully isolated from the Pearl/mainnet path.
+//
+// All addresses come from the single source of truth in lib/btxConfig — there is
+// no local config object here (previously a stale duplicate of the deploy
+// addresses lived inline, a second source of truth; MED audit fix 2026-06-26).
+const SEPOLIA_ADDR = btxSepoliaAddrUrl;
 
 function AddressRow({ label, value, href }: { label: string; value: string; href?: string }) {
   return (
@@ -41,11 +37,35 @@ function AddressRow({ label, value, href }: { label: string; value: string; href
   );
 }
 
+type BtxFlow = "deposit" | "burn";
+
 export function BtxBridgeSection() {
+  const [flow, setFlow] = useState<BtxFlow>("deposit");
+
   return (
     <div className="w-full max-w-lg mx-auto space-y-4">
-      {/* Interactive deposit flow (Sepolia preview) */}
-      <BtxBridgeWidget />
+      {/* Deposit ↔ Burn toggle */}
+      <div className="flex gap-1 p-1 rounded-xl bg-black/30 border border-white/5">
+        <button
+          onClick={() => setFlow("deposit")}
+          className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
+            flow === "deposit" ? "bg-[#00e5d0]/15 text-[#00e5d0]" : "text-gray-400 hover:text-white"
+          }`}
+        >
+          {BTX.nativeSymbol} → {BTX.wrappedSymbol}
+        </button>
+        <button
+          onClick={() => setFlow("burn")}
+          className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
+            flow === "burn" ? "bg-[#00e5d0]/15 text-[#00e5d0]" : "text-gray-400 hover:text-white"
+          }`}
+        >
+          {BTX.wrappedSymbol} → {BTX.nativeSymbol}
+        </button>
+      </div>
+
+      {/* Interactive flow (Sepolia preview) */}
+      {flow === "deposit" ? <BtxBridgeWidget /> : <BtxBurnWidget />}
 
       {/* Reference: verified deployment + custody model */}
       <div className="glass rounded-2xl p-6 border border-amber-500/20 space-y-4">
@@ -57,11 +77,11 @@ export function BtxBridgeSection() {
         </div>
         <p className="text-gray-300 text-sm leading-relaxed">
           The {BTX.wrappedSymbol} contracts are deployed and verified on Sepolia.
-          Verify the addresses independently before depositing.
+          Verify the addresses independently before depositing or burning.
         </p>
 
         <div className="rounded-xl bg-black/30 p-4">
-          <AddressRow label={`${BTX.wrappedSymbol} token`} value={BTX.tokenAddress} href={SEPOLIA_ADDR(BTX.tokenAddress)} />
+          <AddressRow label={`${BTX.wrappedSymbol} token`} value={BTX.wbtxAddress} href={SEPOLIA_ADDR(BTX.wbtxAddress)} />
           <AddressRow label="BridgeController" value={BTX.bridgeController} href={SEPOLIA_ADDR(BTX.bridgeController)} />
           <AddressRow label="Federation lock (custody — NOT a deposit address)" value={BTX.lockAddress} />
         </div>
