@@ -15,15 +15,17 @@ import { sepolia } from "wagmi/chains";
 
 export const BTX_NETWORK = "sepolia" as const;
 
-// Sepolia testnet deployment (contracts/scripts/deploy-btx.ts, 2026-06-24).
+// Sepolia testnet deployment — parameterized Timelock ceremony (TOKEN_CONTRACT=WBTX),
+// 2026-06-26: btx1 burn validation + "BTXBridge" EIP-712 domain + 21M WBTX cap.
+// Supersedes the 2026-06-24 (deploy-btx.ts) and 2026-06-25 timelock-rehearsal deploys.
 export const BTX = {
   wrappedSymbol: "WBTX",
   nativeSymbol: "BTX",
   decimals: 8, // BTX uses 8 decimals (grains), like PRL
   chainId: sepolia.id, // 11155111
   chainLabel: "Sepolia Testnet",
-  wbtxAddress: "0x5eb454555AF2F7383958e9fc47624984D3f80016" as `0x${string}`,
-  bridgeController: "0x09398a38e7f1fc4391b763bf03dEcE5dF47933bC" as `0x${string}`,
+  wbtxAddress: "0x6fb27979cD0673805DC14934ba1a90E70DFcf0C4" as `0x${string}`,
+  bridgeController: "0x31CC7F7Ec1b7E29f409dEDa3EF9d8A67e816428B" as `0x${string}`,
   // Federation lock address (custody) — shown for transparency. Users do NOT
   // send here; each gets their own derived deposit address from the relay.
   lockAddress: "btx1zz0xqu4y5keq8cuzrazdsagacfnyv7mclf3azqvktglp200k94sxsuk7kdn",
