@@ -36,12 +36,13 @@ export const BTX = {
 } as const;
 
 // BTX relay API base (its own isolated instance — NOT the Pearl api.pearlbridge.xyz).
-// Empty until the BTX relay stands up on-box; the widget degrades gracefully to a
-// "not live yet" state rather than erroring. Set VITE_BTX_API_BASE at that point.
+// LIVE 2026-06-27: the BTX relay is stood up on pb-relay-ash-1 and the /v1 API is
+// public at https://btx-api.pearlbridge.xyz (nginx → 127.0.0.1:4010, LE cert, open
+// CORS). VITE_BTX_API_BASE still overrides for other environments; the default is
+// the live Sepolia-testnet endpoint so the deposit widget works out of the box.
 // `import.meta.env?.` (not `.env.`) so this module also loads under bare Node
-// (node --test), where Vite's `import.meta.env` injection is absent. Under Vite
-// the optional chain is a no-op — behavior is identical in the app.
-export const BTX_API_BASE = (import.meta.env?.VITE_BTX_API_BASE ?? "").replace(/\/$/, "");
+// (node --test), where Vite's `import.meta.env` injection is absent.
+export const BTX_API_BASE = (import.meta.env?.VITE_BTX_API_BASE ?? "https://btx-api.pearlbridge.xyz").replace(/\/$/, "");
 
 // Fee: 1 BTX minimum + 0.5% (G directive 2026-06-24). grains = 1e8 per BTX.
 export const BTX_GRAINS_PER = 100_000_000n;
