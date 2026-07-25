@@ -14,6 +14,9 @@ import { siweAdapter, getInitialSiweStatus } from "../lib/siweAdapter";
 import { getAuthStatus, subscribeAuthStatus } from "../lib/authStore";
 import { ConnectButton } from "../components/ConnectButton";
 import { BridgeCardSwitcher } from "../components/BridgeCardSwitcher";
+import { BridgeAssetTabs } from "../components/BridgeAssetTabs";
+import { BtxBridgeSection } from "../components/BtxBridgeSection";
+import { detectInitialAsset, assetToPath, type BridgeAsset } from "../lib/bridgeAsset";
 import { BridgeStats } from "../components/BridgeStats";
 import { BridgeModeToggle } from "../components/BridgeModeToggle";
 import { PausedBanner } from "../components/PausedBanner";
@@ -163,6 +166,7 @@ export function App() {
                 <main className="flex-1 w-full">
                   <Routes>
                     <Route path="/" element={<HomePage />} />
+                    <Route path="/btx" element={<HomePage />} />
                     <Route path="/bridge/:receiptId" element={<HomePage />} />
                     <Route path="/status" element={<Status />} />
                     <Route path="/stats" element={<Stats />} />
@@ -199,6 +203,16 @@ export function App() {
 }
 
 function HomePage() {
+  // Active bridge asset (PearlBridge default; BTX via /btx path or ?btx flag).
+  // selectAsset keeps the address bar shareable without a route remount.
+  const [asset, setAsset] = useState<BridgeAsset>(() =>
+    detectInitialAsset(window.location.pathname, window.location.search)
+  );
+  const selectAsset = (a: BridgeAsset) => {
+    setAsset(a);
+    window.history.replaceState(null, "", assetToPath(a));
+  };
+
   // Pull the fast-lane cap AND the live remaining-in-window directly from the
   // deployed BridgeController. The cap drives the copy below ("Fast lane: the
   // first {fastCapPrl} PRL …"); the remaining drives the exhaustion banner
@@ -308,8 +322,15 @@ function HomePage() {
         </div>
       )}
 
-      <BridgeCardSwitcher />
-      <BridgeStats />
+      <BridgeAssetTabs asset={asset} onSelect={selectAsset} />
+      {asset === "pearl" ? (
+        <>
+          <BridgeCardSwitcher />
+          <BridgeStats />
+        </>
+      ) : (
+        <BtxBridgeSection />
+      )}
 
       {/*
         Mint-timing card. Two display modes, gated on actual fast-lane state:

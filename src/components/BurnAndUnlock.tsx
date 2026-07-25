@@ -201,43 +201,52 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
 
     async function poll() {
       if (cancelled || done) return;
-      // Stop polling after BURN_POLL_TIMEOUT_MS. We do NOT clear the
-      // persisted row — it stays so the next mount can resume, and we
-      // route the user to /history for a definitive view.
-      if (Date.now() - startedAt > BURN_POLL_TIMEOUT_MS) {
-        setPollTimedOut(true);
-        done = true;
-        return;
-      }
+      // Past BURN_POLL_TIMEOUT_MS we stop *repeat* polling, but we must
+      // still complete at least one status fetch per mount. Short-circuiting
+      // before the fetch stranded every >6h burn on the waiting screen
+      // forever: the relay had long since finalized, but the UI never asked
+      // again, never cleared localStorage, and the only "Start a new burn"
+      // control lives on the success screen.
+      const pastDeadline = Date.now() - startedAt > BURN_POLL_TIMEOUT_MS;
       try {
         const res = await fetch(
           `${RELAY_API_BASE}/api/burn-status?hash=${trackedBurnHash}`,
           { credentials: "include" },
         );
-        if (!res.ok) return;
-        const json = (await res.json()) as {
-          state: string | null;
-          pearlTxId?: string | null;
-          anomalyReason?: string | null;
-        };
-        if (json.pearlTxId) setPearlReleaseTxId(json.pearlTxId);
-        if (json.anomalyReason !== undefined) setAnomalyReason(json.anomalyReason);
-        const ui = mapBurnState(json.state);
-        setRelayState(ui);
-        if (ui === "complete") {
-          setStep("done");
-          done = true;
-          // Persistence served its purpose — drop it so a future visit
-          // doesn't replay the success screen forever.
-          clearBurn(ethAddress);
-        } else if (isTerminalUiState(ui)) {
-          // failed / reorged — leave the persisted row in place so the
-          // operator can ack from /history; surface the terminal state
-          // here and stop polling.
-          done = true;
+        if (res.ok) {
+          const json = (await res.json()) as {
+            state: string | null;
+            pearlTxId?: string | null;
+            anomalyReason?: string | null;
+          };
+          if (json.pearlTxId) setPearlReleaseTxId(json.pearlTxId);
+          if (json.anomalyReason !== undefined) setAnomalyReason(json.anomalyReason);
+          const ui = mapBurnState(json.state);
+          setRelayState(ui);
+          if (ui === "complete") {
+            setStep("done");
+            done = true;
+            // Persistence served its purpose — drop it so a future visit
+            // doesn't replay the success screen forever.
+            clearBurn(ethAddress);
+            return;
+          } else if (isTerminalUiState(ui)) {
+            // failed / reorged / under_review — leave the persisted row in
+            // place so the operator can ack from /history; surface the
+            // terminal state here and stop polling.
+            done = true;
+            return;
+          }
         }
       } catch {
-        // network blip — next interval tick retries
+        // network blip — next interval tick retries (unless past deadline)
+      }
+      if (pastDeadline) {
+        // Still not terminal after the timeout window — surface the notice
+        // and stop the loop. The persisted row stays so the next mount
+        // re-checks once.
+        setPollTimedOut(true);
+        done = true;
       }
     }
 
@@ -269,6 +278,25 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
     approveSubmitError ?? burnSubmitError ?? approveReceiptError ?? burnReceiptError;
 
   const needsApproval = grains && (allowance === undefined || allowance < grains);
+
+  // Shared reset back to the input form. Used by the success screen and by
+  // the poll-timed-out escape hatch — the tracked burn keeps processing
+  // relay-side regardless; this only releases the UI.
+  function resetToInput() {
+    if (ethAddress) clearBurn(ethAddress);
+    setTrackedBurnHash(null);
+    setPersistedNet(null);
+    setPersistedPearlAddr(null);
+    setPersistedStart(null);
+    setPearlReleaseTxId(null);
+    setAnomalyReason(null);
+    setRelayState("pending");
+    setAmount("");
+    setPearlAddress("");
+    resetApprove();
+    resetBurn();
+    setStep("input");
+  }
 
   async function gateDestination(): Promise<boolean> {
     if (isAdvanced) return true;
@@ -592,9 +620,15 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
               <Link to="/history" className="underline hover:text-red-200">View in history &rarr;</Link>
             </div>
           ) : pollTimedOut ? (
-            <div className="text-xs text-yellow-200 bg-yellow-500/10 border border-yellow-500/30 rounded-xl px-3 py-2 max-w-sm mx-auto space-y-1">
+            <div className="text-xs text-yellow-200 bg-yellow-500/10 border border-yellow-500/30 rounded-xl px-3 py-2 max-w-sm mx-auto space-y-2">
               <p>This burn is taking longer than expected. It usually completes within ~30 min. Check the history page for the latest status.</p>
               <Link to="/history" className="underline hover:text-yellow-100">View in history &rarr;</Link>
+              <p className="pt-1">
+                Your funds are safe and this transfer keeps processing on our side either way — you don&apos;t need to keep this screen open.{" "}
+                <button onClick={resetToInput} className="underline hover:text-yellow-100">
+                  Dismiss and start a new burn
+                </button>
+              </p>
             </div>
           ) : (
             <p className="text-xs text-gray-500">Estimated time: ~15 min. Safe to close this tab — we&apos;ll pick back up where you left off.</p>
@@ -632,21 +666,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
           )}
           <div>
             <button
-              onClick={() => {
-                if (ethAddress) clearBurn(ethAddress);
-                setTrackedBurnHash(null);
-                setPersistedNet(null);
-                setPersistedPearlAddr(null);
-                setPersistedStart(null);
-                setPearlReleaseTxId(null);
-                setAnomalyReason(null);
-                setRelayState("pending");
-                setAmount("");
-                setPearlAddress("");
-                resetApprove();
-                resetBurn();
-                setStep("input");
-              }}
+              onClick={resetToInput}
               className="mt-3 text-xs text-gray-400 hover:text-white underline"
             >
               Start a new burn
