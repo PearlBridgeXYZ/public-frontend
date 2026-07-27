@@ -1,30 +1,30 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-07-26T00:15:00Z",
-  "next_refresh_at": "2026-07-27T00:00:00Z",
-  "narrative": "Three days of data now show network difficulty and reward stepping down together (difficulty ~33.2M → 31.6M → 29.3M; block time 356s → 402s) since the July 23 dense-only PoW fork — consistent with hashrate normalizing down from the MoE-exploit-inflated highs toward a more real baseline, not a network health problem. DEX volume thinned sharply ($12.6k → $2.0k) and price eased -2.4%, both unremarkable day-to-day swings on modest liquidity. Bridge custody is essentially flat (+0.08%). Social mentions jumped to 167, but the increase is templated pump-signal spam bots, not organic interest — see social summary. GitHub activity ticked up (8 commits combined) reflecting yesterday's next→main merge landing in the tracked repo.",
+  "updated_at": "2026-07-27T00:20:00Z",
+  "next_refresh_at": "2026-07-28T00:00:00Z",
+  "narrative": "Mining diversification continues: F2Pool (a top-tier global mining pool operator) added Pearl merged-mining support on July 21, and 6block's Pearl Miner software added multi-pool support (Fortune Pool, f2pool, Lucky Pool, Herominers, Alpha Pool) on July 24 — both now added to the catalog. Difficulty keeps easing (29.3M → 27.5M) but block time actually tightened (402s → 319s), consistent with real hashrate holding steady while difficulty catches down from the post-MoE-fork adjustment, not a health problem. Bridge activity was quiet — zero deposits, a few small burns, custody down a fraction of a percent, all ordinary. Social mentions rose again (255, from 167) driven almost entirely by an escalating wave of templated pump-signal spam; flagged in the summary rather than read as genuine interest.",
   "market": {
-    "prl_price_usd": 0.3147,
-    "prl_change_24h_pct": -1.95,
-    "prl_volume_24h_usd": 2045.23,
-    "prl_market_cap_usd": 71889656.65,
-    "prl_circulating_supply": 228436179,
-    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 2, before the first halving). Current block reward (~2,477.67 PRL, averaged over the last 100 blocks via prlscan) continues a slow day-over-day decline (2,480.79 → 2,479.14 → 2,477.67) alongside falling difficulty — small enough it doesn't change the approximation materially, but tracking in case it accelerates.",
-    "wprl_price_usd": 0.3147,
+    "prl_price_usd": 0.3228,
+    "prl_change_24h_pct": 1.91,
+    "prl_volume_24h_usd": 2193.78,
+    "prl_market_cap_usd": 73875112.86,
+    "prl_circulating_supply": 228891949,
+    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 2, before the first halving). Current block reward (~2,476.03 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline (2,479.14 → 2,477.67 → 2,476.03) alongside falling difficulty — still small enough not to change the approximation materially.",
+    "wprl_price_usd": 0.3228,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 2021.62,
-        "liquidity_usd": 140490.27,
+        "volume_24h_usd": 2149.02,
+        "liquidity_usd": 142429.12,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 23.61,
-        "liquidity_usd": 17592.17,
+        "volume_24h_usd": 44.76,
+        "liquidity_usd": 17801.31,
         "url": "https://dexscreener.com/ethereum/0x8a28c58bdefa416847193c02832914bedeaeb912d59299fb3289d9431013d24b"
       }
     ],
@@ -35,37 +35,36 @@
   },
   "network": {
     "hashrate": null,
-    "difficulty": "28,954,648.05 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
-    "block_height": 92198,
-    "block_time_sec": 402,
+    "difficulty": "27,245,566.86 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
+    "block_height": 92443,
+    "block_time_sec": 319,
     "active_workers": null,
-    "active_workers_scope": "MinePRL pool is offline as of this snapshot (mineprl.com still reads 'The Mineprl pool is offline while we work on useful-work PRL mining. Follow Pearl pool data at prlscan.com'); no pool-level or network-wide worker count is currently exposed by a public API.",
+    "active_workers_scope": "MinePRL pool is offline as of this snapshot (mineprl.com still reads 'The Mineprl pool is offline while we work on useful-work PRL mining. Follow Pearl pool data at prlscan.com'); no pool-level or network-wide worker count is currently exposed by a public API. Mining is now spread across at least 7 identifiable pools per prlscan block data (PearlHash, Kryptex, Pearl Fortune, Hero Miners, LuckyPool, AlphaPool, F2Pool).",
     "pool_share_pct": null,
     "sources": [
       "mineprl.com — pool confirmed still offline via site meta description; pool.mineprl.com/v1/public/summary still does not resolve (NXDOMAIN)",
-      "api.prlscan.com/v1/status, /v1/blocks — block_height, block_time, and difficulty computed from the last 100 blocks (~11h)"
+      "api.prlscan.com/v1/status, /v1/blocks — block_height, block_time, difficulty, and miner-label distribution computed from the last 100 blocks (~9h)"
     ]
   },
   "bridge": {
-    "tvl_prl": 1027889.17,
-    "tvl_usd": 323480.28,
-    "minted_wprl": 1018152.94,
-    "surplus_prl": 9933.24,
-    "surplus_pct": 0.9756,
-    "deposits_24h_prl": 1759.33,
-    "burns_24h_prl": 806.14,
+    "tvl_prl": 1024612.29,
+    "tvl_usd": 330694.67,
+    "minted_wprl": 1014675.06,
+    "surplus_prl": 9937.24,
+    "surplus_pct": 0.9794,
+    "deposits_24h_prl": 0,
+    "burns_24h_prl": 2477.88,
     "fast_lane_used_pct": 0,
     "active_addresses_24h": null,
     "anomalies": [
-      "The /api/supply-vs-custody discrepancy is back (197 PRL this time: 1,018,152.94 vs 1,017,955.94), having read clean yesterday and 126 PRL off the day before. Confirmed via a retry two seconds apart (unchanged), so it's not a mid-update race — looks like an intermittent quirk in the relay's supply endpoint rather than a one-off. Worth a dev look if it keeps recurring.",
-      "Deposit/burn volume both thinned sharply (37,869 → 18,812 → 1,759 PRL deposits over three days) — ordinary daily variance, not a bridge issue; custody and supply both remain internally consistent aside from the discrepancy noted above.",
+      "Zero deposits in the last 24h (three burns totaling 2,477.88 PRL) — a quiet day for inbound flow, not a fault; custody and the relay's supply endpoint agree exactly today (no discrepancy, unlike the last two days).",
       "Fast-lane usage reads 0% because this snapshot lands moments after the daily UTC window reset — same pattern as prior runs, not a usage drop."
     ]
   },
   "social": {
     "sentiment": "neutral",
-    "summary": "Mentions jumped to 167 from 56, but the increase is a wave of near-identical templated \"#PRL/USDT LONG, Entry Zone 0.184-0.185\" signal-group spam posted by a cluster of accounts (Mannueltrad, Paultradee, mannuelma, RandyNoahtpco, MannuelMichael2, randykivv, Johntradee, Randykingss and others) — not organic trading discussion, and the quoted entry price doesn't match Pearl's actual DEX price today ($0.31). Pearlbridge's own account kept its regular dev-education cadence (trust model, wrap/unwrap mechanics, no-interest clarification). One organic mining-community comment noted difficulty easing, consistent with what this snapshot's own block data shows. As always, a distinct \"Perle Labs\" project sharing the PRL ticker (a treasury-unlock announcement today) is unrelated to Pearl Network and excluded.",
-    "mentions_24h": 167,
+    "summary": "Mentions rose again to 255 (from 167), and the increase is almost entirely an escalating wave of templated pump/breakout-signal spam (\"#PRL breakout + Backtest done\", \"rebuy #Prl here\", leveraged LONG signal cards) posted by a growing cluster of accounts — not organic interest. The one substantive thread was mining-related: F2Pool and 6block's Pearl Miner both announced expanded Pearl support this week (see network/ecosystem). Pearlbridge's own account continued its dev-education cadence (no user database, no presale/team allocation, burn() has no admin backdoor). A distinct \"Towns\"-vs-PRL price-pattern comparison thread was organic community chatter, not Pearl-specific news.",
+    "mentions_24h": 255,
     "tracked_accounts": [
       "@prlnet",
       "@pearlbridgexyz",
@@ -74,32 +73,33 @@
     "sample_tweets": [
       {
         "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz/status/2081167624801792425",
-        "snippet": "The lock address is not a wallet someone logs into day to day. It only moves funds when the federation contract collects a valid threshold of signatures.",
-        "posted_at": "2026-07-26T00:00:02Z"
+        "url": "https://x.com/pearlbridgexyz/status/2081530014873628998",
+        "snippet": "The bridge does not maintain a user database. What it knows about your wallet is exactly what is on the two chains already.",
+        "posted_at": "2026-07-27T00:00:03Z"
       },
       {
         "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz/status/2081107227289776347",
-        "snippet": "\"Trustless\" gets used loosely in this space. We would rather tell you exactly what you are trusting -- a 2-of-3 relayer threshold.",
-        "posted_at": "2026-07-25T20:00:02Z"
+        "url": "https://x.com/pearlbridgexyz/status/2081469613272154172",
+        "snippet": "There is no presale and no team allocation of WPRL. Every unit in circulation exists because a specific user locked that same amount of PRL first.",
+        "posted_at": "2026-07-26T20:00:02Z"
       },
       {
-        "handle": "@Cryptotronica1",
-        "url": "https://x.com/Cryptotronica1/status/2081135618042544207",
-        "snippet": "We need some time when $PRL difficulty will recover",
-        "posted_at": "2026-07-25T21:52:51Z"
+        "handle": "@f2pool",
+        "url": "https://x.com/f2pool/status/2079408030530043910",
+        "snippet": "Attention GPU miners, Pearl + modelOS merged mining is now available at f2pool! Follow our guide for $PRL mining configuration.",
+        "posted_at": "2026-07-21T03:28:02Z"
       },
       {
-        "handle": "@CryptoSGiants",
-        "url": "https://x.com/CryptoSGiants/status/2081089134966505517",
-        "snippet": "I should not be putting this much alpha in one tweet $NOCK $PRL $QUIL $SERV $TAO $TIBBIR $TIG $OCT $KLED",
-        "posted_at": "2026-07-25T18:48:09Z"
+        "handle": "@6block_official",
+        "url": "https://x.com/6block_official/status/2080572483951042894",
+        "snippet": "6block Pearl Miner now supports Fortune Pool, f2pool, Lucky Pool, Herominers, Alpha Pool, and more, with ongoing performance optimizations.",
+        "posted_at": "2026-07-24T08:35:09Z"
       }
     ],
     "sources": [
       "api.x.com/2/tweets/search/recent + /2/tweets/counts/recent (query: (@prlnet OR @pearlbridgexyz OR \"$PRL\") -is:retweet lang:en, last 24h via vault credentials Crypto/X API PEARLBRIDGE XYZ)",
-      "api.x.com/2/tweets/search/recent (query: from:pearlbridgexyz OR from:prlnet -is:retweet) — confirmed official-account cadence and no incident follow-up"
+      "api.x.com/2/tweets/search/recent (query: from:pearlbridgexyz OR from:prlnet -is:retweet) — confirmed official-account cadence and no incident follow-up",
+      "api.x.com/2/tweets/search/recent (query: F2Pool PRL OR (f2pool pearl)) — surfaced the F2Pool and 6block mining announcements"
     ]
   },
   "github": [
@@ -126,7 +126,7 @@
       "url": "https://github.com/pearl-research-labs/pearl",
       "stars": 279,
       "open_prs": 41,
-      "commits_7d": 4,
+      "commits_7d": 2,
       "last_commit_at": "2026-07-23T09:23:47Z",
       "last_commit_msg": "fix(consensus): treat only larger-than-dense proofs as MoE and postpone dense-only fork (#261)"
     },
@@ -266,6 +266,24 @@
       "status": "live",
       "first_seen": "2026-07-24",
       "source": "mineprl.com offline redirect notice; api.prlscan.com verified live"
+    },
+    {
+      "name": "F2Pool (PRL)",
+      "category": "pool",
+      "url": "https://www.f2pool.com/coin/pearl",
+      "description": "Top-tier global mining pool operator; added Pearl + modelOS merged mining support.",
+      "status": "live",
+      "first_seen": "2026-07-27",
+      "source": "@f2pool announcement 2026-07-21 + f2pool.com/coin/pearl verified live"
+    },
+    {
+      "name": "6block Pearl Miner",
+      "category": "tool",
+      "url": "https://github.com/6block/pearl-miner",
+      "description": "GPU mining software for Pearl with multi-pool support (Fortune Pool, f2pool, Lucky Pool, Herominers, Alpha Pool).",
+      "status": "live",
+      "first_seen": "2026-07-27",
+      "source": "@6block_official announcement 2026-07-24 + GitHub repo verified"
     }
   ],
   "incidents": [
