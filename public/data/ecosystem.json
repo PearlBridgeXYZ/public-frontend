@@ -1,30 +1,30 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-07-29T00:20:00Z",
-  "next_refresh_at": "2026-07-30T00:00:00Z",
-  "narrative": "The bridge processed its largest single-day redemption of the tracked period: 51,221 PRL burned (vs 6,078 PRL deposited), pulling custody down 4.65% to 973,523 PRL. The outflow traces to Pearl's own treasury-tagged addresses rather than ordinary user activity — the main lock address barely moved. Custody and the relay's supply endpoint remain in exact agreement, and the surplus/peg reconciliation held (1.04%), so this reads as the bridge correctly processing a large clean redemption, not a fault. Separately, the core repo landed a node-sync hardening fix (witness-commitment validation, reported by mining pool C3Pool; devs confirm consensus/funds were never affected) and yesterday's GPU non-determinism paper kept generating organic follow-up discussion. Network difficulty continues easing (27.2M → 25.7M → 24.9M) with block time holding steady, still reading as post-fork normalization.",
+  "updated_at": "2026-07-30T00:20:00Z",
+  "next_refresh_at": "2026-07-31T00:00:00Z",
+  "narrative": "A settling-down day after yesterday's large treasury redemption: deposits and burns both returned to normal single-digit-thousand PRL levels, and treasury holdings are unchanged since yesterday, confirming that move was a one-off rather than an ongoing drain. Bridge custody grew a modest +0.25%. Network difficulty keeps easing (25.7M → 24.9M → 23.9M) with block time still around 4-5 minutes — consistent with the post-fork normalization pattern of the last week. Social mention volume nearly tripled (401, from 143), but the increase is split between escalating pump-signal spam and a wave of \"$PRL Reclaims\" posts from a token calling itself \"Perle Labs\" — a distinct project sharing the PRL ticker, unrelated to Pearl Network, excluded from this dashboard as always.",
   "market": {
-    "prl_price_usd": 0.3215,
-    "prl_change_24h_pct": -1.89,
-    "prl_volume_24h_usd": 7783.95,
-    "prl_market_cap_usd": 73936610.17,
-    "prl_circulating_supply": 229979292,
-    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 2, before the first halving). Current block reward (~2,472.12 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline (2,476.03 → 2,474.32 → 2,472.12) alongside falling difficulty — still small enough not to change the approximation materially.",
-    "wprl_price_usd": 0.3215,
+    "prl_price_usd": 0.332,
+    "prl_change_24h_pct": 2.62,
+    "prl_volume_24h_usd": 2314.51,
+    "prl_market_cap_usd": 76557631.61,
+    "prl_circulating_supply": 230560746,
+    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 2, before the first halving). Current block reward (~2,470.04 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline (2,474.32 → 2,472.12 → 2,470.04) alongside falling difficulty — still small enough not to change the approximation materially.",
+    "wprl_price_usd": 0.332,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 7522.38,
-        "liquidity_usd": 142250.71,
+        "volume_24h_usd": 2277.11,
+        "liquidity_usd": 144760.3,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 261.57,
-        "liquidity_usd": 17733.58,
+        "volume_24h_usd": 37.4,
+        "liquidity_usd": 17908.31,
         "url": "https://dexscreener.com/ethereum/0x8a28c58bdefa416847193c02832914bedeaeb912d59299fb3289d9431013d24b"
       }
     ],
@@ -35,36 +35,36 @@
   },
   "network": {
     "hashrate": null,
-    "difficulty": "24,890,653.81 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
-    "block_height": 93029,
-    "block_time_sec": 287,
+    "difficulty": "23,934,842.30 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
+    "block_height": 93343,
+    "block_time_sec": 256,
     "active_workers": null,
     "active_workers_scope": "MinePRL pool is offline as of this snapshot (mineprl.com still reads 'The Mineprl pool is offline while we work on useful-work PRL mining. Follow Pearl pool data at prlscan.com'); no pool-level or network-wide worker count is currently exposed by a public API. Mining remains spread across at least 8 identifiable pools per prlscan block data (PearlHash, Kryptex, Pearl Fortune, LuckyPool, Hero Miners, AlphaPool, F2Pool, plus OTC-tagged addresses).",
     "pool_share_pct": null,
     "sources": [
       "mineprl.com — pool confirmed still offline via site meta description; pool.mineprl.com/v1/public/summary still does not resolve (NXDOMAIN)",
-      "api.prlscan.com/v1/status, /v1/blocks — block_height, block_time, difficulty, and miner-label distribution computed from the last 100 blocks (~8h)"
+      "api.prlscan.com/v1/status, /v1/blocks — block_height, block_time, difficulty, and miner-label distribution computed from the last 100 blocks (~7h)"
     ]
   },
   "bridge": {
-    "tvl_prl": 973523.25,
-    "tvl_usd": 312980.39,
-    "minted_wprl": 963534.09,
-    "surplus_prl": 9989.16,
-    "surplus_pct": 1.0367,
-    "deposits_24h_prl": 6077.86,
-    "burns_24h_prl": 51221.28,
+    "tvl_prl": 975950.25,
+    "tvl_usd": 324064.01,
+    "minted_wprl": 965926.42,
+    "surplus_prl": 10023.83,
+    "surplus_pct": 1.0377,
+    "deposits_24h_prl": 6199.33,
+    "burns_24h_prl": 2344.0,
     "fast_lane_used_pct": 0,
     "active_addresses_24h": null,
     "anomalies": [
-      "Largest single-day move in the tracked period: custody fell 4.65% (1,021,010 → 973,523 PRL) on a 51,221 PRL burn against 6,078 PRL in deposits. Traced this to the bridge's own treasury-tagged addresses (one of the 4 treasury addresses dropped ~53,138 PRL) rather than ordinary user lock activity — the main user-facing lock address barely changed. Custody and the relay's supply endpoint still agree exactly, and surplus/peg reconciliation is intact (1.04%), so this reads as the bridge correctly processing a large redemption — a big flow, not a fault.",
+      "Back to normal after yesterday's large treasury-side redemption: deposits and burns are both back in the low-thousands range, and treasury-address holdings are unchanged from yesterday's snapshot — confirming that was a one-off, not an ongoing drain.",
       "Fast-lane usage reads 0% because this snapshot lands moments after the daily UTC window reset — same pattern as prior runs, not a usage drop."
     ]
   },
   "social": {
     "sentiment": "neutral",
-    "summary": "No organic discussion of the large treasury-side redemption surfaced in today's sweep — it appears to be a clean, unremarked-on operational flow rather than news. Yesterday's GPU non-determinism paper kept generating follow-up commentary (including a recap post walking through the multiplication-mismatch finding). Templated pump-signal spam continued at a lower, steadier volume than the mid-week peak. Pearlbridge's own account kept its dev-education cadence (relayer threshold redundancy, no MEV in wrapping, congestion affects timing not accounting). As always, the distinct \"Perle Labs\" project and unrelated \"PRL\" usages (Pakistan refinery stock, Physical Review Letters, Polish PRL-era references) are excluded.",
-    "mentions_24h": 143,
+    "summary": "Mentions nearly tripled to 401 (from 143). Roughly half is templated pump-signal spam (\"take-profit target achieved\", leveraged LONG cards); the rest is a wave of \"$PRL Reclaims\" community-update posts from accounts referencing \"Perle Labs\" and a treasury-unlock reallocation — this is a distinct project sharing the PRL ticker, not Pearl Network, and is excluded here as in prior snapshots. One organic comment (@0xSunRun) offered neutral commentary on PoW-coin mining-reward lifecycles using PRL as an example. Pearlbridge's own account kept its dev-education cadence, including a note that there is no bridge governance token and no plan for one.",
+    "mentions_24h": 401,
     "tracked_accounts": [
       "@prlnet",
       "@pearlbridgexyz",
@@ -73,27 +73,27 @@
     "sample_tweets": [
       {
         "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz/status/2082118895771730050",
-        "snippet": "The federation has three relayers registered on-chain. Day to day, two are actively signing. The 2-of-3 threshold means that gap does not stop a wrap or an unwrap.",
-        "posted_at": "2026-07-28T15:00:03Z"
+        "url": "https://x.com/pearlbridgexyz/status/2082617178235478104",
+        "snippet": "The bridge does not have off-hours. It watches both chains continuously -- there is no scheduled maintenance window where wraps quietly pause.",
+        "posted_at": "2026-07-30T00:00:03Z"
       },
       {
         "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz/status/2081967903293964486",
-        "snippet": "Chain congestion changes timing, never the accounting. A busy Ethereum mempool can delay a mint. It cannot make the bridge mint more WPRL than the PRL that is actually locked.",
-        "posted_at": "2026-07-28T05:00:03Z"
+        "url": "https://x.com/pearlbridgexyz/status/2082405785754312978",
+        "snippet": "There is no bridge governance token and no plan to launch one. The federation contract enforces the rules here, not a DAO vote.",
+        "posted_at": "2026-07-29T10:00:03Z"
       },
       {
-        "handle": "@DocumentingPRL",
-        "url": "https://x.com/DocumentingPRL/status/2082190645922304264",
-        "snippet": "Run the same multiplication on two different NVIDIA GPUs and you can get two different answers. The arithmetic inside is undocumented.",
-        "posted_at": "2026-07-28T19:45:09Z"
+        "handle": "@0xSunRun",
+        "url": "https://x.com/0xSunRun/status/2082600902985220513",
+        "snippet": "Part of this is just the natural life cycle of PoW coins. Look no further than PRL last 6 months or whatever. Early miners swap in and out.",
+        "posted_at": "2026-07-29T22:55:22Z"
       },
       {
-        "handle": "@kathykathyeah",
-        "url": "https://x.com/kathykathyeah/status/2082239195238813846",
-        "snippet": "My therapist is gonna hear about this! Green day. $PRL +10.57%",
-        "posted_at": "2026-07-28T22:58:04Z"
+        "handle": "@peerleesyztem",
+        "url": "https://x.com/peerleesyztem/status/2082616879672340539",
+        "snippet": "@PerleLabs Community Update (PRL Reclaims): a recent treasury rebalance has redirected 20% of the unlocked supply to increase PRL reward allocations.",
+        "posted_at": "2026-07-29T23:58:51Z"
       }
     ],
     "sources": [
@@ -124,10 +124,10 @@
       "repo": "pearl-research-labs/pearl",
       "url": "https://github.com/pearl-research-labs/pearl",
       "stars": 280,
-      "open_prs": 42,
-      "commits_7d": 4,
-      "last_commit_at": "2026-07-28T16:23:55Z",
-      "last_commit_msg": "fix(blockchain): validate witness commitment regardless of BFFastAdd (#266)"
+      "open_prs": 43,
+      "commits_7d": 5,
+      "last_commit_at": "2026-07-29T07:45:22Z",
+      "last_commit_msg": "fix(deps): upgrade vitest and protobufjs to resolve critical Dependabot alerts (#267)"
     },
     {
       "repo": "pearl-research-labs/pips",
