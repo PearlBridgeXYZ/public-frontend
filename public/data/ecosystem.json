@@ -1,30 +1,30 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-07-30T00:20:00Z",
-  "next_refresh_at": "2026-07-31T00:00:00Z",
-  "narrative": "A settling-down day after yesterday's large treasury redemption: deposits and burns both returned to normal single-digit-thousand PRL levels, and treasury holdings are unchanged since yesterday, confirming that move was a one-off rather than an ongoing drain. Bridge custody grew a modest +0.25%. Network difficulty keeps easing (25.7M → 24.9M → 23.9M) with block time still around 4-5 minutes — consistent with the post-fork normalization pattern of the last week. Social mention volume nearly tripled (401, from 143), but the increase is split between escalating pump-signal spam and a wave of \"$PRL Reclaims\" posts from a token calling itself \"Perle Labs\" — a distinct project sharing the PRL ticker, unrelated to Pearl Network, excluded from this dashboard as always.",
+  "updated_at": "2026-07-31T00:20:00Z",
+  "next_refresh_at": "2026-08-01T00:00:00Z",
+  "narrative": "The core research news today is a draft protocol proposal, not yet activated: PIP-3 (\"FP PoUW Certificates\"), merged into the PIPs repo, specifies moving Pearl's proof-of-useful-work certificates from integer (INT8) to floating-point (FP8) matrix multiplication — directly addressing the GPU non-determinism problem @prlnet's paper described last week, trading bit-exact matching for near-zero verification overhead. It's explicitly scoped as a future consensus hard fork, still status: Draft with no activation height set yet. Network difficulty has essentially leveled off (23.9M → 23.5M, the smallest day-over-day move in over a week) with block time near 3 minutes, suggesting the post-fork normalization is largely done. Bridge activity was ordinary; price eased -4.7%. Mention volume dropped back to 179 (from 401) as the mid-week noise wave faded.",
   "market": {
-    "prl_price_usd": 0.332,
-    "prl_change_24h_pct": 2.62,
-    "prl_volume_24h_usd": 2314.51,
-    "prl_market_cap_usd": 76557631.61,
-    "prl_circulating_supply": 230560746,
-    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 2, before the first halving). Current block reward (~2,470.04 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline (2,474.32 → 2,472.12 → 2,470.04) alongside falling difficulty — still small enough not to change the approximation materially.",
-    "wprl_price_usd": 0.332,
+    "prl_price_usd": 0.3165,
+    "prl_change_24h_pct": -8.26,
+    "prl_volume_24h_usd": 5668.01,
+    "prl_market_cap_usd": 73187731.37,
+    "prl_circulating_supply": 231250880,
+    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 2, before the first halving). Current block reward (~2,467.54 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline (2,472.12 → 2,470.04 → 2,467.54) alongside falling difficulty — still small enough not to change the approximation materially.",
+    "wprl_price_usd": 0.3165,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 2277.11,
-        "liquidity_usd": 144760.3,
+        "volume_24h_usd": 5290.92,
+        "liquidity_usd": 141076.81,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 37.4,
-        "liquidity_usd": 17908.31,
+        "volume_24h_usd": 377.09,
+        "liquidity_usd": 17768.69,
         "url": "https://dexscreener.com/ethereum/0x8a28c58bdefa416847193c02832914bedeaeb912d59299fb3289d9431013d24b"
       }
     ],
@@ -35,36 +35,35 @@
   },
   "network": {
     "hashrate": null,
-    "difficulty": "23,934,842.30 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
-    "block_height": 93343,
-    "block_time_sec": 256,
+    "difficulty": "23,498,500.76 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
+    "block_height": 93717,
+    "block_time_sec": 195,
     "active_workers": null,
-    "active_workers_scope": "MinePRL pool is offline as of this snapshot (mineprl.com still reads 'The Mineprl pool is offline while we work on useful-work PRL mining. Follow Pearl pool data at prlscan.com'); no pool-level or network-wide worker count is currently exposed by a public API. Mining remains spread across at least 8 identifiable pools per prlscan block data (PearlHash, Kryptex, Pearl Fortune, LuckyPool, Hero Miners, AlphaPool, F2Pool, plus OTC-tagged addresses).",
+    "active_workers_scope": "MinePRL pool is offline as of this snapshot (mineprl.com still reads 'The Mineprl pool is offline while we work on useful-work PRL mining. Follow Pearl pool data at prlscan.com'); no pool-level or network-wide worker count is currently exposed by a public API. Mining remains spread across at least 8 identifiable pools per prlscan block data (PearlHash, Kryptex, Pearl Fortune, Hero Miners, LuckyPool, AlphaPool, F2Pool, plus OTC-tagged addresses).",
     "pool_share_pct": null,
     "sources": [
       "mineprl.com — pool confirmed still offline via site meta description; pool.mineprl.com/v1/public/summary still does not resolve (NXDOMAIN)",
-      "api.prlscan.com/v1/status, /v1/blocks — block_height, block_time, difficulty, and miner-label distribution computed from the last 100 blocks (~7h)"
+      "api.prlscan.com/v1/status, /v1/blocks — block_height, block_time, difficulty, and miner-label distribution computed from the last 100 blocks (~5.4h)"
     ]
   },
   "bridge": {
-    "tvl_prl": 975950.25,
-    "tvl_usd": 324064.01,
-    "minted_wprl": 965926.42,
-    "surplus_prl": 10023.83,
-    "surplus_pct": 1.0377,
-    "deposits_24h_prl": 6199.33,
-    "burns_24h_prl": 2344.0,
+    "tvl_prl": 979633.22,
+    "tvl_usd": 310040.48,
+    "minted_wprl": 969582.03,
+    "surplus_prl": 10051.19,
+    "surplus_pct": 1.0367,
+    "deposits_24h_prl": 3880.61,
+    "burns_24h_prl": 225.0,
     "fast_lane_used_pct": 0,
     "active_addresses_24h": null,
     "anomalies": [
-      "Back to normal after yesterday's large treasury-side redemption: deposits and burns are both back in the low-thousands range, and treasury-address holdings are unchanged from yesterday's snapshot — confirming that was a one-off, not an ongoing drain.",
       "Fast-lane usage reads 0% because this snapshot lands moments after the daily UTC window reset — same pattern as prior runs, not a usage drop."
     ]
   },
   "social": {
     "sentiment": "neutral",
-    "summary": "Mentions nearly tripled to 401 (from 143). Roughly half is templated pump-signal spam (\"take-profit target achieved\", leveraged LONG cards); the rest is a wave of \"$PRL Reclaims\" community-update posts from accounts referencing \"Perle Labs\" and a treasury-unlock reallocation — this is a distinct project sharing the PRL ticker, not Pearl Network, and is excluded here as in prior snapshots. One organic comment (@0xSunRun) offered neutral commentary on PoW-coin mining-reward lifecycles using PRL as an example. Pearlbridge's own account kept its dev-education cadence, including a note that there is no bridge governance token and no plan for one.",
-    "mentions_24h": 401,
+    "summary": "Mention volume fell back to 179 (from 401) as the mid-week pump/spam and \"Perle Labs\" wave faded. Pearlbridge's own account continued its dev-education cadence, including a clarification on emergency-pause scope (halts new locks/mints only, doesn't touch existing WPRL or already-released PRL). @prlnet posted foundational context on why PoUW certificates exist (miners can't just publish raw matrices for verification) — related to, but distinct from, the new PIP-3 FP-certificate proposal (see narrative), which hasn't been publicized on social yet. Generic crypto-trend bots continue conflating the \"PRL\" ticker with the unrelated \"Perle\" token in top-mover lists.",
+    "mentions_24h": 179,
     "tracked_accounts": [
       "@prlnet",
       "@pearlbridgexyz",
@@ -73,32 +72,33 @@
     "sample_tweets": [
       {
         "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz/status/2082617178235478104",
-        "snippet": "The bridge does not have off-hours. It watches both chains continuously -- there is no scheduled maintenance window where wraps quietly pause.",
-        "posted_at": "2026-07-30T00:00:03Z"
+        "url": "https://x.com/pearlbridgexyz/status/2082979567141277977",
+        "snippet": "An emergency pause halts new locks and mints. It does not touch WPRL already in your wallet or PRL already released -- it only stops new actions from starting.",
+        "posted_at": "2026-07-31T00:00:03Z"
+      },
+      {
+        "handle": "@prlnet",
+        "url": "https://x.com/prlnet/status/2082855990194741360",
+        "snippet": "Proof-of-Useful-Work forced us to solve a problem ordinary blockchains do not have. A Pearl miner performs large matrix multiplications as part of a real AI workload.",
+        "posted_at": "2026-07-30T15:49:00Z"
       },
       {
         "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz/status/2082405785754312978",
-        "snippet": "There is no bridge governance token and no plan to launch one. The federation contract enforces the rules here, not a DAO vote.",
-        "posted_at": "2026-07-29T10:00:03Z"
+        "url": "https://x.com/pearlbridgexyz/status/2082843669544263854",
+        "snippet": "The WPRL contract's source is verified on Ethereum. Read the actual mint and burn logic yourself instead of taking our description of it.",
+        "posted_at": "2026-07-30T15:00:02Z"
       },
       {
-        "handle": "@0xSunRun",
-        "url": "https://x.com/0xSunRun/status/2082600902985220513",
-        "snippet": "Part of this is just the natural life cycle of PoW coins. Look no further than PRL last 6 months or whatever. Early miners swap in and out.",
-        "posted_at": "2026-07-29T22:55:22Z"
-      },
-      {
-        "handle": "@peerleesyztem",
-        "url": "https://x.com/peerleesyztem/status/2082616879672340539",
-        "snippet": "@PerleLabs Community Update (PRL Reclaims): a recent treasury rebalance has redirected 20% of the unlocked supply to increase PRL reward allocations.",
-        "posted_at": "2026-07-29T23:58:51Z"
+        "handle": "@DyorNetCrypto",
+        "url": "https://x.com/DyorNetCrypto/status/2082965235158188226",
+        "snippet": "Top 5 Bullish Trends - USDT - 1h: ...4) $PRL — Perle 5) $FORM — Four...",
+        "posted_at": "2026-07-30T23:03:06Z"
       }
     ],
     "sources": [
       "api.x.com/2/tweets/search/recent + /2/tweets/counts/recent (query: (@prlnet OR @pearlbridgexyz OR \"$PRL\") -is:retweet lang:en, last 24h via vault credentials Crypto/X API PEARLBRIDGE XYZ)",
-      "api.x.com/2/tweets/search/recent (query: from:pearlbridgexyz OR from:prlnet -is:retweet) — confirmed official-account cadence, no mention of the treasury-side redemption"
+      "api.x.com/2/tweets/search/recent (query: from:pearlbridgexyz OR from:prlnet -is:retweet) — confirmed official-account cadence",
+      "github.com/pearl-research-labs/pips PIPS/pip-0003.md — source for the PIP-3 FP PoUW Certificates proposal"
     ]
   },
   "github": [
@@ -123,20 +123,20 @@
     {
       "repo": "pearl-research-labs/pearl",
       "url": "https://github.com/pearl-research-labs/pearl",
-      "stars": 280,
-      "open_prs": 43,
-      "commits_7d": 5,
-      "last_commit_at": "2026-07-29T07:45:22Z",
-      "last_commit_msg": "fix(deps): upgrade vitest and protobufjs to resolve critical Dependabot alerts (#267)"
+      "stars": 281,
+      "open_prs": 42,
+      "commits_7d": 4,
+      "last_commit_at": "2026-07-30T07:11:31Z",
+      "last_commit_msg": "chore(wallet): bump pearl-desktop-wallet to 2.0.4 (#268)"
     },
     {
       "repo": "pearl-research-labs/pips",
       "url": "https://github.com/pearl-research-labs/pips",
       "stars": 3,
       "open_prs": 0,
-      "commits_7d": 1,
-      "last_commit_at": "2026-07-27T13:08:53Z",
-      "last_commit_msg": "feat: restructure repo EIP-style and add Hugo GitHub Pages site (#7)"
+      "commits_7d": 2,
+      "last_commit_at": "2026-07-30T20:29:16Z",
+      "last_commit_msg": "PIP3 (#8) — FP PoUW Certificates proposal"
     },
     {
       "repo": "pearl-research-labs/blockbook",
