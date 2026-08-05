@@ -1,38 +1,31 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-08-04T00:20:00Z",
-  "next_refresh_at": "2026-08-05T00:00:00Z",
-  "narrative": "Yesterday's relay custody anomaly is worse today, not resolved: /api/custody now reports the lock address at a flat zero (lockGrains: 0) and a widened negative surplus (~-76,300 PRL). Re-ran the same independent verification — prlscan's own ledger for that address shows a real, non-zero, slightly-growing balance (~85,588 PRL), and a fresh direct Ethereum RPC call confirms /api/supply (not /api/custody's totalSupplyGrains, which is now 848 PRL stale) matches the true on-chain WPRL total exactly. Reconstructing custody from verified pieces gives a healthy ~+10,141 PRL surplus, consistent with the last two weeks. This reads as a worsening bug in the relay's own custody-monitoring integration specifically — not a fund-loss event — but it's now a two-day trend and needs direct engineering attention; escalated. TVL/surplus stay null this run. Elsewhere: price rebounded +8% after two down days, and the core repo published bug-bounty reward tiers.",
+  "updated_at": "2026-08-05T00:20:00Z",
+  "next_refresh_at": "2026-08-06T00:00:00Z",
+  "narrative": "The relay custody bug that produced two days of nulled TVL/surplus figures (2026-08-03/04) is resolved as of this snapshot: /api/custody's lockGrains and totalSupplyGrains now match independent verification exactly — prlscan's own lock-address ledger and a fresh direct Ethereum RPC call to WPRL's totalSupply() both agree with the relay byte-for-byte, and surplus is a healthy +10,178.73 PRL (+1.03%), almost exactly matching the figure this dashboard independently reconstructed during the outage. TVL/surplus are back to reporting normally. Price eased another -9.2% (third down day out of the last four, no identified catalyst each time — reads as ordinary volatility on thin liquidity, not a pattern tied to the custody issue since it was never public). On GitHub, the core repo followed up yesterday's bug-bounty tiers with a scope-and-limits refinement. One unverified community post warned of an upcoming difficulty spike lasting a week or more — noted but not corroborated by any official source.",
   "market": {
-    "prl_price_usd": 0.2858,
-    "prl_change_24h_pct": 7.79,
-    "prl_volume_24h_usd": 4249.35,
-    "prl_market_cap_usd": 66893785.07,
-    "prl_circulating_supply": 234033888,
-    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 2, before the first halving). Current block reward (~2,457.51 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline (2,462.47 → 2,460.14 → 2,457.51) alongside falling difficulty — still small enough not to change the approximation materially.",
-    "wprl_price_usd": 0.2858,
+    "prl_price_usd": 0.2586,
+    "prl_change_24h_pct": -9.24,
+    "prl_volume_24h_usd": 3203.67,
+    "prl_market_cap_usd": 60740732.42,
+    "prl_circulating_supply": 234882956,
+    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 2, before the first halving). Current block reward (~2,454.44 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline (2,460.14 → 2,457.51 → 2,454.44) alongside falling difficulty — still small enough not to change the approximation materially.",
+    "wprl_price_usd": 0.2586,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 4120.19,
-        "liquidity_usd": 133982.62,
+        "volume_24h_usd": 3037.08,
+        "liquidity_usd": 127039.99,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 129.16,
-        "liquidity_usd": 16138.03,
+        "volume_24h_usd": 166.59,
+        "liquidity_usd": 15392.3,
         "url": "https://dexscreener.com/ethereum/0x8a28c58bdefa416847193c02832914bedeaeb912d59299fb3289d9431013d24b"
-      },
-      {
-        "venue": "Uniswap v4 (Ethereum)",
-        "pair": "WPRL/ETH",
-        "volume_24h_usd": 0,
-        "liquidity_usd": 331.24,
-        "url": "https://dexscreener.com/ethereum/0x44c98565f6df4ac7660761cad1ebfd5343f0b397ff89837d3e1c9b5c2ac6c42b"
       }
     ],
     "sources": [
@@ -42,11 +35,11 @@
   },
   "network": {
     "hashrate": null,
-    "difficulty": "21,913,637.55 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
-    "block_height": 95232,
-    "block_time_sec": 179,
+    "difficulty": "22,160,086.48 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
+    "block_height": 95697,
+    "block_time_sec": 184,
     "active_workers": null,
-    "active_workers_scope": "MinePRL pool is offline as of this snapshot (mineprl.com still reads 'The Mineprl pool is offline while we work on useful-work PRL mining. Follow Pearl pool data at prlscan.com'); no pool-level or network-wide worker count is currently exposed by a public API. Mining remains spread across at least 8 identifiable pools per prlscan block data (Pearl Fortune, Kryptex, PearlHash, LuckyPool, AlphaPool, Hero Miners, F2Pool, plus OTC-tagged addresses).",
+    "active_workers_scope": "MinePRL pool is offline as of this snapshot (mineprl.com still reads 'The Mineprl pool is offline while we work on useful-work PRL mining. Follow Pearl pool data at prlscan.com'); no pool-level or network-wide worker count is currently exposed by a public API. Mining remains spread across at least 8 identifiable pools per prlscan block data (Kryptex, Pearl Fortune, PearlHash, LuckyPool, Hero Miners, AlphaPool, Pearlski Pool, plus OTC-tagged addresses). One unverified community post (not corroborated by any official source) claimed a week-plus difficulty/block-time spike is imminent — watching, not yet reflected in the data.",
     "pool_share_pct": null,
     "sources": [
       "mineprl.com — pool confirmed still offline via site meta description; pool.mineprl.com/v1/public/summary still does not resolve (NXDOMAIN)",
@@ -54,24 +47,24 @@
     ]
   },
   "bridge": {
-    "tvl_prl": null,
-    "tvl_usd": null,
-    "minted_wprl": 979892.94,
-    "surplus_prl": null,
-    "surplus_pct": null,
-    "deposits_24h_prl": 3241.0,
-    "burns_24h_prl": 1548.0,
+    "tvl_prl": 995519.94,
+    "tvl_usd": 257441.46,
+    "minted_wprl": 985341.21,
+    "surplus_prl": 10178.73,
+    "surplus_pct": 1.033,
+    "deposits_24h_prl": 5448.28,
+    "burns_24h_prl": 0,
     "fast_lane_used_pct": 0,
     "active_addresses_24h": null,
     "anomalies": [
-      "Second consecutive day of relay custody-data problems, now worse: /api/custody's lockGrains reads a flat 0 for the lock address (was 45,888.62 PRL yesterday, itself already understated), and reported surplus widened to roughly -76,300 PRL. Re-verified independently: prlscan's own ledger for the lock address (received_grains minus sent_grains, self-consistent) shows a real, non-zero balance of ~85,588 PRL, up slightly from yesterday — consistent with normal small inflows, not a drain to zero. Separately, /api/custody's totalSupplyGrains is now 848 PRL higher than /api/supply; a fresh direct Ethereum RPC call to the WPRL contract's totalSupply() confirms /api/supply is the correct figure (used for minted_wprl above). Reconstructing true custody from the verified pieces (prlscan lock balance + fee + treasury) gives a healthy surplus of roughly +10,141 PRL against the RPC-verified supply — in line with the normal ~1% trend. This looks like a real, worsening bug specific to the relay's custody-monitoring integration, not an actual funding gap. Escalated for engineering follow-up; tvl_prl/tvl_usd/surplus_prl/surplus_pct stay null until the relay side is fixed and re-verified.",
+      "Relay custody data is back to normal: the two-day lockGrains/totalSupplyGrains discrepancy (2026-08-03/04, see incidents) is resolved — re-verified independently via prlscan's lock-address ledger and a direct Ethereum RPC totalSupply() call, both match the relay exactly. Surplus is healthy at +10,178.73 PRL (1.03%), closely matching this dashboard's own reconstruction from during the outage.",
       "Fast-lane usage reads 0% because this snapshot lands moments after the daily UTC window reset — same pattern as prior runs, not a usage drop."
     ]
   },
   "social": {
     "sentiment": "neutral",
-    "summary": "Mentions rose to 193 (from 124), still an ordinary mix of pump-signal spam citing large recent gains and unrelated \"PRL\" noise (a birthday-greeting meme using a PRL emoji combo, rugby/football references, Polish PRL-era history). No commentary anywhere referenced the custody-data anomaly — it remains a backend/monitoring issue invisible to the public, not something users have noticed. One organic technical sub-thread discussed Pearl's proof-of-useful-work design (miners proving real AI work without leaking model data). Pearlbridge's own account continued its dev-education cadence, including detail on the threshold-signature design that prevents any single relayer from moving locked PRL alone.",
-    "mentions_24h": 193,
+    "summary": "Mentions eased to 90 (from 193), an ordinary mix — pump-signal spam, dam water-level reports using \"PRL\" as an abbreviation, and a physics paper accepted to Physical Review Letters (the journal, unrelated to Pearl Network). No commentary referenced the relay custody issue at any point during its two-day span — confirms it stayed an internal/backend matter, not user-visible. One community account (not affiliated with the core team, unverified) predicted a week-plus difficulty and block-time spike ahead; noted in the network section but not corroborated elsewhere. Pearlbridge's own account continued its dev-education cadence around finality, mempool timing, and verifying claims via block explorer rather than trusting any dashboard's word — fitting, if coincidental, given the week's custody-data episode.",
+    "mentions_24h": 90,
     "tracked_accounts": [
       "@prlnet",
       "@pearlbridgexyz",
@@ -80,34 +73,34 @@
     "sample_tweets": [
       {
         "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz/status/2084429115466395865",
-        "snippet": "The word \"wrap\" undersells the mechanism. It's not packaging, it's a lock enforced by a signing threshold.",
-        "posted_at": "2026-08-04T00:00:02Z"
+        "url": "https://x.com/pearlbridgexyz/status/2084791506192478527",
+        "snippet": "Signing a lock transaction and the federation seeing it happen are the same event from our side. We watch the chain your transaction landed on, not a separate queue.",
+        "posted_at": "2026-08-05T00:00:03Z"
       },
       {
         "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz/status/2084368716570218583",
-        "snippet": "A threshold signature means no single private key exists that can move locked PRL alone. Each relayer signs independently.",
-        "posted_at": "2026-08-03T20:00:02Z"
+        "url": "https://x.com/pearlbridgexyz/status/2084504616956571770",
+        "snippet": "\"Custodial\" describes where an asset sits at a given moment, not a verdict on the whole system. What matters is what constrains whoever holds that custody: a 2-of-3 threshold and nothing else.",
+        "posted_at": "2026-08-04T05:00:03Z"
       },
       {
-        "handle": "@margin_trade",
-        "url": "https://x.com/margin_trade/status/2084351417746346455",
-        "snippet": "Most PoW chains ask miners to burn compute. @prlnet asks them to prove real AI work happened -- without leaking a byte of model data.",
-        "posted_at": "2026-08-03T18:51:18Z"
+        "handle": "@MineSum10",
+        "url": "https://x.com/MineSum10/status/2084730859110736012",
+        "snippet": "Block times and difficulty are about to spike up again on $PRL... and it will last for at least a week or longer. Plan accordingly.",
+        "posted_at": "2026-08-04T19:59:03Z"
       },
       {
-        "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz/status/2084217725732466782",
-        "snippet": "If you've never used a block explorer: it's a public site showing every transaction on a chain. You don't need to take our word for locked PRL or WPRL supply -- look it up yourself.",
-        "posted_at": "2026-08-03T10:00:03Z"
+        "handle": "@MatteoCadeddu22",
+        "url": "https://x.com/MatteoCadeddu22/status/2084751996146372768",
+        "snippet": "Our paper on a solution to the Gallium Anomaly has been accepted by PRL (Physical Review Letters, unrelated to Pearl Network).",
+        "posted_at": "2026-08-04T21:23:03Z"
       }
     ],
     "sources": [
       "api.x.com/2/tweets/search/recent + /2/tweets/counts/recent (query: (@prlnet OR @pearlbridgexyz OR \"$PRL\") -is:retweet lang:en, last 24h via vault credentials Crypto/X API PEARLBRIDGE XYZ)",
-      "api.x.com/2/tweets/search/recent (query: from:pearlbridgexyz OR from:prlnet -is:retweet) — confirmed official-account cadence, no mention of the custody-data anomaly",
-      "api.prlscan.com/v1/addresses/{lockAddress} — independent lock-address balance re-check",
-      "ethereum-rpc.publicnode.com eth_call to 0x07696DcaB55E62cfef953666b29Fe1970518cB00 totalSupply() — independent WPRL supply re-verification"
+      "api.x.com/2/tweets/search/recent (query: from:pearlbridgexyz OR from:prlnet -is:retweet) — confirmed official-account cadence, no mention of the (now-resolved) custody-data episode",
+      "api.prlscan.com/v1/addresses/{lockAddress} — independent lock-address balance re-check confirming resolution",
+      "ethereum-rpc.publicnode.com eth_call to 0x07696DcaB55E62cfef953666b29Fe1970518cB00 totalSupply() — independent WPRL supply re-verification confirming resolution"
     ]
   },
   "github": [
@@ -132,11 +125,11 @@
     {
       "repo": "pearl-research-labs/pearl",
       "url": "https://github.com/pearl-research-labs/pearl",
-      "stars": 282,
+      "stars": 284,
       "open_prs": 44,
       "commits_7d": 4,
-      "last_commit_at": "2026-08-03T09:21:04Z",
-      "last_commit_msg": "docs(security): add discretionary bug bounty reward tiers (#271)"
+      "last_commit_at": "2026-08-04T16:47:36Z",
+      "last_commit_msg": "docs(security): raise bounty tiers and limit bounty scope (#273)"
     },
     {
       "repo": "pearl-research-labs/pips",
@@ -312,6 +305,10 @@
     {
       "date": "2026-08-04",
       "summary": "The relay custody-data issue from 2026-08-03 is worse, not resolved: /api/custody's lockGrains now reads a flat 0 for the lock address, and the reported deficit widened to roughly -76,300 PRL. Re-verified independently the same way — prlscan's own ledger shows the address holds a real, non-zero, slightly-growing balance (~85,588 PRL), and a fresh Ethereum RPC call confirms /api/supply (not /api/custody's totalSupplyGrains, now separately 848 PRL stale) matches the true on-chain WPRL total exactly. Reconstructing custody from the verified pieces gives a healthy ~+10,141 PRL surplus, in line with the recent trend. This is now a two-day, worsening pattern isolated to the relay's own custody-monitoring integration rather than an actual funding gap — escalated for direct engineering follow-up. TVL/surplus remain null pending a fix and re-verification."
+    },
+    {
+      "date": "2026-08-05",
+      "summary": "Resolved: the relay custody-data issue tracked on 2026-08-03 and 2026-08-04 is fixed. /api/custody's lockGrains and totalSupplyGrains now match independent verification exactly — prlscan's lock-address ledger and a direct Ethereum RPC totalSupply() call both agree with the relay byte-for-byte. Surplus reads a healthy +10,178.73 PRL (1.03%), almost exactly matching this dashboard's own reconstruction of the true figure during the two-day episode. TVL/surplus fields are populated normally again this run. At no point during the episode did it appear in public social discussion, consistent with it having been an internal relay-monitoring bug rather than anything user-facing."
     }
   ]
 }
