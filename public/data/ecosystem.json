@@ -1,30 +1,30 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-08-05T00:20:00Z",
-  "next_refresh_at": "2026-08-06T00:00:00Z",
-  "narrative": "The relay custody bug that produced two days of nulled TVL/surplus figures (2026-08-03/04) is resolved as of this snapshot: /api/custody's lockGrains and totalSupplyGrains now match independent verification exactly — prlscan's own lock-address ledger and a fresh direct Ethereum RPC call to WPRL's totalSupply() both agree with the relay byte-for-byte, and surplus is a healthy +10,178.73 PRL (+1.03%), almost exactly matching the figure this dashboard independently reconstructed during the outage. TVL/surplus are back to reporting normally. Price eased another -9.2% (third down day out of the last four, no identified catalyst each time — reads as ordinary volatility on thin liquidity, not a pattern tied to the custody issue since it was never public). On GitHub, the core repo followed up yesterday's bug-bounty tiers with a scope-and-limits refinement. One unverified community post warned of an upcoming difficulty spike lasting a week or more — noted but not corroborated by any official source.",
+  "updated_at": "2026-08-06T00:20:00Z",
+  "next_refresh_at": "2026-08-07T00:00:00Z",
+  "narrative": "Solayer, a Solana-based derivatives platform, claims to be the first venue to list a pearl-2:native perpetual future, adding a new (and verified-live) trading venue to the ecosystem catalog. Yesterday's relay custody fix continues to hold — re-checked independently again, still clean. Network difficulty ticked up for the first time in weeks (22.16M → 22.44M) alongside faster blocks and a mining mix now dominated by Kryptex (52 of the last 100 blocks, up sharply from its usual ~20%) — consistent with the community prediction flagged yesterday about an imminent difficulty spike, though still not officially confirmed. Price recovered +6% after its recent dip. GitHub picked up again: the core repo shipped a testnet2-only fork-ordering fix, and the long-dormant blockbook repo packaged its OpenAPI spec into the runtime image.",
   "market": {
-    "prl_price_usd": 0.2586,
-    "prl_change_24h_pct": -9.24,
-    "prl_volume_24h_usd": 3203.67,
-    "prl_market_cap_usd": 60740732.42,
-    "prl_circulating_supply": 234882956,
-    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 2, before the first halving). Current block reward (~2,454.44 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline (2,460.14 → 2,457.51 → 2,454.44) alongside falling difficulty — still small enough not to change the approximation materially.",
-    "wprl_price_usd": 0.2586,
+    "prl_price_usd": 0.274,
+    "prl_change_24h_pct": 6.41,
+    "prl_volume_24h_usd": 4558.56,
+    "prl_market_cap_usd": 64588525.52,
+    "prl_circulating_supply": 235739882,
+    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 2, before the first halving). Current block reward (~2,451.36 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline (2,457.51 → 2,454.44 → 2,451.36) alongside falling difficulty — still small enough not to change the approximation materially.",
+    "wprl_price_usd": 0.274,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 3037.08,
-        "liquidity_usd": 127039.99,
+        "volume_24h_usd": 4441.74,
+        "liquidity_usd": 131077.04,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 166.59,
-        "liquidity_usd": 15392.3,
+        "volume_24h_usd": 116.82,
+        "liquidity_usd": 15682.06,
         "url": "https://dexscreener.com/ethereum/0x8a28c58bdefa416847193c02832914bedeaeb912d59299fb3289d9431013d24b"
       }
     ],
@@ -35,36 +35,36 @@
   },
   "network": {
     "hashrate": null,
-    "difficulty": "22,160,086.48 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
-    "block_height": 95697,
-    "block_time_sec": 184,
+    "difficulty": "22,435,465.35 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
+    "block_height": 96167,
+    "block_time_sec": 158,
     "active_workers": null,
-    "active_workers_scope": "MinePRL pool is offline as of this snapshot (mineprl.com still reads 'The Mineprl pool is offline while we work on useful-work PRL mining. Follow Pearl pool data at prlscan.com'); no pool-level or network-wide worker count is currently exposed by a public API. Mining remains spread across at least 8 identifiable pools per prlscan block data (Kryptex, Pearl Fortune, PearlHash, LuckyPool, Hero Miners, AlphaPool, Pearlski Pool, plus OTC-tagged addresses). One unverified community post (not corroborated by any official source) claimed a week-plus difficulty/block-time spike is imminent — watching, not yet reflected in the data.",
+    "active_workers_scope": "MinePRL pool is offline as of this snapshot (mineprl.com still reads 'The Mineprl pool is offline while we work on useful-work PRL mining. Follow Pearl pool data at prlscan.com'); no pool-level or network-wide worker count is currently exposed by a public API. Miner-label mix shifted sharply toward Kryptex (52 of the last 100 blocks vs. its usual ~20%) alongside PearlHash, Pearl Fortune, Hero Miners, AlphaPool and LuckyPool — the first difficulty uptick in weeks, loosely consistent with an unverified community prediction of a hashrate spike, but not officially confirmed.",
     "pool_share_pct": null,
     "sources": [
       "mineprl.com — pool confirmed still offline via site meta description; pool.mineprl.com/v1/public/summary still does not resolve (NXDOMAIN)",
-      "api.prlscan.com/v1/status, /v1/blocks — block_height, block_time, difficulty, and miner-label distribution computed from the last 100 blocks (~5h)"
+      "api.prlscan.com/v1/status, /v1/blocks — block_height, block_time, difficulty, and miner-label distribution computed from the last 100 blocks (~4.4h)"
     ]
   },
   "bridge": {
-    "tvl_prl": 995519.94,
-    "tvl_usd": 257441.46,
-    "minted_wprl": 985341.21,
-    "surplus_prl": 10178.73,
-    "surplus_pct": 1.033,
-    "deposits_24h_prl": 5448.28,
-    "burns_24h_prl": 0,
+    "tvl_prl": 993933.12,
+    "tvl_usd": 272319.96,
+    "minted_wprl": 983739.39,
+    "surplus_prl": 10193.73,
+    "surplus_pct": 1.0362,
+    "deposits_24h_prl": 2985.0,
+    "burns_24h_prl": 4301.0,
     "fast_lane_used_pct": 0,
     "active_addresses_24h": null,
     "anomalies": [
-      "Relay custody data is back to normal: the two-day lockGrains/totalSupplyGrains discrepancy (2026-08-03/04, see incidents) is resolved — re-verified independently via prlscan's lock-address ledger and a direct Ethereum RPC totalSupply() call, both match the relay exactly. Surplus is healthy at +10,178.73 PRL (1.03%), closely matching this dashboard's own reconstruction from during the outage.",
+      "Re-verified the relay custody fix from yesterday independently once more (prlscan lock-address balance matches lockGrains exactly) — holding clean, no signs of recurrence.",
       "Fast-lane usage reads 0% because this snapshot lands moments after the daily UTC window reset — same pattern as prior runs, not a usage drop."
     ]
   },
   "social": {
     "sentiment": "neutral",
-    "summary": "Mentions eased to 90 (from 193), an ordinary mix — pump-signal spam, dam water-level reports using \"PRL\" as an abbreviation, and a physics paper accepted to Physical Review Letters (the journal, unrelated to Pearl Network). No commentary referenced the relay custody issue at any point during its two-day span — confirms it stayed an internal/backend matter, not user-visible. One community account (not affiliated with the core team, unverified) predicted a week-plus difficulty and block-time spike ahead; noted in the network section but not corroborated elsewhere. Pearlbridge's own account continued its dev-education cadence around finality, mempool timing, and verifying claims via block explorer rather than trusting any dashboard's word — fitting, if coincidental, given the week's custody-data episode.",
-    "mentions_24h": 90,
+    "summary": "Mentions held steady at 73. The notable item was Solayer (a Solana derivatives platform) announcing it's the first venue to list a pearl-2:native perpetual, with cross-margin and central-limit-order-book infrastructure — added to the ecosystem catalog after confirming the platform is live. Otherwise the usual mix: dam water-level reports using \"PRL\" as an abbreviation, an unrelated Toronto-listed \"Propel Holdings\" dividend announcement, and pump-signal chatter. Pearlbridge's own account kept its dev-education cadence, this time on frontend-bug blast radius (a broken site can't move funds it never holds) and unapproved pre-approval scams.",
+    "mentions_24h": 73,
     "tracked_accounts": [
       "@prlnet",
       "@pearlbridgexyz",
@@ -73,34 +73,34 @@
     "sample_tweets": [
       {
         "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz/status/2084791506192478527",
-        "snippet": "Signing a lock transaction and the federation seeing it happen are the same event from our side. We watch the chain your transaction landed on, not a separate queue.",
-        "posted_at": "2026-08-05T00:00:03Z"
+        "url": "https://x.com/pearlbridgexyz/status/2085153891784769956",
+        "snippet": "If your wallet asks you to approve something before you've even locked anything, stop and read what you're approving. Wrapping PRL doesn't require pre-approving unrelated contracts.",
+        "posted_at": "2026-08-06T00:00:02Z"
+      },
+      {
+        "handle": "@solayer_labs",
+        "url": "https://x.com/solayer_labs/status/2085040255280025893",
+        "snippet": "First platform to list a pearl-2:native perpetual — Pearl Research @prlnet trading live before anyone else. A real central limit order book on @solana. Cross-margin portfolio.",
+        "posted_at": "2026-08-05T16:28:29Z"
       },
       {
         "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz/status/2084504616956571770",
-        "snippet": "\"Custodial\" describes where an asset sits at a given moment, not a verdict on the whole system. What matters is what constrains whoever holds that custody: a 2-of-3 threshold and nothing else.",
-        "posted_at": "2026-08-04T05:00:03Z"
+        "url": "https://x.com/pearlbridgexyz/status/2085093494520168949",
+        "snippet": "A frontend bug doesn't put funds at risk, because the frontend never holds them. Worst case you refresh, reconnect a wallet, and read the chain state again.",
+        "posted_at": "2026-08-05T20:00:02Z"
       },
       {
-        "handle": "@MineSum10",
-        "url": "https://x.com/MineSum10/status/2084730859110736012",
-        "snippet": "Block times and difficulty are about to spike up again on $PRL... and it will last for at least a week or longer. Plan accordingly.",
-        "posted_at": "2026-08-04T19:59:03Z"
-      },
-      {
-        "handle": "@MatteoCadeddu22",
-        "url": "https://x.com/MatteoCadeddu22/status/2084751996146372768",
-        "snippet": "Our paper on a solution to the Gallium Anomaly has been accepted by PRL (Physical Review Letters, unrelated to Pearl Network).",
-        "posted_at": "2026-08-04T21:23:03Z"
+        "handle": "@5iresearchdotca",
+        "url": "https://x.com/5iresearchdotca/status/2085129748175257743",
+        "snippet": "Propel Holdings $PRL raises dividend by 6%.",
+        "posted_at": "2026-08-05T22:24:06Z"
       }
     ],
     "sources": [
       "api.x.com/2/tweets/search/recent + /2/tweets/counts/recent (query: (@prlnet OR @pearlbridgexyz OR \"$PRL\") -is:retweet lang:en, last 24h via vault credentials Crypto/X API PEARLBRIDGE XYZ)",
-      "api.x.com/2/tweets/search/recent (query: from:pearlbridgexyz OR from:prlnet -is:retweet) — confirmed official-account cadence, no mention of the (now-resolved) custody-data episode",
-      "api.prlscan.com/v1/addresses/{lockAddress} — independent lock-address balance re-check confirming resolution",
-      "ethereum-rpc.publicnode.com eth_call to 0x07696DcaB55E62cfef953666b29Fe1970518cB00 totalSupply() — independent WPRL supply re-verification confirming resolution"
+      "api.x.com/2/tweets/search/recent (query: from:pearlbridgexyz OR from:prlnet -is:retweet) — confirmed official-account cadence",
+      "solayer.org — verified live before adding to ecosystem catalog",
+      "api.prlscan.com/v1/addresses/{lockAddress} — independent lock-address balance re-check confirming the relay custody fix is holding"
     ]
   },
   "github": [
@@ -125,11 +125,11 @@
     {
       "repo": "pearl-research-labs/pearl",
       "url": "https://github.com/pearl-research-labs/pearl",
-      "stars": 284,
+      "stars": 286,
       "open_prs": 44,
-      "commits_7d": 4,
-      "last_commit_at": "2026-08-04T16:47:36Z",
-      "last_commit_msg": "docs(security): raise bounty tiers and limit bounty scope (#273)"
+      "commits_7d": 6,
+      "last_commit_at": "2026-08-05T19:47:20Z",
+      "last_commit_msg": "fix(chaincfg): reschedule testnet2 dense-only fork above the MoE blocks (#276)"
     },
     {
       "repo": "pearl-research-labs/pips",
@@ -144,10 +144,10 @@
       "repo": "pearl-research-labs/blockbook",
       "url": "https://github.com/pearl-research-labs/blockbook",
       "stars": 0,
-      "open_prs": 3,
-      "commits_7d": 0,
-      "last_commit_at": "2026-07-15T11:48:38Z",
-      "last_commit_msg": "Merge remote-tracking branch 'origin/master' into feat/pearl-coin-support"
+      "open_prs": 2,
+      "commits_7d": 1,
+      "last_commit_at": "2026-08-05T12:07:21Z",
+      "last_commit_msg": "fix(release): package openapi.yaml into the runtime image (#6)"
     }
   ],
   "ecosystem": [
@@ -285,6 +285,15 @@
       "status": "live",
       "first_seen": "2026-07-27",
       "source": "@6block_official announcement 2026-07-24 + GitHub repo verified"
+    },
+    {
+      "name": "Solayer",
+      "category": "dapp",
+      "url": "https://solayer.org",
+      "description": "Solana-based derivatives platform; first venue to list a pearl-2:native perpetual future, with a central limit order book and cross-margin accounts.",
+      "status": "live",
+      "first_seen": "2026-08-06",
+      "source": "@solayer_labs announcement 2026-08-05 + solayer.org verified live"
     }
   ],
   "incidents": [
