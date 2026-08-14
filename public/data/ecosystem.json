@@ -1,105 +1,78 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-08-10T00:20:00Z",
-  "next_refresh_at": "2026-08-11T00:00:00Z",
-  "narrative": "Pearl co-founder Y. Komargodski published a talk explaining the project's founding thesis — that AI training and blockchain mining shouldn't compete for the same GPUs when the same computation can secure both — the most substantive official content of the week and worth a read for anyone wanting the design rationale straight from source. Pearlbridge's own account also issued two back-to-back anti-impersonation warnings today (no airdrop/claim site exists; watch for handle-spoofing accounts) — a real observable fact, though I found no evidence of an active phishing campaign beyond the warnings themselves. A small (301 PRL) version of the recurring /api/supply-vs-custody discrepancy reappeared; verified via direct Ethereum RPC that /api/supply is correct and used it here. Treasury balance is unchanged since Aug 8's settlement. Price firmed +3.4%, bridge activity ordinary.",
+  "updated_at": "2026-08-14T00:07:00Z",
+  "next_refresh_at": "2026-08-15T00:00:00Z",
+  "narrative": "Pearl continues shipping fast into its fourth month post-mainnet: Pearl Research Labs joined Nvidia's Inception program this week and previewed W7A7, a model-compression scheme for running large open-weight models cheaper on Hopper/Blackwell hardware — a real technical credibility signal rather than a token-market headline. GitHub activity stayed healthy (7 commits across tracked repos this week, core repo now at 289 stars). Bridge throughput was ordinary and both directions cleared normally (deposits and redemptions both processed with no custody/supply mismatch today). Note: this is the first snapshot since 2026-08-10 — the agent's tmux session was interrupted by a host-level OOM event and the daily refresh did not run for three days; today's numbers reflect current live state, not a smooth day-over-day trend from the last snapshot.",
   "market": {
-    "prl_price_usd": 0.2743,
-    "prl_change_24h_pct": 3.43,
-    "prl_volume_24h_usd": 6195.18,
-    "prl_market_cap_usd": 65456192.82,
-    "prl_circulating_supply": 238621907,
-    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in month 2, before the first halving). Current block reward (~2,440.95 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline (2,446.81 → 2,444.16 → 2,440.95) alongside falling difficulty — still small enough not to change the approximation materially.",
-    "wprl_price_usd": 0.2743,
+    "prl_price_usd": 0.2639,
+    "prl_change_24h_pct": 9.88,
+    "prl_volume_24h_usd": 11931.7,
+    "prl_market_cap_usd": 63859615.93,
+    "prl_circulating_supply": 242001641,
+    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in its early mainnet phase, launched April 2026, before the first halving). Current block reward (~2,428.69 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline.",
+    "wprl_price_usd": 0.2639,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 6019.46,
-        "liquidity_usd": 131556.91,
+        "volume_24h_usd": 11585.16,
+        "liquidity_usd": 129466.49,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 175.72,
-        "liquidity_usd": 15939.27,
+        "volume_24h_usd": 346.54,
+        "liquidity_usd": 15517.05,
         "url": "https://dexscreener.com/ethereum/0x8a28c58bdefa416847193c02832914bedeaeb912d59299fb3289d9431013d24b"
       }
     ],
     "sources": [
-      "api.dexscreener.com/latest/dex/search?q=WPRL (filtered chainId==ethereum, baseToken==0x07696DcaB55E62cfef953666b29Fe1970518cB00 — non-Ethereum WPRL/PRL-symbol pool-address matches excluded as imposters)",
-      "api.prlscan.com/v1/status + /v1/blocks (block_height, avg block_reward over last 100 blocks for circulating-supply approximation — MinePRL's summary endpoint is offline, see anomalies)"
+      "api.dexscreener.com/latest/dex/search?q=WPRL (filtered chainId==ethereum, baseToken==0x07696DcaB55E62cfef953666b29Fe1970518cB00 — non-Ethereum WPRL/PRL-symbol matches excluded as imposters)",
+      "api.prlscan.com/v1/status + /v1/blocks?limit=100 (block_height, avg block_reward over last 100 blocks for circulating-supply approximation — MinePRL's summary endpoint remains offline)"
     ]
   },
   "network": {
-    "hashrate": null,
-    "difficulty": "21,443,098.01 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
-    "block_height": 97758,
-    "block_time_sec": 183,
+    "hashrate": "≈19.2 EH/s (third-party cross-check; MinePRL summary endpoint remains offline)",
+    "difficulty": "22,617,300.94 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
+    "block_height": 99643,
+    "block_time_sec": 323,
     "active_workers": null,
-    "active_workers_scope": "MinePRL pool is offline as of this snapshot (mineprl.com still reads 'The Mineprl pool is offline while we work on useful-work PRL mining. Follow Pearl pool data at prlscan.com'); no pool-level or network-wide worker count is currently exposed by a public API. Kryptex remains the largest single miner-label, with PearlHash, LuckyPool and Hero Miners making up most of the rest; a single block from \"Baikalmine\" reappeared but remains too infrequent to add to the ecosystem catalog.",
+    "active_workers_scope": "MinePRL pool remains offline (pool.mineprl.com NXDOMAIN); no pool-level or network-wide worker count is currently exposed by a public API.",
     "pool_share_pct": null,
     "sources": [
-      "mineprl.com — pool confirmed still offline via site meta description; pool.mineprl.com/v1/public/summary still does not resolve (NXDOMAIN)",
-      "api.prlscan.com/v1/status, /v1/blocks — block_height, block_time, difficulty, and miner-label distribution computed from the last 100 blocks (~5h)"
+      "api.prlscan.com/v1/status, /v1/blocks?limit=100 — block_height, block_time (avg over 100 blocks), difficulty, avg block_reward",
+      "hashrate.no/coins/PRL (≈19.18 EH/s) and pool.kryptex.com/prl/about-coin (≈19.27 EH/s) — independent third-party network hashrate estimates, averaged, since MinePRL's summary endpoint is offline"
     ]
   },
   "bridge": {
-    "tvl_prl": 932552.79,
-    "tvl_usd": 255807.84,
-    "minted_wprl": 922431.71,
-    "surplus_prl": 10121.07,
-    "surplus_pct": 1.0972,
-    "deposits_24h_prl": 4582.0,
-    "burns_24h_prl": 720.0,
+    "tvl_prl": 926738.89,
+    "tvl_usd": 244548.71,
+    "minted_wprl": 915682.78,
+    "surplus_prl": 11056.11,
+    "surplus_pct": 1.2074,
+    "deposits_24h_prl": 9567.26,
+    "burns_24h_prl": 19429.86,
     "fast_lane_used_pct": 0,
     "active_addresses_24h": null,
     "anomalies": [
-      "A small (301 PRL) version of the recurring /api/supply-vs-custody totalSupplyGrains discrepancy reappeared — same known intermittent quirk seen previously, unrelated to the earlier multi-day lockGrains bug (which stays resolved; treasury and lock balances both check out against independent sources today). Verified via a fresh direct Ethereum RPC call that /api/supply (922,431.71 PRL) is correct and used it for minted_wprl/surplus here.",
       "Fast-lane usage reads 0% because this snapshot lands moments after the daily UTC window reset — same pattern as prior runs, not a usage drop."
     ]
   },
   "social": {
     "sentiment": "neutral",
-    "summary": "Mentions rose to 148. The standout item: Pearl co-founder Y. Komargodski published a talk on the project's founding thesis (shared compute for AI training and blockchain mining), drawing organic engagement about dual-use GPU economics. Pearlbridge's own account issued two anti-impersonation warnings today (no airdrop/claim site; watch for handle-spoofed accounts) — a genuine observable fact, though no specific active-scam report was found to corroborate a live campaign. A Solayer-affiliated account posted a long \"weekly recap\" thread referencing $PRL alongside its other markets. Otherwise the usual acronym noise (dam levels, a fan account posting PRL-related content, generic pump-signal chatter).",
-    "mentions_24h": 148,
+    "summary": "Live sentiment sampling wasn't available this run: the vault's X API credential holds only a stored refresh token (no ready bearer/access token), and direct WebFetch of the x.com profile pages returned HTTP 402 (blocked). A general web search surfaced no material for last-24h on-platform chatter specifically, though it did surface the Nvidia Inception program milestone reflected in the narrative above.",
+    "mentions_24h": null,
     "tracked_accounts": [
       "@prlnet",
       "@pearlbridgexyz",
       "@pearl_research"
     ],
-    "sample_tweets": [
-      {
-        "handle": "@prlnet",
-        "url": "https://x.com/prlnet/status/2086482639163146673",
-        "snippet": "Pearl started with a simple question: Why should AI and blockchain mining compete for the same GPUs when the same computation could do both? Co-founder @komargodski explains.",
-        "posted_at": "2026-08-09T16:00:00Z"
-      },
-      {
-        "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz/status/2086392050338218245",
-        "snippet": "There is no PearlBridge airdrop, migration, or claim site. If an account is telling you to connect a wallet to claim something, that account is not us.",
-        "posted_at": "2026-08-09T10:00:02Z"
-      },
-      {
-        "handle": "@pearlbridgexyz",
-        "url": "https://x.com/pearlbridgexyz/status/2086316556456497593",
-        "snippet": "Accounts that copy this handle with a swapped letter or an extra underscore are impersonators, not us. This is the only official @pearlbridgexyz account.",
-        "posted_at": "2026-08-09T05:00:03Z"
-      },
-      {
-        "handle": "@rukky_003",
-        "url": "https://x.com/rukky_003/status/2086550430234865886",
-        "snippet": "The interesting part is turning the same GPU into an asset serving two markets. Mining secures the network. Inference does the rest.",
-        "posted_at": "2026-08-09T20:29:23Z"
-      }
-    ],
+    "sample_tweets": [],
     "sources": [
-      "api.x.com/2/tweets/search/recent + /2/tweets/counts/recent (query: (@prlnet OR @pearlbridgexyz OR \"$PRL\") -is:retweet lang:en, last 24h via vault credentials Crypto/X API PEARLBRIDGE XYZ)",
-      "api.x.com/2/tweets/search/recent (query: from:pearlbridgexyz OR from:prlnet -is:retweet) — confirmed official-account cadence",
-      "api.prlscan.com/v1/addresses/{lockAddress} + {treasuryAddress}, ethereum-rpc.publicnode.com eth_call totalSupply() — independent verification of today's small supply/custody discrepancy"
+      "x.com/prlnet, x.com/pearlbridgexyz — WebFetch attempt returned HTTP 402",
+      "vault Crypto/X API PEARLBRIDGE XYZ — Password field empty (PROTECTED marker only), Notes holds a refresh token but no usable bearer token this run"
     ]
   },
   "github": [
@@ -124,11 +97,11 @@
     {
       "repo": "pearl-research-labs/pearl",
       "url": "https://github.com/pearl-research-labs/pearl",
-      "stars": 286,
-      "open_prs": 44,
-      "commits_7d": 5,
-      "last_commit_at": "2026-08-05T19:47:20Z",
-      "last_commit_msg": "fix(chaincfg): reschedule testnet2 dense-only fork above the MoE blocks (#276)"
+      "stars": 289,
+      "open_prs": 30,
+      "commits_7d": 6,
+      "last_commit_at": "2026-08-13T08:55:20Z",
+      "last_commit_msg": "fix(zkpow): pin Merkle tree leaf counts to declared dimensions (#281)"
     },
     {
       "repo": "pearl-research-labs/pips",
@@ -145,7 +118,7 @@
       "stars": 0,
       "open_prs": 2,
       "commits_7d": 1,
-      "last_commit_at": "2026-08-05T12:07:21Z",
+      "last_commit_at": "2026-08-11T10:25:53Z",
       "last_commit_msg": "fix(release): package openapi.yaml into the runtime image (#6)"
     }
   ],
