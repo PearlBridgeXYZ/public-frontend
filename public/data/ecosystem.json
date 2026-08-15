@@ -1,30 +1,30 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-08-14T00:07:00Z",
-  "next_refresh_at": "2026-08-15T00:00:00Z",
-  "narrative": "Pearl continues shipping fast into its fourth month post-mainnet: Pearl Research Labs joined Nvidia's Inception program this week and previewed W7A7, a model-compression scheme for running large open-weight models cheaper on Hopper/Blackwell hardware — a real technical credibility signal rather than a token-market headline. GitHub activity stayed healthy (7 commits across tracked repos this week, core repo now at 289 stars). Bridge throughput was ordinary and both directions cleared normally (deposits and redemptions both processed with no custody/supply mismatch today). Note: this is the first snapshot since 2026-08-10 — the agent's tmux session was interrupted by a host-level OOM event and the daily refresh did not run for three days; today's numbers reflect current live state, not a smooth day-over-day trend from the last snapshot.",
+  "updated_at": "2026-08-15T00:10:00Z",
+  "next_refresh_at": "2026-08-16T00:00:00Z",
+  "narrative": "A quiet, ordinary day for Pearl: no major announcements surfaced in today's sweep, price held in its recent $0.26-$0.27 range on thin DEX volume, and the bridge processed both mints and burns normally with custody and supply agreeing exactly. Third-party hashrate trackers put network hash power at roughly 28 EH/s, up from yesterday's ~19 EH/s cross-check — a healthy signal for network security, though our own read is derivative (MinePRL's summary endpoint remains offline, so this is a third-party estimate, not a first-party measurement). GitHub activity was flat versus yesterday (same last commits across tracked repos), consistent with a normal low-news day rather than a slowdown.",
   "market": {
-    "prl_price_usd": 0.2639,
-    "prl_change_24h_pct": 9.88,
-    "prl_volume_24h_usd": 11931.7,
-    "prl_market_cap_usd": 63859615.93,
-    "prl_circulating_supply": 242001641,
-    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in its early mainnet phase, launched April 2026, before the first halving). Current block reward (~2,428.69 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline.",
-    "wprl_price_usd": 0.2639,
+    "prl_price_usd": 0.2631,
+    "prl_change_24h_pct": -0.35,
+    "prl_volume_24h_usd": 1966.47,
+    "prl_market_cap_usd": 63821504.07,
+    "prl_circulating_supply": 242582115,
+    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in its early mainnet phase, launched April 2026, before the first halving). Current block reward (~2,426.57 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline.",
+    "wprl_price_usd": 0.2631,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 11585.16,
-        "liquidity_usd": 129466.49,
+        "volume_24h_usd": 1960.47,
+        "liquidity_usd": 129240.21,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 346.54,
-        "liquidity_usd": 15517.05,
+        "volume_24h_usd": 6,
+        "liquidity_usd": 15543.64,
         "url": "https://dexscreener.com/ethereum/0x8a28c58bdefa416847193c02832914bedeaeb912d59299fb3289d9431013d24b"
       }
     ],
@@ -34,26 +34,26 @@
     ]
   },
   "network": {
-    "hashrate": "≈19.2 EH/s (third-party cross-check; MinePRL summary endpoint remains offline)",
-    "difficulty": "22,617,300.94 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
-    "block_height": 99643,
-    "block_time_sec": 323,
+    "hashrate": "≈28.1 EH/s (third-party cross-check; MinePRL summary endpoint remains offline)",
+    "difficulty": "21,837,037.75 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
+    "block_height": 99969,
+    "block_time_sec": 223,
     "active_workers": null,
     "active_workers_scope": "MinePRL pool remains offline (pool.mineprl.com NXDOMAIN); no pool-level or network-wide worker count is currently exposed by a public API.",
     "pool_share_pct": null,
     "sources": [
       "api.prlscan.com/v1/status, /v1/blocks?limit=100 — block_height, block_time (avg over 100 blocks), difficulty, avg block_reward",
-      "hashrate.no/coins/PRL (≈19.18 EH/s) and pool.kryptex.com/prl/about-coin (≈19.27 EH/s) — independent third-party network hashrate estimates, averaged, since MinePRL's summary endpoint is offline"
+      "hashrate.no/coins/PRL (≈28.27 EH/s) and pool.kryptex.com/prl/about-coin (≈27.93 EH/s) — independent third-party network hashrate estimates, averaged, since MinePRL's summary endpoint is offline"
     ]
   },
   "bridge": {
-    "tvl_prl": 926738.89,
-    "tvl_usd": 244548.71,
-    "minted_wprl": 915682.78,
-    "surplus_prl": 11056.11,
-    "surplus_pct": 1.2074,
-    "deposits_24h_prl": 9567.26,
-    "burns_24h_prl": 19429.86,
+    "tvl_prl": 928822.35,
+    "tvl_usd": 244366.08,
+    "minted_wprl": 917742.24,
+    "surplus_prl": 11080.11,
+    "surplus_pct": 1.2073,
+    "deposits_24h_prl": 4339.47,
+    "burns_24h_prl": 1354,
     "fast_lane_used_pct": 0,
     "active_addresses_24h": null,
     "anomalies": [
@@ -62,7 +62,7 @@
   },
   "social": {
     "sentiment": "neutral",
-    "summary": "Live sentiment sampling wasn't available this run: the vault's X API credential holds only a stored refresh token (no ready bearer/access token), and direct WebFetch of the x.com profile pages returned HTTP 402 (blocked). A general web search surfaced no material for last-24h on-platform chatter specifically, though it did surface the Nvidia Inception program milestone reflected in the narrative above.",
+    "summary": "Live sentiment sampling wasn't available again today: the vault's X API credential still holds no usable bearer token (only a stored refresh token), and direct WebFetch of the x.com profile pages returned HTTP 402 (blocked). A general web search turned up no dated Aug-14/15 headlines specific to Pearl beyond routine price commentary.",
     "mentions_24h": null,
     "tracked_accounts": [
       "@prlnet",
@@ -71,7 +71,7 @@
     ],
     "sample_tweets": [],
     "sources": [
-      "x.com/prlnet, x.com/pearlbridgexyz — WebFetch attempt returned HTTP 402",
+      "x.com/prlnet — WebFetch attempt returned HTTP 402",
       "vault Crypto/X API PEARLBRIDGE XYZ — Password field empty (PROTECTED marker only), Notes holds a refresh token but no usable bearer token this run"
     ]
   },
@@ -97,7 +97,7 @@
     {
       "repo": "pearl-research-labs/pearl",
       "url": "https://github.com/pearl-research-labs/pearl",
-      "stars": 289,
+      "stars": 290,
       "open_prs": 30,
       "commits_7d": 6,
       "last_commit_at": "2026-08-13T08:55:20Z",
