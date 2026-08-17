@@ -703,6 +703,24 @@
       "active_workers": null,
       "github_commits_7d": 7,
       "ecosystem_count": 16
+    },
+    {
+      "date": "2026-08-17",
+      "updated_at": "2026-08-17T00:12:00Z",
+      "prl_price_usd": 0.2665,
+      "prl_change_24h_pct": -0.05,
+      "prl_volume_24h_usd": 1184.91,
+      "prl_market_cap_usd": 64956955.81,
+      "prl_circulating_supply": 243749333,
+      "wprl_price_usd": 0.2665,
+      "wprl_premium_pct": 0,
+      "tvl_prl": 921237.7,
+      "tvl_usd": 245501.38,
+      "block_height": 100626,
+      "hashrate_th_per_sec": null,
+      "active_workers": null,
+      "github_commits_7d": 7,
+      "ecosystem_count": 16
     }
   ]
 }

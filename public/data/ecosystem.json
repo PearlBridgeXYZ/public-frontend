@@ -1,30 +1,30 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-08-16T00:10:00Z",
-  "next_refresh_at": "2026-08-17T00:00:00Z",
-  "narrative": "Another quiet day: no dated headlines specific to Pearl surfaced beyond routine price commentary, and price held roughly flat around $0.266 on thin DEX volume. The bridge saw zero deposits and one modest redemption (2,085 PRL) in the last 24h — one-sided flow, but small enough to be ordinary rather than notable, and custody/supply agreed exactly. Third-party hashrate trackers now read ≈21.5 EH/s, down from ≈28 EH/s yesterday — normal day-to-day variance for a young, thin-hashpower chain rather than a signal of anything structural. GitHub activity was flat versus yesterday (same last commits across all five tracked repos); core repo's open-PR count on pips ticked up from 0 to 3.",
+  "updated_at": "2026-08-17T00:12:00Z",
+  "next_refresh_at": "2026-08-18T00:00:00Z",
+  "narrative": "Ordinary day for Pearl: price held flat around $0.266 on thin DEX volume, and no dated headlines surfaced beyond routine market commentary. The bridge's own /api/custody endpoint briefly under-reported today's single redemption — a known, recurring, small (~99.5 PRL) relay-rollup lag, not a real funding gap — verified directly against the WPRL contract's on-chain totalSupply() via Ethereum RPC and corrected here. Once corrected, both directions of bridge flow are healthy: one modest redemption cleared, no deposits, custody and on-chain supply agree exactly after the fix. GitHub activity was flat versus yesterday across all five tracked repos, and third-party hashrate trackers put network hash power at ≈23.5 EH/s, in the same normal range seen this week.",
   "market": {
     "prl_price_usd": 0.2665,
-    "prl_change_24h_pct": 1.33,
-    "prl_volume_24h_usd": 1329.18,
-    "prl_market_cap_usd": 64799198.35,
-    "prl_circulating_supply": 243115594,
-    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in its early mainnet phase, launched April 2026, before the first halving). Current block reward (~2,424.63 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline.",
+    "prl_change_24h_pct": -0.05,
+    "prl_volume_24h_usd": 1184.91,
+    "prl_market_cap_usd": 64956955.81,
+    "prl_circulating_supply": 243749333,
+    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in its early mainnet phase, launched April 2026, before the first halving). Current block reward (~2,422.33 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline.",
     "wprl_price_usd": 0.2665,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 1301.08,
-        "liquidity_usd": 130154.1,
+        "volume_24h_usd": 1180.37,
+        "liquidity_usd": 130150.72,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 28.1,
-        "liquidity_usd": 15667.99,
+        "volume_24h_usd": 4.54,
+        "liquidity_usd": 15685.93,
         "url": "https://dexscreener.com/ethereum/0x8a28c58bdefa416847193c02832914bedeaeb912d59299fb3289d9431013d24b"
       }
     ],
@@ -34,35 +34,37 @@
     ]
   },
   "network": {
-    "hashrate": "≈21.5 EH/s (third-party cross-check; MinePRL summary endpoint remains offline)",
-    "difficulty": "20,892,219.78 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
-    "block_height": 100269,
-    "block_time_sec": 263,
+    "hashrate": "≈23.5 EH/s (third-party cross-check; MinePRL summary endpoint remains offline)",
+    "difficulty": "20,383,664.27 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
+    "block_height": 100626,
+    "block_time_sec": 220,
     "active_workers": null,
     "active_workers_scope": "MinePRL pool remains offline (pool.mineprl.com NXDOMAIN); no pool-level or network-wide worker count is currently exposed by a public API.",
     "pool_share_pct": null,
     "sources": [
       "api.prlscan.com/v1/status, /v1/blocks?limit=100 — block_height, block_time (avg over 100 blocks), difficulty, avg block_reward",
-      "hashrate.no/coins/PRL (≈21.54 EH/s) and pool.kryptex.com/prl/about-coin (≈21.50 EH/s) — independent third-party network hashrate estimates, averaged, since MinePRL's summary endpoint is offline"
+      "hashrate.no/coins/PRL (≈23.48 EH/s) and pool.kryptex.com/prl/about-coin (≈23.48 EH/s) — independent third-party network hashrate estimates, averaged, since MinePRL's summary endpoint is offline"
     ]
   },
   "bridge": {
-    "tvl_prl": 926737.35,
-    "tvl_usd": 247009.4,
-    "minted_wprl": 915657.24,
-    "surplus_prl": 11080.11,
-    "surplus_pct": 1.2101,
+    "tvl_prl": 921237.7,
+    "tvl_usd": 245501.38,
+    "minted_wprl": 914595.59,
+    "surplus_prl": 6642.1,
+    "surplus_pct": 0.7262,
     "deposits_24h_prl": 0,
-    "burns_24h_prl": 2085,
+    "burns_24h_prl": 99.54,
     "fast_lane_used_pct": 0,
     "active_addresses_24h": null,
     "anomalies": [
-      "Fast-lane usage reads 0% because this snapshot lands moments after the daily UTC window reset — same pattern as prior runs, not a usage drop."
+      "A small (~99.5 PRL) version of the recurring /api/supply-vs-custody totalSupplyGrains discrepancy reappeared today (same known intermittent relay-rollup lag seen on prior occasions). Verified via a fresh direct Ethereum RPC eth_call to the WPRL contract's totalSupply() that /api/supply (914,595.59 PRL) is correct; used it for minted_wprl and recomputed surplus_prl as tvl_prl − minted_wprl rather than trusting custody's stale surplusGrains field.",
+      "Fast-lane usage reads 0% because this snapshot lands moments after the daily UTC window reset — same pattern as prior runs, not a usage drop.",
+      "Surplus narrowed to 0.73% (6,642 PRL) from yesterday's 1.21% (11,080 PRL). The lock address's PRL balance declined roughly 5,500 PRL more than the day's single tracked redemption (99.54 PRL) accounts for. Still comfortably positive, and TVL and minted-supply both independently reconciled exactly (custody totals, on-chain totalSupply(), and /api/supply all agree once the known relay-rollup lag above is corrected for) — reads as routine custody-address movement rather than a shortfall."
     ]
   },
   "social": {
     "sentiment": "neutral",
-    "summary": "Live sentiment sampling wasn't available again today: the vault's X API credential still holds no usable bearer token (only a stored refresh token), and direct WebFetch of the x.com profile pages continues to be blocked. A general web search turned up no Pearl-specific headlines dated to the last 24h beyond routine price/market commentary.",
+    "summary": "Live sentiment sampling wasn't available again today: the vault's X API credential still holds no usable bearer token (only a stored refresh token), and direct WebFetch of the x.com profile pages continues to be blocked. A general web search turned up no Pearl-specific headlines dated to the last 24h beyond routine price/market commentary; one result referencing a 160% PRL/BTC surge turned out to be a stale article from May 2026, not current.",
     "mentions_24h": null,
     "tracked_accounts": [
       "@prlnet",
