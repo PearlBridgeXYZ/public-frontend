@@ -1,30 +1,30 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-08-18T00:11:00Z",
-  "next_refresh_at": "2026-08-19T00:00:00Z",
-  "narrative": "The core Pearl node repo landed a real milestone today: a checkpoint at block 100,000 plus a Go 1.26.6 toolchain bump — a routine but meaningful maintenance commit marking six figures of chain height. Custody and supply reconciled exactly this run (yesterday's small relay-rollup lag did not recur), and the bridge's surplus recovered to 1.22% (11,080 PRL), back in its normal range after Sunday's narrower reading — confirming that was routine custody-address movement, not a developing issue. Price held flat around $0.265-0.266 on modest DEX volume, hashrate cross-checks stayed in the low-20s EH/s range, and no other dated headlines surfaced.",
+  "updated_at": "2026-08-19T00:10:00Z",
+  "next_refresh_at": "2026-08-20T00:00:00Z",
+  "narrative": "Bridge activity picked up from recent quiet days: one fast-lane mint (995 PRL) and six redemptions (5,957 PRL) cleared in the last 24h, with custody and on-chain supply agreeing exactly. Fast-lane usage shows non-zero for the first time this week (0.2% of the daily window) simply because today's snapshot didn't land at the exact UTC reset moment — a timing artifact, not new behavior. The core repo shipped a small housekeeping commit updating its CoinMarketCap verification code, suggesting a listing/verification effort in progress. Price eased slightly to ~$0.263 on the busiest DEX volume of the week (~$5,900), and hashrate cross-checks held steady in the low-to-mid-20s EH/s range.",
   "market": {
-    "prl_price_usd": 0.2652,
-    "prl_change_24h_pct": -0.04,
-    "prl_volume_24h_usd": 3820.44,
-    "prl_market_cap_usd": 64802286.65,
-    "prl_circulating_supply": 244351558,
-    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in its early mainnet phase, launched April 2026, before the first halving). Current block reward (~2,420.14 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline.",
-    "wprl_price_usd": 0.2652,
+    "prl_price_usd": 0.2633,
+    "prl_change_24h_pct": -0.17,
+    "prl_volume_24h_usd": 5889.91,
+    "prl_market_cap_usd": 64490043.11,
+    "prl_circulating_supply": 244963339,
+    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in its early mainnet phase, launched April 2026, before the first halving). Current block reward (~2,417.91 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline.",
+    "wprl_price_usd": 0.2633,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 3807.23,
-        "liquidity_usd": 129851.09,
+        "volume_24h_usd": 5667.5,
+        "liquidity_usd": 129219.14,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 13.21,
-        "liquidity_usd": 15744.55,
+        "volume_24h_usd": 222.41,
+        "liquidity_usd": 15514.8,
         "url": "https://dexscreener.com/ethereum/0x8a28c58bdefa416847193c02832914bedeaeb912d59299fb3289d9431013d24b"
       }
     ],
@@ -34,31 +34,29 @@
     ]
   },
   "network": {
-    "hashrate": "≈23.2 EH/s (third-party cross-check; MinePRL summary endpoint remains offline)",
-    "difficulty": "19,800,371.89 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
-    "block_height": 100966,
-    "block_time_sec": 253,
+    "hashrate": "≈23.4 EH/s (third-party cross-check; MinePRL summary endpoint remains offline)",
+    "difficulty": "19,208,169.85 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
+    "block_height": 101312,
+    "block_time_sec": 233,
     "active_workers": null,
     "active_workers_scope": "MinePRL pool remains offline (pool.mineprl.com NXDOMAIN); no pool-level or network-wide worker count is currently exposed by a public API.",
     "pool_share_pct": null,
     "sources": [
       "api.prlscan.com/v1/status, /v1/blocks?limit=100 — block_height, block_time (avg over 100 blocks), difficulty, avg block_reward",
-      "hashrate.no/coins/PRL (≈23.21 EH/s) and pool.kryptex.com/prl/about-coin (≈23.21 EH/s) — independent third-party network hashrate estimates, averaged, since MinePRL's summary endpoint is offline"
+      "hashrate.no/coins/PRL (≈23.38 EH/s) and pool.kryptex.com/prl/about-coin (≈23.38 EH/s) — independent third-party network hashrate estimates, averaged, since MinePRL's summary endpoint is offline"
     ]
   },
   "bridge": {
-    "tvl_prl": 922176.7,
-    "tvl_usd": 244562.22,
-    "minted_wprl": 911096.59,
-    "surplus_prl": 11080.11,
-    "surplus_pct": 1.2161,
-    "deposits_24h_prl": 0,
-    "burns_24h_prl": 1924,
-    "fast_lane_used_pct": 0,
+    "tvl_prl": 916680.43,
+    "tvl_usd": 241329.01,
+    "minted_wprl": 905595.32,
+    "surplus_prl": 11085.11,
+    "surplus_pct": 1.2241,
+    "deposits_24h_prl": 995,
+    "burns_24h_prl": 5957.4,
+    "fast_lane_used_pct": 0.2,
     "active_addresses_24h": null,
-    "anomalies": [
-      "Fast-lane usage reads 0% because this snapshot lands moments after the daily UTC window reset — same pattern as prior runs, not a usage drop."
-    ]
+    "anomalies": []
   },
   "social": {
     "sentiment": "neutral",
@@ -99,9 +97,9 @@
       "url": "https://github.com/pearl-research-labs/pearl",
       "stars": 292,
       "open_prs": 30,
-      "commits_7d": 6,
-      "last_commit_at": "2026-08-17T12:40:48Z",
-      "last_commit_msg": "feat: add 100000 checkpoint and bump Go 1.26.6 and modules (#288)"
+      "commits_7d": 4,
+      "last_commit_at": "2026-08-18T12:18:29Z",
+      "last_commit_msg": "chore: update CoinMarketCap verification code (#289)"
     },
     {
       "repo": "pearl-research-labs/pips",
@@ -117,7 +115,7 @@
       "url": "https://github.com/pearl-research-labs/blockbook",
       "stars": 0,
       "open_prs": 2,
-      "commits_7d": 1,
+      "commits_7d": 0,
       "last_commit_at": "2026-08-11T10:25:53Z",
       "last_commit_msg": "fix(release): package openapi.yaml into the runtime image (#6)"
     }
