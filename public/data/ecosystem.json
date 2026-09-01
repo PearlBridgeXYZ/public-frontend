@@ -1,30 +1,30 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-08-31T00:12:00Z",
-  "next_refresh_at": "2026-09-01T00:00:00Z",
-  "narrative": "Pearl's price eased to ~$0.276 (-3.1%) on light volume, tracking the broader consolidation range it's held for weeks. Bridge activity picked back up with 2,666 PRL in deposits and zero burns over 24h, lifting TVL slightly to ~892,940 PRL — custody, minted WPRL, and surplus all reconcile cleanly with no anomalies. Third-party hashrate estimates settled back to ~29.75 EH/s after the prior day's jump to ~32.3 EH/s, suggesting that move was normal variance rather than the start of a sustained trend. The core node repo shipped another fix (zkPoW proof-dimension narrowing bug) keeping the 7-day commit count at 3, and the ecosystem catalog (21 projects) is unchanged with all links verified live.",
+  "updated_at": "2026-09-01T00:12:00Z",
+  "next_refresh_at": "2026-09-02T00:00:00Z",
+  "narrative": "Pearl's price jumped to ~$0.305 (+11.7%) on a notable pickup in volume (~$14.6K, roughly 9x the prior day's), the strongest single-day move in weeks — worth watching but not yet confirmed as a durable trend since live sentiment sampling remains unavailable. Bridge activity was healthy in both directions: 6,766 PRL in deposits and 3,431 PRL in burns over 24h, with TVL essentially flat at ~891,896 PRL — custody, minted WPRL, and surplus all reconcile cleanly with no anomalies. Third-party hashrate estimates eased to ~25.1 EH/s, back in the range seen a week ago. The core node repo shipped another fix (bounding HashCache/SigCache with random eviction) lifting the 7-day commit count to 4, and the ecosystem catalog (21 projects) is unchanged with all links verified live.",
   "market": {
-    "prl_price_usd": 0.275526,
-    "prl_change_24h_pct": -3.129,
-    "prl_volume_24h_usd": 1529.01,
-    "prl_market_cap_usd": 69953948.95,
-    "prl_circulating_supply": 253892581,
-    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in its early mainnet phase, launched April 2026, before the first halving). Current block reward (~2,385.22 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline.",
-    "wprl_price_usd": 0.275526,
+    "prl_price_usd": 0.305333,
+    "prl_change_24h_pct": 11.7286,
+    "prl_volume_24h_usd": 14582.18,
+    "prl_market_cap_usd": 77764123.51,
+    "prl_circulating_supply": 254686667,
+    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in its early mainnet phase, launched April 2026, before the first halving). Current block reward (~2,382.79 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline.",
+    "wprl_price_usd": 0.305333,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 1430.38,
-        "liquidity_usd": 134123.55,
+        "volume_24h_usd": 14012.12,
+        "liquidity_usd": 141987.37,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 98.63,
-        "liquidity_usd": 16366.05,
+        "volume_24h_usd": 570.06,
+        "liquidity_usd": 17079.74,
         "url": "https://dexscreener.com/ethereum/0x8a28c58bdefa416847193c02832914bedeaeb912d59299fb3289d9431013d24b"
       }
     ],
@@ -34,33 +34,33 @@
     ]
   },
   "network": {
-    "hashrate": "≈29.75 EH/s (third-party cross-check; MinePRL summary endpoint remains offline)",
-    "difficulty": "18,763,991.58 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
-    "block_height": 106444,
-    "block_time_sec": 173,
+    "hashrate": "≈25.13 EH/s (third-party cross-check; MinePRL summary endpoint remains offline)",
+    "difficulty": "18,787,397.27 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
+    "block_height": 106886,
+    "block_time_sec": 209,
     "active_workers": null,
     "active_workers_scope": "MinePRL pool remains offline (pool.mineprl.com NXDOMAIN); no pool-level or network-wide worker count is currently exposed by a public API.",
     "pool_share_pct": null,
     "sources": [
       "api.prlscan.com/v1/status, /v1/blocks?limit=100 — block_height, block_time (avg over 100 blocks), difficulty, avg block_reward",
-      "hashrate.no/coins/PRL (≈29.75 EH/s) and pool.kryptex.com/prl/about-coin (≈29.75 EH/s) — independent third-party network hashrate estimates, averaged, since MinePRL's summary endpoint is offline"
+      "hashrate.no/coins/PRL (≈25.13 EH/s) and pool.kryptex.com/prl/about-coin (≈25.13 EH/s) — independent third-party network hashrate estimates, averaged, since MinePRL's summary endpoint is offline"
     ]
   },
   "bridge": {
-    "tvl_prl": 892939.59,
-    "tvl_usd": 246027.87,
-    "minted_wprl": 881449.61,
-    "surplus_prl": 11489.98,
-    "surplus_pct": 1.3035,
-    "deposits_24h_prl": 2666,
-    "burns_24h_prl": 0,
-    "fast_lane_used_pct": 0.53,
+    "tvl_prl": 891895.58,
+    "tvl_usd": 272324.73,
+    "minted_wprl": 880371.61,
+    "surplus_prl": 11523.98,
+    "surplus_pct": 1.309,
+    "deposits_24h_prl": 6766,
+    "burns_24h_prl": 3431,
+    "fast_lane_used_pct": 1.35,
     "active_addresses_24h": null,
     "anomalies": []
   },
   "social": {
     "sentiment": "neutral",
-    "summary": "Live sentiment sampling wasn't available again this run: the vault's X API credential remains inaccessible in this non-interactive context, and direct WebFetch of x.com profile pages continues to be blocked (HTTP 402). A general web search found no breaking Pearl-specific news for this date — commentary continues to describe range-bound trading between roughly $0.248 and $0.283. No coordinated criticism or security incidents found.",
+    "summary": "Live sentiment sampling wasn't available again this run: the vault's X API credential remains inaccessible in this non-interactive context, and direct WebFetch of x.com profile pages continues to be blocked (HTTP 402). A general web search found no news specifically dated for this run explaining today's price/volume pickup — kept sentiment neutral pending confirmed tweet sampling rather than inferring bullishness from price action alone. No coordinated criticism or security incidents found.",
     "mentions_24h": null,
     "tracked_accounts": [
       "@prlnet",
@@ -97,10 +97,10 @@
       "repo": "pearl-research-labs/pearl",
       "url": "https://github.com/pearl-research-labs/pearl",
       "stars": 297,
-      "open_prs": 42,
-      "commits_7d": 3,
-      "last_commit_at": "2026-08-30T09:17:24Z",
-      "last_commit_msg": "fix(zkpow): reject usize->u32/u16 narrowing of proof dimensions (#299)"
+      "open_prs": 41,
+      "commits_7d": 4,
+      "last_commit_at": "2026-08-31T10:26:57Z",
+      "last_commit_msg": "fix(txscript): bound HashCache and SigCache with random eviction (#298)"
     },
     {
       "repo": "pearl-research-labs/pips",
