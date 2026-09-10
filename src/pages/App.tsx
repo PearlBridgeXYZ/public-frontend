@@ -16,7 +16,7 @@ import { ConnectButton } from "../components/ConnectButton";
 import { BridgeCardSwitcher } from "../components/BridgeCardSwitcher";
 import { BridgeAssetTabs } from "../components/BridgeAssetTabs";
 import { BtxBridgeSection } from "../components/BtxBridgeSection";
-import { detectInitialAsset, assetToPath, type BridgeAsset } from "../lib/bridgeAsset";
+import { detectInitialAsset, assetToPath, BTX_TAB_ENABLED, type BridgeAsset } from "../lib/bridgeAsset";
 import { BridgeStats } from "../components/BridgeStats";
 import { BridgeModeToggle } from "../components/BridgeModeToggle";
 import { PausedBanner } from "../components/PausedBanner";
@@ -322,8 +322,8 @@ function HomePage() {
         </div>
       )}
 
-      <BridgeAssetTabs asset={asset} onSelect={selectAsset} />
-      {asset === "pearl" ? (
+      {BTX_TAB_ENABLED && <BridgeAssetTabs asset={asset} onSelect={selectAsset} />}
+      {!BTX_TAB_ENABLED || asset === "pearl" ? (
         <>
           <BridgeCardSwitcher />
           <BridgeStats />
