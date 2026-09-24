@@ -2,7 +2,15 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), {
+    name: "cuer-qr-zero-border",
+    enforce: "pre",
+    resolveId(source, importer) {
+      if (source === "qr" && importer?.replaceAll("\\", "/").endsWith("/cuer/_dist/QrCode.js")) {
+        return new URL("./src/compat/cuer-qr.ts", import.meta.url).pathname;
+      }
+    },
+  }],
   build: {
     // Inline assets under 4KB
     assetsInlineLimit: 4096,
