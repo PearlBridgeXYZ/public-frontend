@@ -9,4 +9,4 @@
 // release also gives every commit a clean grep target.
 //
 // Bump on every push, even tiny copy tweaks, per G's directive 2026-05-31.
-export const BUILD_LABEL = "RC5.53";
+export const BUILD_LABEL = "RC5.54";
