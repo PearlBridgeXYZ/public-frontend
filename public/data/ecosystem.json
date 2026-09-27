@@ -1,31 +1,45 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-09-09T00:03:33Z",
-  "next_refresh_at": "2026-09-10T00:00:00Z",
-  "narrative": "Pearl's price ticked up to ~$0.3756 (+0.18% 24h) on light volume (~$3.2K across two Ethereum Uniswap venues) — thinner activity than the prior snapshot's ~$8.9K but consistent with WPRL's still-shallow secondary market. Third-party hashrate cross-checks put the network at roughly 32 EH/s (hashrate.no 32.35, Kryptex 31.86), continuing a steady multi-week climb from the low-20s. The bridge saw one-directional flow today — 9,011 PRL minted, no burns — with TVL up modestly to ~881,777 PRL and custody, minted WPRL, and surplus all reconciling cleanly with no anomalies. GitHub activity was quiet (no new commits across tracked repos since the core node's netsync fix two days ago) and the ecosystem catalog held steady at 21 verified live projects.",
+  "updated_at": "2026-09-27T00:03:49Z",
+  "next_refresh_at": "2026-09-28T00:00:00Z",
+  "narrative": "Pearl's price jumped to ~$1.34 (+18.76% 24h) on the heaviest trading volume since late May — roughly $799K across four Ethereum Uniswap venues, well above the low-single-digit-thousands seen in recent weeks. Network hashrate continued its multi-week climb to ~60.16 EH/s per independent cross-checks (hashrate.no and Kryptex both agree), and the bridge saw healthy two-way flow — about 177.8K PRL minted against 20.4K PRL burned in the last 24h — with custody, minted WPRL, and surplus all reconciling cleanly and no anomalies. GitHub activity picked back up with a new commit to the core node three days ago after a quiet stretch, and the ecosystem catalog grew to 26 verified live projects this run, adding a new explorer (PearlTrack), two independent wallets (PocketPRL, Pearl Hub), and two mining pools (HeroMiners, 2Miners).",
   "market": {
-    "prl_price_usd": 0.37556,
-    "prl_change_24h_pct": 0.1768,
-    "prl_volume_24h_usd": 3152.61,
-    "prl_market_cap_usd": 98013952.98,
-    "prl_circulating_supply": 260982891,
-    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in its early mainnet phase, launched April 2026, before the first halving). Current block reward (~2,359.04 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline.",
-    "wprl_price_usd": 0.37556,
+    "prl_price_usd": 1.3421,
+    "prl_change_24h_pct": 18.76,
+    "prl_volume_24h_usd": 798956.96,
+    "prl_market_cap_usd": 369713588.64,
+    "prl_circulating_supply": 275473745,
+    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in its early mainnet phase, launched April 2026, before the first halving). Current block reward (~2,304.91 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline.",
+    "wprl_price_usd": 1.3421,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 2995.69,
-        "liquidity_usd": 159020.27,
+        "volume_24h_usd": 736067,
+        "liquidity_usd": 316934.9,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 156.92,
-        "liquidity_usd": 19896.18,
+        "volume_24h_usd": 41836.82,
+        "liquidity_usd": 47261.8,
         "url": "https://dexscreener.com/ethereum/0x8a28c58bdefa416847193c02832914bedeaeb912d59299fb3289d9431013d24b"
+      },
+      {
+        "venue": "Uniswap v4 (Ethereum)",
+        "pair": "WPRL/USDC",
+        "volume_24h_usd": 21053.14,
+        "liquidity_usd": 14728.54,
+        "url": "https://dexscreener.com/ethereum/0x7cd668d7e7dcb0911c3a897e9a05d985b0ea53c9c41dc47f8f371a01639855f5"
+      },
+      {
+        "venue": "Uniswap v4 (Ethereum)",
+        "pair": "WPRL/WETH",
+        "volume_24h_usd": 0,
+        "liquidity_usd": 3.3,
+        "url": "https://dexscreener.com/ethereum/0xb1727519eeb22b971262763c604a7d427ac40ba5b806dd35997a996723e8a49b"
       }
     ],
     "sources": [
@@ -34,33 +48,33 @@
     ]
   },
   "network": {
-    "hashrate": "≈32.1 EH/s (third-party cross-check: hashrate.no 32.35 EH/s, Kryptex 31.86 EH/s; MinePRL summary endpoint remains offline)",
-    "difficulty": "20,611,792.56 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
-    "block_height": 110631,
-    "block_time_sec": 165,
+    "hashrate": "≈60.16 EH/s (third-party cross-check: hashrate.no 60.16 EH/s, Kryptex 60.16 EH/s; MinePRL summary endpoint remains offline)",
+    "difficulty": "29,950,826.77 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
+    "block_height": 119516,
+    "block_time_sec": 134.1,
     "active_workers": null,
     "active_workers_scope": "MinePRL pool remains offline (pool.mineprl.com NXDOMAIN); no pool-level or network-wide worker count is currently exposed by a public API.",
     "pool_share_pct": null,
     "sources": [
       "api.prlscan.com/v1/status, /v1/blocks?limit=100 — block_height, block_time (avg over 100 blocks), difficulty, avg block_reward",
-      "hashrate.no/coins/PRL (≈32.35 EH/s) and pool.kryptex.com/prl/about-coin (≈31.86 EH/s) — independent third-party network hashrate estimates, since MinePRL's summary endpoint is offline"
+      "hashrate.no/coins/PRL (≈60.16 EH/s) and pool.kryptex.com/prl/about-coin (≈60.16 EH/s) — independent third-party network hashrate estimates, since MinePRL's summary endpoint is offline"
     ]
   },
   "bridge": {
-    "tvl_prl": 881777.45,
-    "tvl_usd": 331157.7,
-    "minted_wprl": 869979.4,
-    "surplus_prl": 11798.05,
-    "surplus_pct": 1.356,
-    "deposits_24h_prl": 9011.0,
-    "burns_24h_prl": 0.0,
+    "tvl_prl": 1899125.28,
+    "tvl_usd": 2548817.94,
+    "minted_wprl": 1870712.46,
+    "surplus_prl": 28412.82,
+    "surplus_pct": 1.5188,
+    "deposits_24h_prl": 177778.66,
+    "burns_24h_prl": 20411.56,
     "fast_lane_used_pct": 0,
     "active_addresses_24h": null,
     "anomalies": []
   },
   "social": {
     "sentiment": "neutral",
-    "summary": "Live sentiment sampling wasn't available again this run: the vault's X API credential remains inaccessible in this non-interactive context, and direct fetch of x.com profile pages continues to return HTTP 402. No new incident or coordinated criticism surfaced through other channels this run. Kept sentiment neutral pending confirmed tweet sampling rather than inferring bullishness from price action alone.",
+    "summary": "Live sentiment sampling wasn't available again this run: the vault's X API credential wasn't reachable in this non-interactive context, and direct fetch of x.com profile pages continues to return HTTP 402. No incident or coordinated criticism surfaced through other channels this run. Kept sentiment neutral rather than inferring bullishness from today's price move alone.",
     "mentions_24h": null,
     "tracked_accounts": [
       "@prlnet",
@@ -70,6 +84,7 @@
     "sample_tweets": [],
     "sources": [
       "x.com/prlnet — fetch attempt returned HTTP 402",
+      "x.com/pearlbridgexyz — fetch attempt returned HTTP 402",
       "vault Crypto/X API PEARLBRIDGE XYZ — not accessible in this non-interactive run"
     ]
   },
@@ -78,10 +93,10 @@
       "repo": "PearlBridgeXYZ/public-frontend",
       "url": "https://github.com/PearlBridgeXYZ/public-frontend",
       "stars": 0,
-      "open_prs": 1,
+      "open_prs": 2,
       "commits_7d": 0,
-      "last_commit_at": "2026-07-25T00:12:03Z",
-      "last_commit_msg": "Merge next into main: BTX bridge widgets (deposit + burn, Sepolia preview), unwrap/burn-poll fixes, RC5.53"
+      "last_commit_at": "2026-09-10T19:18:19Z",
+      "last_commit_msg": "site: temporarily hide the BTX tab behind BTX_TAB_ENABLED (G #58185)"
     },
     {
       "repo": "PearlBridgeXYZ/pearlwallet",
@@ -95,11 +110,11 @@
     {
       "repo": "pearl-research-labs/pearl",
       "url": "https://github.com/pearl-research-labs/pearl",
-      "stars": 297,
-      "open_prs": 44,
-      "commits_7d": 2,
-      "last_commit_at": "2026-09-06T14:03:07Z",
-      "last_commit_msg": "fix(netsync): verify header connectivity before ZK certificate (#308)"
+      "stars": 328,
+      "open_prs": 49,
+      "commits_7d": 1,
+      "last_commit_at": "2026-09-24T12:48:43Z",
+      "last_commit_msg": "perf(blockchain): fetch certificates with one bounded region read (#334)"
     },
     {
       "repo": "pearl-research-labs/pips",
@@ -114,7 +129,7 @@
       "repo": "pearl-research-labs/blockbook",
       "url": "https://github.com/pearl-research-labs/blockbook",
       "stars": 0,
-      "open_prs": 2,
+      "open_prs": 3,
       "commits_7d": 0,
       "last_commit_at": "2026-08-11T10:25:53Z",
       "last_commit_msg": "fix(pearl): update pearl dependency to latest master"
@@ -152,7 +167,7 @@
       "name": "MinePRL Pool",
       "category": "pool",
       "url": "https://pool.mineprl.com",
-      "description": "Mining pool for PRL — the original community pool. Offline as of this snapshot (exact date unconfirmed within the last ~6 weeks); the site now redirects visitors to prlscan.com for pool/chain data.",
+      "description": "Mining pool for PRL — the original community pool. Offline as of this snapshot (exact date unconfirmed within the last ~2 months); the site now redirects visitors to prlscan.com for pool/chain data.",
       "status": "live",
       "first_seen": "2026-05-26",
       "source": "docs / known canonical pool"
@@ -309,6 +324,51 @@
       "status": "live",
       "first_seen": "2026-08-29",
       "source": "pearlnews.xyz/community ecosystem listing"
+    },
+    {
+      "name": "PearlTrack",
+      "category": "explorer",
+      "url": "https://pearltrack.io",
+      "description": "Independent Pearl block explorer and chain analytics site.",
+      "status": "live",
+      "first_seen": "2026-09-27",
+      "source": "pearlnews.xyz/community ecosystem listing"
+    },
+    {
+      "name": "PocketPRL",
+      "category": "wallet",
+      "url": "https://github.com/pocketprl/pocketprl",
+      "description": "Independent open-source Android wallet for Pearl (PRL).",
+      "status": "beta",
+      "first_seen": "2026-09-27",
+      "source": "pearlnews.xyz/community ecosystem listing"
+    },
+    {
+      "name": "Pearl Hub",
+      "category": "wallet",
+      "url": "https://apps.apple.com/app/id6777132941",
+      "description": "Independent iOS/macOS wallet app for Pearl (PRL).",
+      "status": "live",
+      "first_seen": "2026-09-27",
+      "source": "pearlnews.xyz/community ecosystem listing"
+    },
+    {
+      "name": "HeroMiners (PRL)",
+      "category": "pool",
+      "url": "https://pearl.herominers.com",
+      "description": "Multi-coin mining pool with dedicated Pearl (PRL) support.",
+      "status": "live",
+      "first_seen": "2026-09-27",
+      "source": "pearlnews.xyz/community ecosystem listing"
+    },
+    {
+      "name": "2Miners (PRL)",
+      "category": "pool",
+      "url": "https://prl.2miners.com",
+      "description": "Multi-coin mining pool with dedicated Pearl (PRL) support.",
+      "status": "live",
+      "first_seen": "2026-09-27",
+      "source": "pearlnews.xyz/community ecosystem listing"
     }
   ],
   "incidents": [
@@ -319,7 +379,7 @@
     },
     {
       "date": "2026-07-24",
-      "summary": "MinePRL, the canonical community pool tracked by this dashboard, is offline (site redirects visitors to prlscan.com); exact offline date within the past ~6 weeks is unconfirmed. Network hashrate and pool worker-count fields remain null pending a replacement public data source.",
+      "summary": "MinePRL, the canonical community pool tracked by this dashboard, is offline (site redirects visitors to prlscan.com); exact offline date within the past ~2 months is unconfirmed. Network hashrate and pool worker-count fields remain null pending a replacement public data source.",
       "url": "https://mineprl.com"
     },
     {
