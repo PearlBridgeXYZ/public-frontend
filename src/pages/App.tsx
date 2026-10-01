@@ -280,7 +280,7 @@ function HomePage() {
           </span>
         </h1>
         <p className="text-gray-400 text-lg max-w-xl mx-auto leading-relaxed">
-          Lock native PRL. Receive WPRL on Ethereum &mdash; fully redeemable 1:1. 0.5% deposit fee (4 PRL minimum). No fee on redemption.
+          Lock native PRL. Receive WPRL on Ethereum &mdash; fully redeemable 1:1. 0.5% deposit fee (4 PRL minimum). 0.5% redemption fee.
         </p>
       </div>
 
