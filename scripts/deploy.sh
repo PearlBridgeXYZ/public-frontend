@@ -66,3 +66,7 @@ npx -y wrangler@4 pages deploy dist \
   --branch="$BRANCH" \
   --commit-hash="$COMMIT" \
   --commit-message="$COMMIT_MSG"
+
+# Publication is not complete until the authorized baseline matches. Never
+# automatically bless whatever the public edge happens to serve.
+bash "$ROOT/scripts/verify-deployed-canary.sh" "$BRANCH"
