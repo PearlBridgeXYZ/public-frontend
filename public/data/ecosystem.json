@@ -1,44 +1,44 @@
 {
   "schema_version": 2,
-  "updated_at": "2026-10-02T00:01:05Z",
-  "next_refresh_at": "2026-10-03T00:00:00Z",
-  "narrative": "Pearl's price continued easing to ~$1.14 (-7.07% 24h) on steady volume (~$443K across four Ethereum Uniswap venues). Network hashrate climbed back to the mid-50s EH/s per independent cross-checks (hashrate.no 55.21 EH/s, Kryptex 55.74 EH/s; MinePRL's own summary endpoint remains offline). The bridge saw healthy net inflow — about 81.2K PRL minted against 15.6K PRL burned in the last 24h — with TVL now at ~2.03M PRL, and the custody/supply divergence flagged yesterday has resolved: /api/supply and /api/custody's totalSupplyGrains now match exactly. Our own public-frontend repo saw real code activity (a merged redemption-copy fix), and the ecosystem catalog held steady at 26 verified live projects.",
+  "updated_at": "2026-10-03T00:01:01Z",
+  "next_refresh_at": "2026-10-04T00:00:00Z",
+  "narrative": "Pearl's price eased further to ~$1.08 (-5.29% 24h) on lighter volume (~$172K across four Ethereum Uniswap venues, down from recent days). Network hashrate pulled back to the low-40s EH/s per independent cross-checks (hashrate.no 43.36 EH/s, Kryptex 42.31 EH/s; MinePRL's own summary endpoint remains offline). The bridge stayed quiet but balanced — about 19.8K PRL minted against 11.4K PRL burned in the last 24h — with TVL steady at ~2.03M PRL and custody/supply reconciling exactly, no anomalies. Our own public-frontend repo merged another fix (deploy canary), the core node shipped a CI-stability fix, and the ecosystem catalog held steady at 26 verified live projects.",
   "market": {
-    "prl_price_usd": 1.1393,
-    "prl_change_24h_pct": -7.07,
-    "prl_volume_24h_usd": 443468.25,
-    "prl_market_cap_usd": 318324225.94,
-    "prl_circulating_supply": 279415488,
-    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in its early mainnet phase, launched April 2026, before the first halving). Current block reward (~2,290.01 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline.",
-    "wprl_price_usd": 1.1393,
+    "prl_price_usd": 1.083,
+    "prl_change_24h_pct": -5.29,
+    "prl_volume_24h_usd": 171602.37,
+    "prl_market_cap_usd": 303264094.63,
+    "prl_circulating_supply": 280029717,
+    "prl_circulating_supply_method": "block_height × current_block_reward (constant-subsidy approximation — Pearl is in its early mainnet phase, launched April 2026, before the first halving). Current block reward (~2,287.69 PRL, averaged over the last 100 blocks via prlscan) continues its slow day-over-day decline.",
+    "wprl_price_usd": 1.083,
     "wprl_premium_pct": 0,
     "volume_by_venue": [
       {
         "venue": "Uniswap v3 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 344056.15,
-        "liquidity_usd": 405231.96,
+        "volume_24h_usd": 138563.09,
+        "liquidity_usd": 391995.12,
         "url": "https://dexscreener.com/ethereum/0x89a67c6dee35db9815da2fb9191f0998a8b37c39"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDT",
-        "volume_24h_usd": 66172.81,
-        "liquidity_usd": 128077.25,
+        "volume_24h_usd": 21428.49,
+        "liquidity_usd": 125654.28,
         "url": "https://dexscreener.com/ethereum/0x8a28c58bdefa416847193c02832914bedeaeb912d59299fb3289d9431013d24b"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/USDC",
-        "volume_24h_usd": 7118.14,
-        "liquidity_usd": 14405.44,
+        "volume_24h_usd": 1024.01,
+        "liquidity_usd": 14117.96,
         "url": "https://dexscreener.com/ethereum/0x7cd668d7e7dcb0911c3a897e9a05d985b0ea53c9c41dc47f8f371a01639855f5"
       },
       {
         "venue": "Uniswap v4 (Ethereum)",
         "pair": "WPRL/WETH",
-        "volume_24h_usd": 26121.15,
-        "liquidity_usd": 8699.14,
+        "volume_24h_usd": 10586.78,
+        "liquidity_usd": 7884.91,
         "url": "https://dexscreener.com/ethereum/0xcbca9e822a02718899dea496a0d4c96a204429dfa57a54ab1e28de57d103b1db"
       }
     ],
@@ -48,33 +48,33 @@
     ]
   },
   "network": {
-    "hashrate": "≈55-56 EH/s (third-party cross-check: hashrate.no 55.21 EH/s, Kryptex 55.74 EH/s; MinePRL summary endpoint remains offline)",
-    "difficulty": "33,762,055.96 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
-    "block_height": 122015,
-    "block_time_sec": 186.7,
+    "hashrate": "≈42-43 EH/s (third-party cross-check: hashrate.no 43.36 EH/s, Kryptex 42.31 EH/s; MinePRL summary endpoint remains offline)",
+    "difficulty": "33,326,104.83 (latest block; prlscan.com — not directly comparable to prior MinePRL-reported nBits string)",
+    "block_height": 122407,
+    "block_time_sec": 223.8,
     "active_workers": null,
     "active_workers_scope": "MinePRL pool remains offline (pool.mineprl.com NXDOMAIN); no pool-level or network-wide worker count is currently exposed by a public API.",
     "pool_share_pct": null,
     "sources": [
       "api.prlscan.com/v1/status, /v1/blocks?limit=100 — block_height, block_time (avg over 100 blocks), difficulty, avg block_reward",
-      "hashrate.no/coins/PRL (≈55.21 EH/s) and pool.kryptex.com/prl/about-coin (≈55.74 EH/s) — independent third-party network hashrate estimates, since MinePRL's summary endpoint is offline"
+      "hashrate.no/coins/PRL (≈43.36 EH/s) and pool.kryptex.com/prl/about-coin (≈42.31 EH/s) — independent third-party network hashrate estimates, since MinePRL's summary endpoint is offline"
     ]
   },
   "bridge": {
-    "tvl_prl": 2030404.47,
-    "tvl_usd": 2313139.25,
-    "minted_wprl": 2009987.44,
-    "surplus_prl": 20417.03,
-    "surplus_pct": 1.0158,
-    "deposits_24h_prl": 81166.12,
-    "burns_24h_prl": 15639.27,
-    "fast_lane_used_pct": 16.2332,
+    "tvl_prl": 2026085.75,
+    "tvl_usd": 2194192.34,
+    "minted_wprl": 2005541.77,
+    "surplus_prl": 20543.97,
+    "surplus_pct": 1.0244,
+    "deposits_24h_prl": 19822.94,
+    "burns_24h_prl": 11380.68,
+    "fast_lane_used_pct": 3.9646,
     "active_addresses_24h": null,
     "anomalies": []
   },
   "social": {
     "sentiment": "neutral",
-    "summary": "Live sentiment sampling wasn't available again this run: the vault's X API credential wasn't reachable in this non-interactive context, and direct fetch of x.com profile pages continues to return HTTP 402. No incident or coordinated criticism surfaced through other channels this run. Kept sentiment neutral rather than inferring anything from the continued price pullback alone.",
+    "summary": "Live sentiment sampling wasn't available again this run: the vault's X API credential wasn't reachable in this non-interactive context, and direct fetch of x.com profile pages continues to return HTTP 402. No incident or coordinated criticism surfaced through other channels this run. Kept sentiment neutral rather than inferring anything from the continued gradual price pullback alone.",
     "mentions_24h": null,
     "tracked_accounts": [
       "@prlnet",
@@ -94,9 +94,9 @@
       "url": "https://github.com/PearlBridgeXYZ/public-frontend",
       "stars": 0,
       "open_prs": 2,
-      "commits_7d": 2,
-      "last_commit_at": "2026-10-01T13:04:23Z",
-      "last_commit_msg": "Merge pull request #3 from PearlBridgeXYZ/fix/redemption-copy-62662"
+      "commits_7d": 4,
+      "last_commit_at": "2026-10-02T06:06:51Z",
+      "last_commit_msg": "Merge pull request #4 from PearlBridgeXYZ/fix/deploy-canary-62812"
     },
     {
       "repo": "PearlBridgeXYZ/pearlwallet",
@@ -110,11 +110,11 @@
     {
       "repo": "pearl-research-labs/pearl",
       "url": "https://github.com/pearl-research-labs/pearl",
-      "stars": 336,
-      "open_prs": 48,
-      "commits_7d": 7,
-      "last_commit_at": "2026-10-01T14:31:10Z",
-      "last_commit_msg": "fix(oystercli): reach every transaction page and bound large coin lists (#352)"
+      "stars": 335,
+      "open_prs": 50,
+      "commits_7d": 8,
+      "last_commit_at": "2026-10-02T14:54:01Z",
+      "last_commit_msg": "fix: stabilize the flaky Blockchain CI tests (#361)"
     },
     {
       "repo": "pearl-research-labs/pips",
