@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
 import { useReadContracts, WagmiProvider } from "wagmi";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import {
@@ -30,7 +30,6 @@ import { Api } from "./Api";
 import { History } from "./History";
 import { Audit } from "./Audit";
 import { Releases } from "./Releases";
-import { Ecosystem } from "./Ecosystem";
 import { Infrastructure } from "./Infrastructure";
 import { Operator } from "./Operator";
 import { OrderStatus } from "./OrderStatus";
@@ -144,7 +143,6 @@ export function App() {
                       ) : null}
                       <Link to="/status" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Status</Link>
                       {/* /stats is intentionally UNLISTED — reachable by direct URL only, not in nav (G, 2026-06-10) */}
-                      <Link to="/ecosystem" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Ecosystem</Link>
                       <Link to="/infrastructure" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Infrastructure</Link>
                       <Link to="/audit" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">Audit</Link>
                       <Link to="/developers" className="text-gray-400 hover:text-white transition-colors hidden sm:inline">API</Link>
@@ -177,7 +175,8 @@ export function App() {
                     <Route path="/audit" element={<Audit />} />
                     <Route path="/audit/:slug" element={<Audit />} />
                     <Route path="/releases" element={<Releases />} />
-                    <Route path="/ecosystem" element={<Ecosystem />} />
+                    {/* /ecosystem retired (G #62958, RC5.54): old links land on the home page instead of a 404 */}
+                    <Route path="/ecosystem" element={<Navigate to="/" replace />} />
                     <Route path="/infrastructure" element={<Infrastructure />} />
                     <Route path="/operator" element={<Operator />} />
                   </Routes>
