@@ -74,8 +74,18 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
   const { signTypedDataAsync } = useSignTypedData();
   const { openConnectModal } = useConnectModal();
 
+  // Re-audit 2026-10-04 (R3 M-4): the contract is the fee authority. The preview used the build-time env value, which
+  // was 0 while the contract charges 50 bps, so "You receive" overstated the payout by 0.5%. Read burnFeeBps live; the
+  // env value is only the fallback until the read lands.
+  const { data: liveBurnFeeBps } = useReadContract({
+    address: ADDRS.BRIDGE_CONTROLLER,
+    abi: BRIDGE_CONTROLLER_ABI,
+    functionName: "burnFeeBps",
+    query: { refetchInterval: 30_000 },
+  });
+  const burnFeeBps = typeof liveBurnFeeBps === "number" || typeof liveBurnFeeBps === "bigint" ? Number(liveBurnFeeBps) : BURN_FEE_BPS;
   const grains = parseToGrains(amount);
-  const { fee, net } = grains ? computeFee(grains, BURN_FEE_BPS) : { fee: 0n, net: 0n };
+  const { fee, net } = grains ? computeFee(grains, burnFeeBps) : { fee: 0n, net: 0n };
 
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
     address: ADDRS.WPRL,
@@ -423,9 +433,9 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
 
           {grains && grains > 0n && (
             <div className="bg-white/5 rounded-2xl p-4 text-sm space-y-2">
-              {BURN_FEE_BPS > 0 && (
+              {burnFeeBps > 0 && (
                 <Row
-                  label={`Bridge fee (${(BURN_FEE_BPS / 100).toString()}%)`}
+                  label={`Bridge fee (${(burnFeeBps / 100).toString()}%)`}
                   value={grainsToDisplay(fee) + " WPRL"}
                 />
               )}
