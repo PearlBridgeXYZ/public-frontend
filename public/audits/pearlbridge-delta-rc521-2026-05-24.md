@@ -72,8 +72,8 @@ The same pattern applies to `/api/custody/addresses` via `refreshCustodyAddrs()`
 `relay/.env`:
 
 ```
-CORS_ALLOWED_ORIGINS=https://pearlbridge.xyz,https://next.pearlbridge.xyz,https://devnet.mrb.sh,https://pearlbridge-xyz-avz.pages.dev,https://pearlbridge-next.pages.dev
-SIWE_EXPECTED_DOMAINS=pearlbridge.xyz,next.pearlbridge.xyz,devnet.mrb.sh,pearlbridge-xyz-avz.pages.dev,pearlbridge-next.pages.dev
+CORS_ALLOWED_ORIGINS=https://pearlbridge.xyz,https://next.pearlbridge.xyz,https://<devnet-origin>,https://pearlbridge-xyz-avz.pages.dev,https://pearlbridge-next.pages.dev
+SIWE_EXPECTED_DOMAINS=pearlbridge.xyz,next.pearlbridge.xyz,<devnet-origin>,pearlbridge-xyz-avz.pages.dev,pearlbridge-next.pages.dev
 ```
 
 `@fastify/cors` continues to echo the specific allowed origin (never `*`) on credentialed requests. Verified:

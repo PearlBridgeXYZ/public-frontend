@@ -14,7 +14,7 @@ since RC5.6 already trips on (a) any single mint/burn larger than 0.5%
 of the WPRL supply and (b) any hourly volume spike of more than 10x the
 rolling weekly baseline. Until RC5.12, those trips were observable only
 in metrics and structured logs. RC5.12 turns each trip into an
-operator-facing alert with a paired read-only investigator session.
+operator-facing alert with a paired read-only automated investigation.
 
 There are no contract changes and no relay business-logic changes. The
 detector's thresholds, denominators, and on-chain pause path are
@@ -26,29 +26,21 @@ identical to RC5.11. Only the notification side-channel is new.
 
 ### 2.1 Relay — operator alert sink
 
-A new module `src/lib/alerts.ts` exposes two side-effects that fire on
-every anomaly trip:
+A new alerting module exposes two side-effects that fire on every
+anomaly trip:
 
-1. **Programmatic Telegram alert** to the operator group, posted via
-   the existing `tg-send-logged.sh` wrapper so it flows through the
-   Telegraph origin-routing service (replies route back to the relay
-   host's terminal session). The message is HTML-escaped, names the
-   direction (mint/burn), the amount in whole PRL, the reason emitted
-   by the detector, and the relevant tx identifier (Ethereum tx hash
-   for burns; Pearl tx id for mints).
-2. **Read-only Claude investigator session** spawned via
-   `scripts/spawn-investigator.sh`. The script ensures a `pearl-invest`
-   window exists on the operator's `cc` tmux socket, writes a context
-   prompt containing the anomaly fields plus the PearlBridge
-   architecture pointers, and pipes it into `claude --print
-   --permission-mode bypassPermissions --model sonnet`. The prompt is
-   explicit that the investigator may not write any state or send any
-   transactions — it reads logs, contract state, the public Pearl
-   explorer, and Etherscan, then posts a single verdict line
-   (LIKELY LEGITIMATE / SUSPICIOUS / INCONCLUSIVE) back to the same
-   Telegram group with its evidence and a recommendation. The spawn is
-   fire-and-forget (`detached: true`, `unref()`), so the relay's hot
-   path is never blocked on the investigator.
+1. **Operator alert** to the private operator channel. The message is
+   escaped, names the direction (mint/burn), the amount in whole PRL,
+   the reason emitted by the detector, and the relevant tx identifier
+   (Ethereum tx hash for burns; Pearl tx id for mints).
+2. **Read-only automated investigation.** A read-only review process is
+   started with the anomaly fields and public architecture pointers.
+   It may not write any state or send any transactions — it reads
+   logs, contract state, the public Pearl explorer and Etherscan, then
+   posts a single verdict (LIKELY LEGITIMATE / SUSPICIOUS /
+   INCONCLUSIVE) to the operator channel with its evidence and a
+   recommendation. It is fire-and-forget, so the relay's hot path is
+   never blocked on the investigation.
 
 The on-chain pause path remains wired through `PAUSER_ROLE`, but with
 VLayer providing centralized cancellation upstream of mint settlement
@@ -58,7 +50,7 @@ is.
 ### 2.2 Relay — tx context plumbed into the detector
 
 `anomalyCheck` now takes an optional `AnomalyTxContext` ({ ethTxHash?,
-pearlTxId? }) so the alert message and investigator prompt can name
+pearlTxId? }) so the alert message and the investigation can name
 the specific transaction that tripped the detector. The mint path
 passes `pearlTxId`; the burn path passes `ethTxHash`. No change to
 detector logic; no change to false-positive rate.
@@ -77,10 +69,10 @@ full precision so backing can be reconciled exactly.
 
 | Risk | Status |
 | --- | --- |
-| Investigator runs as a privileged shell. | Mitigated. Spawned via the user-scoped tmux socket and explicitly read-only in its prompt; cannot reach `RELAYER_PRIVATE_KEY` (env-scoped to the relay systemd unit) and has no signer wired into its `claude` invocation. |
-| Alert path adds a hot-path failure mode. | Mitigated. `sendAnomalyAlert` and `spawnInvestigator` are both fire-and-forget — they catch their own errors, never throw back into the detector, and never await child processes. |
-| Telegram outage silences operator visibility. | Pre-existing. Metrics + structured logs continue to record every trip; the relay's `/metrics` endpoint (Bearer-gated since RC5.11) is still the canonical record. |
-| Investigator prompt leaks operator infra. | Mitigated. The prompt names only the live-published architecture (contract addresses, public explorer URL, lock wallet) — nothing that isn't already on this audit page. |
+| Investigation runs with excess privilege. | Mitigated. It runs read-only, has no access to the relay signing key and has no signer wired in. |
+| Alert path adds a hot-path failure mode. | Mitigated. The alert and the investigation are both fire-and-forget — they catch their own errors, never throw back into the detector, and never await child processes. |
+| Alert-channel outage silences operator visibility. | Pre-existing. Metrics + structured logs continue to record every trip; the relay's `/metrics` endpoint (Bearer-gated since RC5.11) is still the canonical record. |
+| Investigation input leaks operator infrastructure. | Mitigated. It is given only the live-published architecture (contract addresses, public explorer URL, lock wallet) — nothing that isn't already on this audit page. |
 
 ---
 

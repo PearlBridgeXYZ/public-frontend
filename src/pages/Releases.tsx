@@ -310,7 +310,7 @@ const RELEASES: Release[] = [
     date: "2026-05-20",
     title: "Operator anomaly alerts + whole-PRL display",
     summary:
-      "Every anomaly trip in the relay posts a Telegram alert to the operator group and spawns a read-only investigator session for fast triage. Frontend rounds TVL and Fast Lane Left to whole PRL.",
+      "Every anomaly trip in the relay alerts the operators and starts a read-only automated investigation for fast triage. Frontend rounds TVL and Fast Lane Left to whole PRL.",
     highlights: [
       "Operator-facing anomaly notification path.",
       "No Solidity changes; detector thresholds identical to RC5.11.",
