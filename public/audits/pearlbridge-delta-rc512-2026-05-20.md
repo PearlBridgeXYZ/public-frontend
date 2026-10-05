@@ -69,7 +69,7 @@ full precision so backing can be reconciled exactly.
 
 | Risk | Status |
 | --- | --- |
-| Investigation runs with excess privilege. | Mitigated. It runs read-only, has no access to the relay signing key and has no signer wired in. |
+| Investigation runs with excess privilege. | Mitigated. It is instructed to stay read-only, and it has no access to the relay signing key and has no signer wired in. |
 | Alert path adds a hot-path failure mode. | Mitigated. The alert and the investigation are both fire-and-forget — they catch their own errors, never throw back into the detector, and never await child processes. |
 | Alert-channel outage silences operator visibility. | Pre-existing. Metrics + structured logs continue to record every trip; the relay's `/metrics` endpoint (Bearer-gated since RC5.11) is still the canonical record. |
 | Investigation input leaks operator infrastructure. | Mitigated. It is given only the live-published architecture (contract addresses, public explorer URL, lock wallet) — nothing that isn't already on this audit page. |
