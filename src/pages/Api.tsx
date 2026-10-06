@@ -29,7 +29,7 @@ const ENDPOINTS: Endpoint[] = [
     curl: `curl ${API_BASE}/v1/status`,
     response: `{
   "paused": false,
-  "fees": { "mintFeeBps": 0, "burnFeeBps": 0 },
+  "fees": { "mintFeeBps": 0, "burnFeeBps": 50, "depositFeeBps": 50, "depositFeeMinGrains": "400000000" },
   "limits": {
     "dailyMintLimitGrains": "500000000000000",
     "dailyBurnLimitGrains": "100000000000000",
@@ -104,7 +104,7 @@ const ENDPOINTS: Endpoint[] = [
     path: "/v1/quote/mint",
     title: "Mint quote",
     description:
-      "Quote a prospective PRL→WPRL deposit before funds move: fee, net WPRL, and whether the amount clears the fast lane (mints right after confirmation) or queues in the 24h slow lane. Quotes derive from the same 30s-cached status the /v1/status route serves.",
+      "Quote a prospective PRL→WPRL deposit before funds move: fee, net WPRL (feeGrains / netGrains are authoritative: a 0.5% deposit fee with a 4 PRL minimum, charged per Pearl transaction, waived on very small deposits, plus any contract mint fee), and whether the amount clears the fast lane (mints right after confirmation) or queues in the 24h slow lane. Quotes derive from the same 30s-cached status the /v1/status route serves.",
     params: [
       { name: "amountGrains", in: "query", description: "deposit amount in grains (positive integer)" },
     ],
@@ -112,7 +112,12 @@ const ENDPOINTS: Endpoint[] = [
     response: `{
   "direction": "mint",
   "amountGrains": "10000000000",
-  "feeBps": 0, "feeGrains": "0", "netGrains": "10000000000",
+  "feeBps": 400, "feeGrains": "400000000", "netGrains": "9600000000",
+  "effectiveFeeBps": 400,
+  "bridgeFeeBps": 50, "contractFeeBps": 0,
+  "bridgeFeeRule": "minimum", "feeAppliesPer": "pearl-transaction",
+  "bridgeFeeGrains": "400000000", "bridgeFeeMinGrains": "400000000",
+  "bridgeFeeWaived": false, "contractFeeGrains": "0",
   "paused": false,
   "lane": "fast",
   "slowLaneDelaySeconds": 0,
@@ -138,7 +143,7 @@ const ENDPOINTS: Endpoint[] = [
     response: `{
   "direction": "burn",
   "amountGrains": "10000000000",
-  "feeBps": 0, "feeGrains": "0", "netGrains": "10000000000",
+  "feeBps": 50, "feeGrains": "50000000", "netGrains": "9950000000",
   "paused": false,
   "withinDailyCap": true,
   "burnWindowRemainingGrains": "99788751193552",
