@@ -67,6 +67,21 @@ npx -y wrangler@4 pages deploy dist \
   --commit-hash="$COMMIT" \
   --commit-message="$COMMIT_MSG"
 
+# Wait for the edge to serve THIS build before the canary check; otherwise the
+# check can pass against the previous deployment (seen 2026-10-06).
+if [ "$BRANCH" = "main" ]; then
+  WANT="$(ls dist/assets/index-*.js | head -1 | xargs -n1 basename)"
+  for i in $(seq 1 24); do
+    LIVE="$(curl -s https://pearlbridge.xyz/ | grep -oE 'index-[A-Za-z0-9_-]+\.js' | head -1 || true)"
+    [ "$LIVE" = "$WANT" ] && break
+    sleep 5
+  done
+  if [ "$LIVE" != "$WANT" ]; then
+    echo "deploy.sh: edge still serves '$LIVE' (expected '$WANT') after 120s — deployment unverified." >&2
+    exit 5
+  fi
+fi
+
 # Publication is not complete until the authorized baseline matches. Never
 # automatically bless whatever the public edge happens to serve.
 bash "$ROOT/scripts/verify-deployed-canary.sh" "$BRANCH"
