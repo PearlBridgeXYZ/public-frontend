@@ -389,6 +389,7 @@ function HomePage() {
             <p className="text-gray-400 text-xs leading-relaxed">
               Always verify the contract address on Etherscan.<br />
               Daily bridge limits apply. Bridge is administered by a Timelock-gated admin set with an N-of-M attester quorum.<br />
+              Ethereum addresses are screened against the OFAC sanctions list; transfers involving a listed address are held for review.<br />
               Smart contracts are audited. See <a href="/audit" className="text-[#00e5d0] hover:underline">audit reports &rarr;</a>
             </p>
           </div>
