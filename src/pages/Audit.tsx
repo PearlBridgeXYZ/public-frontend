@@ -239,7 +239,7 @@ function SolvencyCard() {
       <p className="text-xs text-gray-400 leading-relaxed mb-5 max-w-2xl">
         Every WPRL on Ethereum is backed 1:1 by PRL custodied on Pearl L1. The
         custody figure below sums the canonical lock wallet, every active
-        per-user deposit address, the treasury and fee wallets, and the
+        per-user deposit address, the treasury wallets, and the
         side-door intermediary&rsquo;s WPRL balance &mdash; that WPRL is
         operator-held and burnable 1:1 against the lock, so it counts as
         PRL-equivalent backing until the burn settles. In-flight deposits
