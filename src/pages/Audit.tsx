@@ -2,7 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { useReadContract } from "wagmi";
 import { WPRL_ABI, CONTRACTS, EXPECTED_CHAIN_ID } from "../lib/contracts";
-import { PEARL_EXPLORER_BASE, RELAY_API_BASE } from "../lib/config";
+import { RELAY_API_BASE } from "../lib/config";
 import { grainsToWholePrlWithCommas } from "../lib/utils";
 import { useIntermediaryHotBalance } from "../lib/useIntermediaryHotBalance";
 
@@ -117,9 +117,10 @@ export function Audit() {
           Audit &amp; transparency
         </h1>
         <p className="text-gray-400 text-base leading-relaxed max-w-3xl">
-          Every release is security-reviewed before it ships, and an independent
-          external audit is underway. Reserves are shown live below, so you can
-          check the backing yourself.
+          Each release of PearlBridge undergoes security review before it is
+          deployed, and an independent external audit is presently under way.
+          The reserves backing Wrapped Pearl are reported below in real time, so
+          that the backing may be verified directly rather than taken on trust.
         </p>
       </header>
 
@@ -149,7 +150,6 @@ type CustodyResponse = {
 
 function SolvencyCard() {
   const wprlAddr = CONTRACTS.WPRL;
-  const lockAddr = CONTRACTS.PEARL_LOCK_ADDRESS;
   const { data: totalSupply } = useReadContract({
     address: wprlAddr,
     abi: WPRL_ABI,
@@ -183,14 +183,6 @@ function SolvencyCard() {
     };
   }, []);
 
-  const lockExplorerUrl = lockAddr
-    ? `${PEARL_EXPLORER_BASE}/address/${lockAddr}`
-    : null;
-
-  const lockGrains = custody ? BigInt(custody.lockGrains) : null;
-  const depositGrains = custody ? BigInt(custody.depositGrains) : null;
-  const treasuryGrains =
-    custody && custody.treasuryGrains ? BigInt(custody.treasuryGrains) : 0n;
   // Relay-side custody = lock + deposit + treasury + fee. We use the full sum:
   // the fee Pearl wallet's PRL backs the operator-held fee WPRL that is part
   // of `totalSupply`, so subtracting fee on the custody side alone (and not
@@ -241,8 +233,10 @@ function SolvencyCard() {
         <span className="text-[11px] font-mono text-gray-500">Live</span>
       </div>
       <p className="text-xs text-gray-400 leading-relaxed mb-5 max-w-2xl">
-        Every WPRL on Ethereum is backed 1:1 by PRL held on Pearl L1. Every
-        number below can be checked on the Pearl explorer and Etherscan.
+        Each unit of WPRL in circulation on Ethereum is backed one-to-one by PRL
+        held in custody on Pearl L1. The figures below are read directly from
+        both chains and may be checked independently against the per-address
+        breakdown.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl bg-black/30 border border-white/5 p-4">
@@ -269,60 +263,26 @@ function SolvencyCard() {
                 ? "—"
                 : "Loading…"}
           </p>
-          {custody && lockGrains !== null && depositGrains !== null && (
+          {custody && (
             <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
-              <span className="font-mono">{grainsToWholePrlWithCommas(lockGrains)}</span>{" "}
-              in lock wallet
-              {depositGrains > 0n && (
-                <>
-                  {" + "}
-                  <span className="font-mono">{grainsToWholePrlWithCommas(depositGrains)}</span>{" "}
-                  across {custody.depositAddressCount}{" "}
-                  active deposit address{custody.depositAddressCount === 1 ? "" : "es"}
-                </>
-              )}
-              {treasuryGrains > 0n && (
-                <>
-                  {" + "}
-                  <span className="font-mono">{grainsToWholePrlWithCommas(treasuryGrains)}</span>{" "}
-                  in treasury
-                  {custody.treasuryAddressCount && custody.treasuryAddressCount > 1
-                    ? ` (${custody.treasuryAddressCount} wallets)`
-                    : ""}
-                </>
-              )}
-              {pendingBurnGrains > 0n && (
-                <>
-                  {" + "}
-                  <span className="font-mono">{grainsToWholePrlWithCommas(pendingBurnGrains)}</span>{" "}
-                  pending burn
-                </>
-              )}
+              Held across the bridge lock wallet, {custody.depositAddressCount}{" "}
+              deposit address{custody.depositAddressCount === 1 ? "" : "es"}
+              {custody.treasuryAddressCount
+                ? ` and ${custody.treasuryAddressCount} treasury wallet${custody.treasuryAddressCount === 1 ? "" : "s"}`
+                : ""}
+              .
             </p>
           )}
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-            {lockExplorerUrl && (
-              <a
-                href={lockExplorerUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[11px] text-[#00e5d0] hover:underline inline-block"
-              >
-                Verify lock wallet on explorer &rarr;
-              </a>
-            )}
             <a
               href={breakdownUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[11px] text-[#00e5d0] hover:underline inline-block"
             >
-              Per-address JSON breakdown &rarr;
+              Per-address breakdown &rarr;
             </a>
           </div>
-          <p className="text-[11px] text-gray-500 mt-2 font-mono break-all">
-            {lockAddr || "not configured"}
-          </p>
         </div>
       </div>
       {custody && surplusGrains !== null && totalCustodyGrains !== null && (
@@ -361,7 +321,7 @@ function SolvencyCard() {
         </p>
       )}
       <p className="text-[11px] text-gray-500 mt-4">
-        WPRL in circulation never exceeds PRL held.
+        Invariant: the supply of WPRL never exceeds the PRL held in custody.
       </p>
     </section>
   );
