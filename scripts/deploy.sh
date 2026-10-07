@@ -22,6 +22,14 @@ if [ "$BRANCH" != "next" ] && [ "$BRANCH" != "main" ]; then
   exit 2
 fi
 
+if [ "$BRANCH" = "main" ] && [ "${PB_ALLOW_CLASSIC_ONLY_PROD:-}" != "yes-replace-the-new-site" ]; then
+  # 2026-10-07 (G #64810): production pearlbridge.xyz serves the NEW interface with this classic site assembled in
+  # (pearlbridge repo, release/63350 beta-ui + scripts/assemble-switchover.mjs). Deploying this repo alone to
+  # production replaces the whole switchover site with the classic one. Build here, then assemble + deploy from there.
+  echo "deploy.sh: refusing 'main' — production is the new site + assembled classic. Build this repo, then run" >&2
+  echo "  node scripts/assemble-switchover.mjs <this-repo>/dist  in the release/63350 beta-ui and deploy that dist." >&2
+  exit 6
+fi
 if [ "$BRANCH" = "main" ]; then
   PROJECT="pearlbridge-xyz"
 else
