@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useReadContract } from "wagmi";
 import { WPRL_ABI, CONTRACTS, EXPECTED_CHAIN_ID } from "../lib/contracts";
 import { PEARL_EXPLORER_BASE, RELAY_API_BASE } from "../lib/config";
-import { grainsToDisplay } from "../lib/utils";
+import { grainsToWholePrlWithCommas } from "../lib/utils";
 import { useIntermediaryHotBalance } from "../lib/useIntermediaryHotBalance";
 
 type AuditReport = {
@@ -251,7 +251,7 @@ function SolvencyCard() {
           </p>
           <p className="text-xl font-bold text-white">
             {circulatingWprlGrains !== null
-              ? `${grainsToDisplay(circulatingWprlGrains)} WPRL`
+              ? `${grainsToWholePrlWithCommas(circulatingWprlGrains)} WPRL`
               : "—"}
           </p>
           <p className="text-[11px] text-gray-500 mt-2 font-mono break-all">
@@ -264,19 +264,19 @@ function SolvencyCard() {
           </p>
           <p className="text-xl font-bold text-white">
             {totalCustodyGrains !== null
-              ? `${grainsToDisplay(totalCustodyGrains)} PRL`
+              ? `${grainsToWholePrlWithCommas(totalCustodyGrains)} PRL`
               : custodyError
                 ? "—"
                 : "Loading…"}
           </p>
           {custody && lockGrains !== null && depositGrains !== null && (
             <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
-              <span className="font-mono">{grainsToDisplay(lockGrains)}</span>{" "}
+              <span className="font-mono">{grainsToWholePrlWithCommas(lockGrains)}</span>{" "}
               in lock wallet
               {depositGrains > 0n && (
                 <>
                   {" + "}
-                  <span className="font-mono">{grainsToDisplay(depositGrains)}</span>{" "}
+                  <span className="font-mono">{grainsToWholePrlWithCommas(depositGrains)}</span>{" "}
                   across {custody.depositAddressCount}{" "}
                   active deposit address{custody.depositAddressCount === 1 ? "" : "es"}
                 </>
@@ -284,7 +284,7 @@ function SolvencyCard() {
               {treasuryGrains > 0n && (
                 <>
                   {" + "}
-                  <span className="font-mono">{grainsToDisplay(treasuryGrains)}</span>{" "}
+                  <span className="font-mono">{grainsToWholePrlWithCommas(treasuryGrains)}</span>{" "}
                   in treasury
                   {custody.treasuryAddressCount && custody.treasuryAddressCount > 1
                     ? ` (${custody.treasuryAddressCount} wallets)`
@@ -294,7 +294,7 @@ function SolvencyCard() {
               {pendingBurnGrains > 0n && (
                 <>
                   {" + "}
-                  <span className="font-mono">{grainsToDisplay(pendingBurnGrains)}</span>{" "}
+                  <span className="font-mono">{grainsToWholePrlWithCommas(pendingBurnGrains)}</span>{" "}
                   pending burn
                 </>
               )}
@@ -337,7 +337,7 @@ function SolvencyCard() {
               }
             >
               {surplusGrains >= 0n ? "+" : ""}
-              {grainsToDisplay(surplusGrains < 0n ? -surplusGrains : surplusGrains)}{" "}
+              {grainsToWholePrlWithCommas(surplusGrains < 0n ? -surplusGrains : surplusGrains)}{" "}
               PRL
             </span>
           </span>
