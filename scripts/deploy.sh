@@ -22,6 +22,14 @@ if [ "$BRANCH" != "next" ] && [ "$BRANCH" != "main" ]; then
   exit 2
 fi
 
+if [ "$BRANCH" = "main" ] && [ "${PB_ALLOW_CLASSIC_ONLY_PROD:-}" != "yes-replace-the-new-site" ]; then
+  # 2026-10-07 (G #64810): production pearlbridge.xyz serves the NEW interface with this classic site assembled in
+  # (pearlbridge repo, release/63350 beta-ui + scripts/assemble-switchover.mjs). Deploying this repo alone to
+  # production replaces the whole switchover site with the classic one. Build here, then assemble + deploy from there.
+  echo "deploy.sh: refusing 'main' — production is the new site + assembled classic. Build this repo, then run" >&2
+  echo "  node scripts/assemble-switchover.mjs <this-repo>/dist  in the release/63350 beta-ui and deploy that dist." >&2
+  exit 6
+fi
 if [ "$BRANCH" = "main" ]; then
   PROJECT="pearlbridge-xyz"
 else
@@ -66,6 +74,21 @@ npx -y wrangler@4 pages deploy dist \
   --branch="$BRANCH" \
   --commit-hash="$COMMIT" \
   --commit-message="$COMMIT_MSG"
+
+# Wait for the edge to serve THIS build before the canary check; otherwise the
+# check can pass against the previous deployment (seen 2026-10-06).
+if [ "$BRANCH" = "main" ]; then
+  WANT="$(ls dist/assets/index-*.js | head -1 | xargs -n1 basename)"
+  for i in $(seq 1 24); do
+    LIVE="$(curl -s https://pearlbridge.xyz/ | grep -oE 'index-[A-Za-z0-9_-]+\.js' | head -1 || true)"
+    [ "$LIVE" = "$WANT" ] && break
+    sleep 5
+  done
+  if [ "$LIVE" != "$WANT" ]; then
+    echo "deploy.sh: edge still serves '$LIVE' (expected '$WANT') after 120s — deployment unverified." >&2
+    exit 5
+  fi
+fi
 
 # Publication is not complete until the authorized baseline matches. Never
 # automatically bless whatever the public edge happens to serve.
