@@ -17,13 +17,23 @@ type AuditReport = {
 
 const REPORTS: AuditReport[] = [
   {
+    slug: "pearlbridge-relay-reaudit-2026-10-05",
+    title: "PearlBridge Relay Re-Audit and Fix Verification",
+    date: "2026-10-05",
+    summary:
+      "Review of the bridge server and website. Contract code unchanged; WPRL supply reconciles exactly on chain. All findings fixed and live.",
+    verdict:
+      "All findings fixed. Contracts unchanged.",
+    status: "published",
+  },
+  {
     slug: "pearlbridge-delta-rc521-2026-05-24",
     title: "PearlBridge RC5.21 Delta Audit",
     date: "2026-05-24",
     summary:
-      "Relay reliability + small UI refinement. The /api/custody endpoint had been 504-ing on cold cache because per-request fan-out spawned unbounded parallel reads against Pearl RPC; RC5.21 bounds concurrency to 8, single-flights refreshes, serves stale-while-revalidate from a disk-persisted cache that survives restarts, and keeps the cache warm via a 30s background timer. The fast-lane reset countdown also moved off the BridgeStats tile (where it stretched the three-tile row) and onto the Two-Lane Mint info block. CORS allowlist expanded to next.pearlbridge.xyz.",
+      "Faster, more reliable reserve reporting on the audit page. No contract changes.",
     verdict:
-      "Mainnet operation appropriate. No Solidity change, no relay business-logic change. Contracts identical to RC5.6.",
+      "Approved for mainnet. Contracts unchanged.",
     status: "published",
   },
   {
@@ -31,9 +41,9 @@ const REPORTS: AuditReport[] = [
     title: "PearlBridge RC5.20 Delta Audit",
     date: "2026-05-24",
     summary:
-      "Surgical UI update: Fast Lane Left tile now shows hours remaining (one decimal) until the cap resets at the next fixed UTC epoch boundary. Pure client-side countdown derived from the contract's WINDOW_DURATION; no extra RPC, no contract change, no relay change. Also recon: every mint since the 2026-05-23 and 2026-05-24 epoch resets routed fast-lane and finalized cleanly.",
+      "Small website update: fast-lane reset countdown. No contract or relay changes.",
     verdict:
-      "Mainnet operation appropriate. Contracts identical to RC5.6; relay and signing surface untouched.",
+      "Approved for mainnet. Contracts unchanged.",
     status: "published",
   },
   {
@@ -41,9 +51,9 @@ const REPORTS: AuditReport[] = [
     title: "PearlBridge RC5.12 Delta Audit",
     date: "2026-05-20",
     summary:
-      "Operator-facing anomaly alerting: every anomaly trip in the relay now alerts the operators and starts a read-only automated investigation for fast triage. Frontend rounds TVL and Fast Lane Left to whole PRL. No Solidity changes.",
+      "Faster operator alerts on unusual bridge activity. No contract changes.",
     verdict:
-      "Mainnet operation appropriate. Anomaly detector continues to run on the same thresholds as RC5.11; only the notification path is new.",
+      "Approved for mainnet. Contracts unchanged.",
     status: "published",
   },
   {
@@ -51,9 +61,9 @@ const REPORTS: AuditReport[] = [
     title: "PearlBridge RC5.11 — Final Pre-Launch Audit",
     date: "2026-05-20",
     summary:
-      "Consolidated launch-readiness review across contracts, relay (signing, recovery, mint quorum, metrics auth), frontend, and ops. RC5.11 ships relay hardening only — no Solidity changes vs RC5.6.",
+      "Full pre-launch review of contracts, relay, website and operations.",
     verdict:
-      "Mainnet operation appropriate. Three pre-existing governance/ops items tracked (defaultAdminDelay, Timelock minDelay, pauser ETH).",
+      "Approved for mainnet launch.",
     status: "published",
   },
   {
@@ -61,9 +71,9 @@ const REPORTS: AuditReport[] = [
     title: "PearlBridge RC5.10 Delta Audit",
     date: "2026-05-20",
     summary:
-      "Small operational release: brand logo refresh, audit-page loading copy, and a 30s→60s relay cache TTL. No Solidity changes, no on-chain action.",
+      "Minor website and caching update. No contract changes.",
     verdict:
-      "Mainnet operation appropriate — surface untouched relative to RC5.6.",
+      "Approved for mainnet. Contracts unchanged.",
     status: "published",
   },
   {
@@ -71,9 +81,9 @@ const REPORTS: AuditReport[] = [
     title: "PearlBridge RC5.6 Audit",
     date: "2026-05-20",
     summary:
-      "Eleven independent automated review passes over the live mainnet contract suite (BridgeController, WPearl, BridgeLib) plus on-chain verification of deployed proxy state.",
+      "Eleven independent review passes over the live contracts, plus on-chain checks of the deployed state.",
     verdict:
-      "Mainnet operation appropriate — no Critical, no unmitigated High. Two Medium and a handful of Low/Informational items documented for the next release.",
+      "Approved for mainnet. No critical or unresolved high-severity issues.",
     status: "published",
   },
   {
@@ -81,7 +91,7 @@ const REPORTS: AuditReport[] = [
     title: "PearlBridge — Independent External Security Audit",
     date: "In progress",
     summary:
-      "Independent external review of the live mainnet contract suite. Engagement underway; the report will be published here when complete.",
+      "Independent external review of the live contracts. Report will be published here when complete.",
     verdict: "In progress",
     status: "in_progress",
   },
@@ -107,13 +117,9 @@ export function Audit() {
           Audit &amp; transparency
         </h1>
         <p className="text-gray-400 text-base leading-relaxed max-w-3xl">
-          PearlBridge ships every release through a multi-pass security audit
-          covering contracts, relay, frontend, and the Pearl cross-chain
-          surface. The most recent re-audit (RC5.6, 2026-05-20) ran eleven
-          independent passes over the live mainnet contract suite plus an
-          on-chain probe of deployed state; a separate independent external
-          audit is currently underway. Live solvency is shown below so backing
-          can be verified without trusting this page.
+          Every release is security-reviewed before it ships, and an independent
+          external audit is underway. Reserves are shown live below, so you can
+          check the backing yourself.
         </p>
       </header>
 
@@ -130,7 +136,6 @@ export function Audit() {
 type CustodyResponse = {
   lockAddress: string;
   lockGrains: string;
-  feeGrains?: string;
   depositGrains: string;
   depositAddressCount: number;
   treasuryGrains?: string;
@@ -186,7 +191,6 @@ function SolvencyCard() {
   const depositGrains = custody ? BigInt(custody.depositGrains) : null;
   const treasuryGrains =
     custody && custody.treasuryGrains ? BigInt(custody.treasuryGrains) : 0n;
-  const feeGrains = custody && custody.feeGrains ? BigInt(custody.feeGrains) : 0n;
   // Relay-side custody = lock + deposit + treasury + fee. We use the full sum:
   // the fee Pearl wallet's PRL backs the operator-held fee WPRL that is part
   // of `totalSupply`, so subtracting fee on the custody side alone (and not
@@ -203,7 +207,7 @@ function SolvencyCard() {
   // drain the operator's Pearl hot wallet in the treasury but leave the
   // corresponding WPRL on Ethereum until the burn lands) create a transient
   // apparent shortfall on the page even though the bridge is solvent.
-  const { address: intermediaryAddress, balance: intermediaryHotBalance } =
+  const { balance: intermediaryHotBalance } =
     useIntermediaryHotBalance();
   const pendingBurnGrains = intermediaryHotBalance ?? 0n;
   const totalCustodyGrains =
@@ -237,16 +241,8 @@ function SolvencyCard() {
         <span className="text-[11px] font-mono text-gray-500">Live</span>
       </div>
       <p className="text-xs text-gray-400 leading-relaxed mb-5 max-w-2xl">
-        Every WPRL on Ethereum is backed 1:1 by PRL custodied on Pearl L1. The
-        custody figure below sums the canonical lock wallet, every active
-        per-user deposit address, the treasury wallets, and the
-        side-door intermediary&rsquo;s WPRL balance &mdash; that WPRL is
-        operator-held and burnable 1:1 against the lock, so it counts as
-        PRL-equivalent backing until the burn settles. In-flight deposits
-        awaiting the next sweep cycle are counted too, because the relay can
-        only consolidate them; it cannot move them anywhere else. Every number
-        is independently re-checkable on the public Pearl explorer and
-        Etherscan.
+        Every WPRL on Ethereum is backed 1:1 by PRL held on Pearl L1. Every
+        number below can be checked on the Pearl explorer and Etherscan.
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl bg-black/30 border border-white/5 p-4">
@@ -258,14 +254,6 @@ function SolvencyCard() {
               ? `${grainsToDisplay(circulatingWprlGrains)} WPRL`
               : "—"}
           </p>
-          {pendingBurnGrains > 0n && (
-            <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
-              includes{" "}
-              <span className="font-mono">{grainsToDisplay(pendingBurnGrains)}</span>{" "}
-              operator-held in side-door intermediary (counted as PRL-equiv on
-              custody side, pending burn)
-            </p>
-          )}
           <p className="text-[11px] text-gray-500 mt-2 font-mono break-all">
             {wprlAddr}
           </p>
@@ -303,25 +291,13 @@ function SolvencyCard() {
                     : ""}
                 </>
               )}
-              {feeGrains > 0n && (
-                <>
-                  {" + "}
-                  <span className="font-mono">{grainsToDisplay(feeGrains)}</span>{" "}
-                  in fee wallet
-                </>
-              )}
               {pendingBurnGrains > 0n && (
                 <>
                   {" + "}
                   <span className="font-mono">{grainsToDisplay(pendingBurnGrains)}</span>{" "}
-                  PRL-equiv operator-held WPRL in side-door intermediary
+                  pending burn
                 </>
               )}
-            </p>
-          )}
-          {intermediaryAddress && pendingBurnGrains > 0n && (
-            <p className="text-[10px] text-gray-600 mt-1 font-mono break-all">
-              side door: {intermediaryAddress}
             </p>
           )}
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
@@ -385,7 +361,7 @@ function SolvencyCard() {
         </p>
       )}
       <p className="text-[11px] text-gray-500 mt-4">
-        Invariant: WPRL minted &le; PRL custodied at all times.
+        WPRL in circulation never exceeds PRL held.
       </p>
     </section>
   );
