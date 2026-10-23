@@ -41,7 +41,7 @@ const REPORTS: AuditReport[] = [
     title: "PearlBridge RC5.12 Delta Audit",
     date: "2026-05-20",
     summary:
-      "Operator-facing anomaly alerting: every anomaly trip in the relay now posts a Telegram alert to the operator group and spawns a read-only Claude investigator session for fast triage. Frontend rounds TVL and Fast Lane Left to whole PRL. No Solidity changes.",
+      "Operator-facing anomaly alerting: every anomaly trip in the relay now alerts the operators and starts a read-only automated investigation for fast triage. Frontend rounds TVL and Fast Lane Left to whole PRL. No Solidity changes.",
     verdict:
       "Mainnet operation appropriate. Anomaly detector continues to run on the same thresholds as RC5.11; only the notification path is new.",
     status: "published",
@@ -239,7 +239,7 @@ function SolvencyCard() {
       <p className="text-xs text-gray-400 leading-relaxed mb-5 max-w-2xl">
         Every WPRL on Ethereum is backed 1:1 by PRL custodied on Pearl L1. The
         custody figure below sums the canonical lock wallet, every active
-        per-user deposit address, the treasury and fee wallets, and the
+        per-user deposit address, the treasury wallets, and the
         side-door intermediary&rsquo;s WPRL balance &mdash; that WPRL is
         operator-held and burnable 1:1 against the lock, so it counts as
         PRL-equivalent backing until the burn settles. In-flight deposits
