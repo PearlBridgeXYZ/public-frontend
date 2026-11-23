@@ -85,7 +85,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
     query: { enabled: !!ethAddress },
   });
 
-  // Connected wallet's WPRL balance — surfaced under the amount input so the
+  // Connected wallet's WPEARL balance — surfaced under the amount input so the
   // user can see what's available, plus a Max button to autofill.
   const { data: wprlBalance, refetch: refetchBalance } = useReadContract({
     address: ADDRS.WPRL,
@@ -361,7 +361,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
           <div>
             <div className="flex items-baseline justify-between mb-1.5">
               <label className="block text-xs text-gray-400 uppercase tracking-wide">
-                Amount (WPRL)
+                Amount (WPEARL)
               </label>
               {wprlBalance !== undefined && (
                 <span className="text-xs text-gray-500">
@@ -372,7 +372,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
                     className="text-[#00e5d0] hover:underline font-mono"
                     title="Use full balance"
                   >
-                    {grainsToDisplay(wprlBalance as bigint)} WPRL
+                    {grainsToDisplay(wprlBalance as bigint)} WPEARL
                   </button>
                 </span>
               )}
@@ -426,7 +426,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
               {BURN_FEE_BPS > 0 && (
                 <Row
                   label={`Bridge fee (${(BURN_FEE_BPS / 100).toString()}%)`}
-                  value={grainsToDisplay(fee) + " WPRL"}
+                  value={grainsToDisplay(fee) + " WPEARL"}
                 />
               )}
               <Row label="You receive" value={grainsToDisplay(net) + " PRL"} highlight />
@@ -442,7 +442,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
           {exceedsWindow && (
             <div className="text-xs text-yellow-300 bg-yellow-500/10 border border-yellow-500/30 rounded-xl px-3 py-2">
               Amount exceeds the remaining 24h burn window
-              ({burnWindowRemaining !== undefined ? grainsToDisplay(burnWindowRemaining) : "?"} WPRL).
+              ({burnWindowRemaining !== undefined ? grainsToDisplay(burnWindowRemaining) : "?"} WPEARL).
               Reduce the amount or wait for the window to reset.
             </div>
           )}
@@ -497,7 +497,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
                 ? "Bridge paused"
                 : step === "approve" && !approveSuccess && approveTxHash
                 ? "Approving…"
-                : "Step 1: Approve WPRL"}
+                : "Step 1: Approve WPEARL"}
             </button>
           ) : (
             <button
@@ -505,7 +505,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
               onClick={handleBurn}
               className="w-full bg-gradient-to-r from-[#00e5d0] to-[#00b8aa] hover:from-[#00f0da] hover:to-[#00c5b5] disabled:from-gray-700 disabled:to-gray-700 disabled:text-gray-500 text-black font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[#00e5d0]/20 disabled:shadow-none"
             >
-              {bridgePaused ? "Bridge paused" : approveSuccess ? "Step 2: Burn WPRL" : "Burn WPRL"}
+              {bridgePaused ? "Bridge paused" : approveSuccess ? "Step 2: Burn WPEARL" : "Burn WPEARL"}
             </button>
           )}
         </>
@@ -514,7 +514,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
       {step === "burn" && !burnSuccess && (
         <div className="text-center py-6 space-y-4">
           <div className="w-12 h-12 border-4 border-[#00e5d0] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-gray-300">Burning WPRL on Ethereum…</p>
+          <p className="text-gray-300">Burning WPEARL on Ethereum…</p>
         </div>
       )}
 
@@ -535,7 +535,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
                 : "The relay flagged this unlock for manual review before releasing PRL."}
             </p>
             <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
-              Your WPRL was burned on Ethereum and the PRL is held in the
+              Your WPEARL was burned on Ethereum and the PRL is held in the
               bridge custodial set. An operator will review the anomaly and
               either release the unlock or initiate a refund. This typically
               resolves within a few hours during business hours.
@@ -580,7 +580,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
               : "Bridging back to Pearl network"}
           </p>
           <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-sm space-y-3 text-left max-w-sm mx-auto">
-            <RelayStep label="WPRL burned on Ethereum" done />
+            <RelayStep label="WPEARL burned on Ethereum" done />
             <RelayStep
               label="Relay picking up burn event"
               done={relayState === "processing" || relayState === "broadcast" || relayState === "complete"}
@@ -616,7 +616,7 @@ export function BurnAndUnlock({ ethAddress, bridgePaused }: Props) {
             </div>
           ) : relayState === "reorged" ? (
             <div className="text-xs text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl px-3 py-2 max-w-sm mx-auto space-y-1">
-              <p>An Ethereum reorg invalidated this burn before the relay could release PRL. The WPRL was not actually burned on the canonical chain — your wallet balance should reflect the original amount.</p>
+              <p>An Ethereum reorg invalidated this burn before the relay could release PRL. The WPEARL was not actually burned on the canonical chain — your wallet balance should reflect the original amount.</p>
               <Link to="/history" className="underline hover:text-red-200">View in history &rarr;</Link>
             </div>
           ) : pollTimedOut ? (

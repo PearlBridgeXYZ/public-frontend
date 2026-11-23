@@ -107,7 +107,7 @@ function MintRow({ row }: { row: ServerMint }) {
     <div className="glass rounded-xl p-4 border border-white/5">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-[#00e5d0]">PRL → WPRL</span>
+          <span className="text-xs font-semibold text-[#00e5d0]">PRL → WPEARL</span>
           <StateBadge state={row.state} title={badgeTitle} />
         </div>
         <span className="text-xs text-gray-500">{relativeTime(row.createdAt ?? 0)}</span>
@@ -124,7 +124,7 @@ function MintRow({ row }: { row: ServerMint }) {
         </div>
         {row.ethTxHash ? (
           <div>
-            <span className="text-gray-500">WPRL mint tx: </span>
+            <span className="text-gray-500">WPEARL mint tx: </span>
             {ethLink ? (
               <a href={ethLink} target="_blank" rel="noopener noreferrer" className="font-mono text-[#00e5d0] hover:underline">
                 {shortAddress(row.ethTxHash)}
@@ -160,7 +160,7 @@ function BurnRow({ row }: { row: ServerBurn }) {
     <div className="glass rounded-xl p-4 border border-white/5">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-[#0099ff]">WPRL → PRL</span>
+          <span className="text-xs font-semibold text-[#0099ff]">WPEARL → PRL</span>
           <StateBadge state={row.state} />
         </div>
         <span className="text-xs text-gray-500">{relativeTime(row.createdAt ?? 0)}</span>

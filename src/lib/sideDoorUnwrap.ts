@@ -8,7 +8,7 @@
 // fall back to a different relay or assume the feature is live.
 //
 // Trust model: see relay/docs/INTERMEDIARY-UNWRAP-AUDIT.md. The user
-// sends WPRL directly to an operator hot wallet. There is no on-chain
+// sends WPEARL directly to an operator hot wallet. There is no on-chain
 // claim. The binding API is the operator's promise to credit PRL to
 // whatever Pearl address the user signed-bind to their ETH key.
 
@@ -68,7 +68,7 @@ export function buildBindingPayload(args: {
     "PearlBridge intermediary unwrap binding",
     "",
     "By signing this, I authorize the PearlBridge intermediary hot wallet",
-    "to credit ANY WPRL sent from the ETH address below to the Pearl",
+    "to credit ANY WPEARL sent from the ETH address below to the Pearl",
     "address below. This binding does NOT obligate me to send anything,",
     "and can be replaced at any time by signing a new binding.",
     "",

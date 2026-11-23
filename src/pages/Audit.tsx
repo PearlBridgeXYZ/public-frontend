@@ -188,20 +188,20 @@ function SolvencyCard() {
     custody && custody.treasuryGrains ? BigInt(custody.treasuryGrains) : 0n;
   const feeGrains = custody && custody.feeGrains ? BigInt(custody.feeGrains) : 0n;
   // Relay-side custody = lock + deposit + treasury + fee. We use the full sum:
-  // the fee Pearl wallet's PRL backs the operator-held fee WPRL that is part
+  // the fee Pearl wallet's PRL backs the operator-held fee WPEARL that is part
   // of `totalSupply`, so subtracting fee on the custody side alone (and not
   // also on the supply side) used to produce a phantom shortfall on the page.
   const apiTotalCustody = custody ? BigInt(custody.totalCustodyGrains) : null;
   const breakdownUrl = `${RELAY_API_BASE}/api/custody/addresses`;
 
-  // Side-door intermediary hot wallet (ETH side) holds WPRL the operator has
+  // Side-door intermediary hot wallet (ETH side) holds WPEARL the operator has
   // already paid out for off-chain — every grain is a 1:1 burnable claim that
   // will release a PRL grain from the lock when burned, so it represents
   // PRL-equivalent backing today. Add it to custody to reflect that the
-  // operator-held WPRL pending burn is part of the bridge's collateral, not
+  // operator-held WPEARL pending burn is part of the bridge's collateral, not
   // an unmatched liability. Without this addend, side-door payouts (which
   // drain the operator's Pearl hot wallet in the treasury but leave the
-  // corresponding WPRL on Ethereum until the burn lands) create a transient
+  // corresponding WPEARL on Ethereum until the burn lands) create a transient
   // apparent shortfall on the page even though the bridge is solvent.
   const { address: intermediaryAddress, balance: intermediaryHotBalance } =
     useIntermediaryHotBalance();
@@ -209,7 +209,7 @@ function SolvencyCard() {
   const totalCustodyGrains =
     apiTotalCustody !== null ? apiTotalCustody + pendingBurnGrains : null;
 
-  // Use the relay's snapshot of WPRL totalSupply for the circulating figure.
+  // Use the relay's snapshot of WPEARL totalSupply for the circulating figure.
   // Custody and supply both come from the same relay snapshot, so the page
   // never shows a deficit caused purely by snapshot drift between a live RPC
   // read and a 30s-cached relay read. wagmi's live totalSupply is still read
@@ -237,10 +237,10 @@ function SolvencyCard() {
         <span className="text-[11px] font-mono text-gray-500">Live</span>
       </div>
       <p className="text-xs text-gray-400 leading-relaxed mb-5 max-w-2xl">
-        Every WPRL on Ethereum is backed 1:1 by PRL custodied on Pearl L1. The
+        Every WPEARL on Ethereum is backed 1:1 by PRL custodied on Pearl L1. The
         custody figure below sums the canonical lock wallet, every active
         per-user deposit address, the treasury and fee wallets, and the
-        side-door intermediary&rsquo;s WPRL balance &mdash; that WPRL is
+        side-door intermediary&rsquo;s WPEARL balance &mdash; that WPEARL is
         operator-held and burnable 1:1 against the lock, so it counts as
         PRL-equivalent backing until the burn settles. In-flight deposits
         awaiting the next sweep cycle are counted too, because the relay can
@@ -251,11 +251,11 @@ function SolvencyCard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl bg-black/30 border border-white/5 p-4">
           <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-2">
-            WPRL in circulation (Ethereum)
+            WPEARL in circulation (Ethereum)
           </p>
           <p className="text-xl font-bold text-white">
             {circulatingWprlGrains !== null
-              ? `${grainsToDisplay(circulatingWprlGrains)} WPRL`
+              ? `${grainsToDisplay(circulatingWprlGrains)} WPEARL`
               : "—"}
           </p>
           {pendingBurnGrains > 0n && (
@@ -314,7 +314,7 @@ function SolvencyCard() {
                 <>
                   {" + "}
                   <span className="font-mono">{grainsToDisplay(pendingBurnGrains)}</span>{" "}
-                  PRL-equiv operator-held WPRL in side-door intermediary
+                  PRL-equiv operator-held WPEARL in side-door intermediary
                 </>
               )}
             </p>
@@ -373,7 +373,7 @@ function SolvencyCard() {
       )}
       {supplyMismatch && (
         <p className="text-[11px] text-amber-400 mt-2">
-          Wallet RPC and relay disagree on WPRL totalSupply by more than 10 PRL
+          Wallet RPC and relay disagree on WPEARL totalSupply by more than 10 PRL
           &mdash; refresh in a minute. Both are independently verifiable on
           Etherscan.
         </p>
@@ -385,7 +385,7 @@ function SolvencyCard() {
         </p>
       )}
       <p className="text-[11px] text-gray-500 mt-4">
-        Invariant: WPRL minted &le; PRL custodied at all times.
+        Invariant: WPEARL minted &le; PRL custodied at all times.
       </p>
     </section>
   );

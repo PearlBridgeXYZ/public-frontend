@@ -2,7 +2,7 @@
 //
 // Node 22 strips TS types natively (no tsx / ts-node / vitest needed) so
 // this file is the canonical test surface for the burn-tracker persistence
-// + state-mapping logic that drives the WPRL → PRL confirmation UX.
+// + state-mapping logic that drives the WPEARL → PRL confirmation UX.
 
 import { test, beforeEach, describe } from "node:test";
 import assert from "node:assert/strict";

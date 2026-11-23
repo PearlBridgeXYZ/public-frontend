@@ -1,16 +1,16 @@
-// Reads the WPRL balance of the side-door intermediary hot wallet.
+// Reads the WPEARL balance of the side-door intermediary hot wallet.
 //
-// Why this matters for the "WPRL in circulation" number:
-//   When a user sends WPRL to the intermediary hot wallet and the relay
+// Why this matters for the "WPEARL in circulation" number:
+//   When a user sends WPEARL to the intermediary hot wallet and the relay
 //   dispatches PRL from the lock at the same time, the lock balance drops
-//   immediately but the WPRL has not been burned yet. That WPRL is
+//   immediately but the WPEARL has not been burned yet. That WPEARL is
 //   operator-owned and pending burn — it does not represent a user-held
 //   claim against the bridge, and counting it in totalSupply makes the
 //   bridge look temporarily undercollateralized (custodied PRL < minted
-//   WPRL) until the burn lands.
+//   WPEARL) until the burn lands.
 //
 // Subtracting this balance from totalSupply gives the honest "user-held
-// WPRL" figure. Returns 0n when the side door is disabled or the address
+// WPEARL" figure. Returns 0n when the side door is disabled or the address
 // isn't surfaced by the relay.
 import { useEffect, useState } from "react";
 import { useReadContract } from "wagmi";

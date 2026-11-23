@@ -45,7 +45,7 @@ export const DISCLAIMER_CLAUSES: DisclaimerClause[] = [
   },
   {
     title: "No solicitation.",
-    body: "Nothing on this site constitutes an offer to sell, a solicitation to buy, or a recommendation regarding any security, derivative, commodity, or digital asset. PRL and WPRL are utility assets of the Pearl network; we make no representation as to their legal classification in any jurisdiction.",
+    body: "Nothing on this site constitutes an offer to sell, a solicitation to buy, or a recommendation regarding any security, derivative, commodity, or digital asset. PRL and WPEARL are utility assets of the Pearl network; we make no representation as to their legal classification in any jurisdiction.",
   },
   {
     title: "Tax responsibility.",
@@ -65,7 +65,7 @@ export const DISCLAIMER_CLAUSES: DisclaimerClause[] = [
   },
   {
     title: "Emergency exit.",
-    body: "Contract administrators may invoke a one-way emergency-exit function that disables further mints. After invocation, the contract cannot be unpaused; users with outstanding WPRL retain the right to redeem to PRL only to the extent the on-chain logic and Pearl-side liquidity permit at that time. You acknowledge that emergency exit may be invoked at any time and that the post-exit experience may be materially worse than normal operation.",
+    body: "Contract administrators may invoke a one-way emergency-exit function that disables further mints. After invocation, the contract cannot be unpaused; users with outstanding WPEARL retain the right to redeem to PRL only to the extent the on-chain logic and Pearl-side liquidity permit at that time. You acknowledge that emergency exit may be invoked at any time and that the post-exit experience may be materially worse than normal operation.",
   },
   {
     title: "Limitation of liability.",

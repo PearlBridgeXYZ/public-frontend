@@ -7,12 +7,12 @@ import {
 } from "../lib/config";
 import { mapBurnState, type UiBurnState } from "../lib/burnTracker";
 
-// Public unwrap (WPRL → PRL) receipt page. Reachable at /unwrap/:ethTxHash
+// Public unwrap (WPEARL → PRL) receipt page. Reachable at /unwrap/:ethTxHash
 // without a wallet so anyone with the link can verify where the release is
 // in its lifecycle. Strictly read-only, no signing.
 //
 // The relay's /api/burn-status endpoint takes an Ethereum tx hash (the burn
-// transaction the user submitted on the WPRL contract) and returns the
+// transaction the user submitted on the WPEARL contract) and returns the
 // current state plus the Pearl release txid once it's been broadcast.
 type BurnStatus = {
   state: string | null;
@@ -28,7 +28,7 @@ const STATE_COPY: Record<UiBurnState | "unknown", {
   pending: {
     label: "Burn observed",
     detail:
-      "The WPRL burn was observed on Ethereum. The relay is queueing the corresponding PRL release.",
+      "The WPEARL burn was observed on Ethereum. The relay is queueing the corresponding PRL release.",
     tone: "neutral",
   },
   processing: {
@@ -52,7 +52,7 @@ const STATE_COPY: Record<UiBurnState | "unknown", {
   under_review: {
     label: "Marked for manual review: anomaly detected",
     detail:
-      "The relay flagged this unlock for manual review before releasing PRL. The WPRL was burned on Ethereum and the PRL is held in the bridge custodial set. An operator will release the unlock or initiate a refund.",
+      "The relay flagged this unlock for manual review before releasing PRL. The WPEARL was burned on Ethereum and the PRL is held in the bridge custodial set. An operator will release the unlock or initiate a refund.",
     tone: "warn",
   },
   delayed: {
@@ -70,7 +70,7 @@ const STATE_COPY: Record<UiBurnState | "unknown", {
   reorged: {
     label: "Burn invalidated by Ethereum reorg",
     detail:
-      "An Ethereum reorg invalidated this burn before the relay could release PRL. The WPRL was not actually burned on the canonical chain — the connected wallet's balance should reflect the original amount.",
+      "An Ethereum reorg invalidated this burn before the relay could release PRL. The WPEARL was not actually burned on the canonical chain — the connected wallet's balance should reflect the original amount.",
     tone: "bad",
   },
   unknown: {
@@ -209,7 +209,7 @@ export function UnwrapStatus() {
     <div className="max-w-2xl mx-auto px-6 py-12 space-y-6">
       <div className="space-y-1">
         <p className="text-xs text-gray-500 uppercase tracking-wide">
-          WPRL &rarr; PRL unwrap order
+          WPEARL &rarr; PRL unwrap order
         </p>
         <h1 className="text-2xl font-extrabold">Unwrap status</h1>
         <p className="text-gray-400 text-sm">

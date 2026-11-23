@@ -279,7 +279,7 @@ function HomePage() {
           </span>
         </h1>
         <p className="text-gray-400 text-lg max-w-xl mx-auto leading-relaxed">
-          Lock native PRL. Receive WPRL on Ethereum &mdash; fully redeemable 1:1. 0.5% deposit fee (4 PRL minimum). No fee on redemption.
+          Lock native PRL. Receive WPEARL on Ethereum &mdash; fully redeemable 1:1. 0.5% deposit fee (4 PRL minimum). No fee on redemption.
         </p>
       </div>
 
@@ -358,7 +358,7 @@ function HomePage() {
             {fastLaneRunningLow ? (
               <>
                 <p className="text-gray-400 text-xs leading-relaxed">
-                  <span className="text-white">Fast lane:</span> the first {fastCapPrl ?? "—"} PRL bridged per 24h window mints to WPRL once your deposit reaches its size-scaled Pearl-confirmation count &mdash; 6 confs (~12 min) for deposits ≤ 1k PRL, scaling up to 400 confs (~13h) at the 500k PRL ceiling.<br />
+                  <span className="text-white">Fast lane:</span> the first {fastCapPrl ?? "—"} PRL bridged per 24h window mints to WPEARL once your deposit reaches its size-scaled Pearl-confirmation count &mdash; 6 confs (~12 min) for deposits ≤ 1k PRL, scaling up to 400 confs (~13h) at the 500k PRL ceiling.<br />
                   <span className="text-white">Slow lane:</span> any single transaction larger than {fastCapPrl ?? "—"} PRL &mdash; or any transaction that exceeds the remaining fast-lane quota for the day &mdash; routes through a 24h timelock in full. No splitting. No action required from you. The mint settles automatically when the timelock matures.
                 </p>
                 <p className="text-gray-500 text-[11px] leading-relaxed pt-1.5 border-t border-white/5">
@@ -369,7 +369,7 @@ function HomePage() {
             ) : (
               <>
                 <p className="text-gray-400 text-xs leading-relaxed">
-                  Your WPRL mints as soon as your Pearl deposit reaches its size-scaled confirmation count &mdash; 6 confs (~12 min) for ≤ 1k PRL, scaling up to 400 confs (~13h) at the {fastCapPrl ?? "—"} PRL per-tx ceiling.
+                  Your WPEARL mints as soon as your Pearl deposit reaches its size-scaled confirmation count &mdash; 6 confs (~12 min) for ≤ 1k PRL, scaling up to 400 confs (~13h) at the {fastCapPrl ?? "—"} PRL per-tx ceiling.
                 </p>
                 <p className="text-gray-500 text-[11px] leading-relaxed pt-1.5 border-t border-white/5">
                   <span className="text-gray-300">Why the wait scales with size?</span> Each confirmation tier is calibrated so an attacker would have to burn more in mining cost to reorg the Pearl chain than they could extract through the bridge. Larger deposits demand more confirmations.{" "}

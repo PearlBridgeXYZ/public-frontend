@@ -55,9 +55,9 @@ const ENDPOINTS: Endpoint[] = [
   {
     method: "GET",
     path: "/v1/supply",
-    title: "WPRL total supply",
+    title: "WPEARL total supply",
     description:
-      "WPRL totalSupply on Ethereum, as raw grains and as a fixed-point decimal string. For the plain-text number consumed by aggregators (CoinGecko/CMC), use /api/supply.",
+      "WPEARL totalSupply on Ethereum, as raw grains and as a fixed-point decimal string. For the plain-text number consumed by aggregators (CoinGecko/CMC), use /api/supply.",
     curl: `curl ${API_BASE}/v1/supply`,
     response: `{
   "totalSupplyGrains": "76175838130195",
@@ -71,7 +71,7 @@ const ENDPOINTS: Endpoint[] = [
     path: "/v1/stats",
     title: "Bridge volume",
     description:
-      "Per-direction transfer counts and grain totals over the last 24 hours, 7 days, and all time. Directions: mint (PRL→WPRL), burn (WPRL→PRL), intermediary (partner-funded unwrap).",
+      "Per-direction transfer counts and grain totals over the last 24 hours, 7 days, and all time. Directions: mint (PRL→WPEARL), burn (WPEARL→PRL), intermediary (partner-funded unwrap).",
     curl: `curl ${API_BASE}/v1/stats`,
     response: `{
   "volume": {
@@ -90,7 +90,7 @@ const ENDPOINTS: Endpoint[] = [
     path: "/v1/custody",
     title: "Proof of reserves",
     description:
-      "Pearl-side custody snapshot vs. WPRL supply — the same data backing the Audit page's solvency card. Heavy UTXO scan under the hood; served from a cache with stale-while-revalidate semantics, so the timestamp tells you snapshot age.",
+      "Pearl-side custody snapshot vs. WPEARL supply — the same data backing the Audit page's solvency card. Heavy UTXO scan under the hood; served from a cache with stale-while-revalidate semantics, so the timestamp tells you snapshot age.",
     curl: `curl ${API_BASE}/v1/custody`,
     response: `{
   "lockGrains": "…",
@@ -104,7 +104,7 @@ const ENDPOINTS: Endpoint[] = [
     path: "/v1/quote/mint",
     title: "Mint quote",
     description:
-      "Quote a prospective PRL→WPRL deposit before funds move: fee, net WPRL, and whether the amount clears the fast lane (mints right after confirmation) or queues in the 24h slow lane. Quotes derive from the same 30s-cached status the /v1/status route serves.",
+      "Quote a prospective PRL→WPEARL deposit before funds move: fee, net WPEARL, and whether the amount clears the fast lane (mints right after confirmation) or queues in the 24h slow lane. Quotes derive from the same 30s-cached status the /v1/status route serves.",
     params: [
       { name: "amountGrains", in: "query", description: "deposit amount in grains (positive integer)" },
     ],
@@ -129,7 +129,7 @@ const ENDPOINTS: Endpoint[] = [
     path: "/v1/quote/burn",
     title: "Burn quote + transaction plan",
     description:
-      "Quote a WPRL→PRL redemption AND get the exact contract calls to submit: a conditional ERC-20 approve (only when the user's WPRL allowance for the BridgeController is below the amount) followed by requestBurn. A wallet can sign the returned steps as-is — no ABI archaeology required. Pass pearlAddress to have the payout address pre-validated in the same call.",
+      "Quote a WPEARL→PRL redemption AND get the exact contract calls to submit: a conditional ERC-20 approve (only when the user's WPEARL allowance for the BridgeController is below the amount) followed by requestBurn. A wallet can sign the returned steps as-is — no ABI archaeology required. Pass pearlAddress to have the payout address pre-validated in the same call.",
     params: [
       { name: "amountGrains", in: "query", description: "burn amount in grains (positive integer)" },
       { name: "pearlAddress", in: "query", description: "optional — Pearl payout address to validate (P2TR, prl1p…)" },
@@ -148,7 +148,7 @@ const ENDPOINTS: Endpoint[] = [
     "steps": [
       { "step": "approve",
         "requiredWhen": "allowance(owner, bridgeController) < amountGrains",
-        "to": "0x07696Dca… (WPRL)",
+        "to": "0x07696Dca… (WPEARL)",
         "abi": "function approve(address spender, uint256 amount) returns (bool)",
         "args": ["0xA6571B73… (BridgeController)", "10000000000"] },
       { "step": "requestBurn",
@@ -223,7 +223,7 @@ const ENDPOINTS: Endpoint[] = [
     path: "/v1/burns/{ethTxHash}",
     title: "Burn (unlock) status",
     description:
-      "Status of a WPRL burn and its native-PRL payout, by the Ethereum transaction hash of the burn.",
+      "Status of a WPEARL burn and its native-PRL payout, by the Ethereum transaction hash of the burn.",
     params: [
       { name: "ethTxHash", in: "path", description: "0x-prefixed 64-hex-char Ethereum tx hash" },
     ],
@@ -256,7 +256,7 @@ const ENDPOINTS: Endpoint[] = [
     description:
       "Derives the unique Pearl deposit address bound to an Ethereum wallet. PRL sent to this address bridges to the given wallet automatically — no OP_RETURN construction needed.",
     params: [
-      { name: "ethAddress", in: "query", description: "0x-prefixed Ethereum address that will receive the WPRL" },
+      { name: "ethAddress", in: "query", description: "0x-prefixed Ethereum address that will receive the WPEARL" },
     ],
     curl: `curl "${API_BASE}/v1/deposit-address?ethAddress=0xYourAddress"`,
     response: `{
@@ -306,7 +306,7 @@ export function Api() {
         <ul className="list-disc list-inside space-y-1 text-gray-400">
           <li>
             <span className="text-gray-300">Amounts are grains:</span> 1 PRL = 10<sup>8</sup> grains,
-            serialized as decimal strings to avoid float precision loss. WPRL has 8 decimals.
+            serialized as decimal strings to avoid float precision loss. WPEARL has 8 decimals.
           </li>
           <li>
             <span className="text-gray-300">Versioning:</span> shapes under <code>/v1</code> only change
@@ -328,9 +328,9 @@ export function Api() {
         <h2 className="text-xl font-bold tracking-tight text-gray-100">Integration flows</h2>
         <div className="grid sm:grid-cols-2 gap-6 text-sm">
           <div className="space-y-2">
-            <h3 className="font-semibold text-[#00e5d0]">PRL → WPRL (deposit &amp; mint)</h3>
+            <h3 className="font-semibold text-[#00e5d0]">PRL → WPEARL (deposit &amp; mint)</h3>
             <ol className="list-decimal list-inside space-y-1.5 text-gray-400 leading-relaxed">
-              <li><code>GET /v1/quote/mint</code> — fee, net WPRL, fast-vs-slow lane for the amount</li>
+              <li><code>GET /v1/quote/mint</code> — fee, net WPEARL, fast-vs-slow lane for the amount</li>
               <li><code>GET /v1/deposit-address</code> — the unique Pearl address bound to the recipient ETH wallet</li>
               <li>User sends PRL to that address — any wallet or exchange withdrawal, no OP_RETURN needed</li>
               <li>Track confirmations via <code>GET /v1/pearl-tx/{"{txid}"}</code>; if you never saw the txid (exchange withdrawal), poll <code>GET /v1/deposits/recent</code></li>
@@ -338,7 +338,7 @@ export function Api() {
             </ol>
           </div>
           <div className="space-y-2">
-            <h3 className="font-semibold text-[#00e5d0]">WPRL → PRL (burn &amp; unlock)</h3>
+            <h3 className="font-semibold text-[#00e5d0]">WPEARL → PRL (burn &amp; unlock)</h3>
             <ol className="list-decimal list-inside space-y-1.5 text-gray-400 leading-relaxed">
               <li><code>GET /v1/validate-address</code> — reject payout-address typos before funds move</li>
               <li><code>GET /v1/quote/burn</code> — fee, net PRL, window fit, and the exact contract calls</li>

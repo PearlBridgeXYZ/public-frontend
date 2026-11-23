@@ -6,7 +6,7 @@
 //   1. Connect wallet (already plumbed at App level)
 //   2. Enter Pearl destination
 //   3. Sign binding (personal_sign over the EIP-191 payload)
-//   4. Send WPRL to the intermediary hot address (one-click via wagmi)
+//   4. Send WPEARL to the intermediary hot address (one-click via wagmi)
 //   5. Poll /api/unwrap/status by tx hash → render state machine
 
 import { useEffect, useRef, useState } from "react";
@@ -67,7 +67,7 @@ export function SideDoorUnwrap() {
     }).catch(() => { /* no binding yet — stay on input */ });
   }, [address, cfg?.enabled]);
 
-  // -- WPRL balance ---------------------------------------------------------
+  // -- WPEARL balance ---------------------------------------------------------
   const { data: wprlBalance } = useReadContract({
     address: ADDRS.WPRL as `0x${string}` | undefined,
     abi: WPRL_ABI,
@@ -187,8 +187,8 @@ export function SideDoorUnwrap() {
   }
 
   // Refuse to render the Send button if the relay is watching a different
-  // WPRL contract than the frontend would transfer from. Sending canonical
-  // WPRL to the hot wallet while the relay watches a fork = silent loss.
+  // WPEARL contract than the frontend would transfer from. Sending canonical
+  // WPEARL to the hot wallet while the relay watches a fork = silent loss.
   if (
     cfg.wprlAddress &&
     ADDRS.WPRL &&
@@ -196,7 +196,7 @@ export function SideDoorUnwrap() {
   ) {
     return (
       <Card>
-        <p className="text-red-300 text-sm font-semibold">WPRL mismatch</p>
+        <p className="text-red-300 text-sm font-semibold">WPEARL mismatch</p>
         <p className="text-gray-400 text-xs mt-2 break-all">
           Relay watches <span className="font-mono">{cfg.wprlAddress}</span>;
           frontend would transfer from <span className="font-mono">{ADDRS.WPRL}</span>.
@@ -257,11 +257,11 @@ export function SideDoorUnwrap() {
       return;
     }
     if (cfg.minPayoutWei && amountGrains <= cfg.minPayoutWei) {
-      setErr(`Below dust floor (${grainsToDisplay(cfg.minPayoutWei)} WPRL).`);
+      setErr(`Below dust floor (${grainsToDisplay(cfg.minPayoutWei)} WPEARL).`);
       return;
     }
     if (cfg.perTxCapWei && cfg.perTxCapWei > 0n && amountGrains > cfg.perTxCapWei) {
-      setErr(`Above per-tx cap (${grainsToDisplay(cfg.perTxCapWei)} WPRL).`);
+      setErr(`Above per-tx cap (${grainsToDisplay(cfg.perTxCapWei)} WPEARL).`);
       return;
     }
     setStep("sending");
@@ -299,7 +299,7 @@ export function SideDoorUnwrap() {
         </div>
 
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-3 py-2 text-xs text-amber-100/90 leading-relaxed">
-          Temporary side door opened to allow unwrapping WPRL to PRL
+          Temporary side door opened to allow unwrapping WPEARL to PRL
           while the bridge is paused. Fee {feePct}%.
         </div>
 
@@ -353,7 +353,7 @@ export function SideDoorUnwrap() {
               </button>
             </div>
 
-            <Field label="Amount (WPRL)">
+            <Field label="Amount (WPEARL)">
               <div className="relative">
                 <input
                   type="text"
@@ -379,10 +379,10 @@ export function SideDoorUnwrap() {
               <CopyButton value={intermediary} />.{" "}
               Daily cap{" "}
               {cfg.daily24hCapWei
-                ? `${grainsToDisplay(cfg.daily24hCapWei)} WPRL`
+                ? `${grainsToDisplay(cfg.daily24hCapWei)} WPEARL`
                 : "—"}
               {cfg.perTxCapWei && cfg.perTxCapWei > 0n
-                ? ` · per-tx cap ${grainsToDisplay(cfg.perTxCapWei)} WPRL`
+                ? ` · per-tx cap ${grainsToDisplay(cfg.perTxCapWei)} WPEARL`
                 : ""}
               .
             </div>
@@ -392,7 +392,7 @@ export function SideDoorUnwrap() {
               disabled={step === "sending" || !amount}
               className="w-full py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 text-black font-semibold rounded-xl disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {step === "sending" ? "Confirm in wallet…" : "Send WPRL"}
+              {step === "sending" ? "Confirm in wallet…" : "Send WPEARL"}
             </button>
           </>
         )}
@@ -636,7 +636,7 @@ function UnwrapRowCard({ row }: { row: UnwrapRow }) {
 
       <div className="bg-black/20 rounded-lg px-3 py-2 text-xs space-y-1 mt-1">
         <div className="flex justify-between text-gray-400">
-          <span>WPRL in</span>
+          <span>WPEARL in</span>
           <span className="font-mono text-white">{grainsToDisplay(BigInt(row.wprlAmount))}</span>
         </div>
         {row.pearlAmount && (
