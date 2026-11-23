@@ -24,7 +24,7 @@ export function BridgeStats() {
   const fastRemaining = data?.[1]?.result as bigint | undefined;
   const isPaused = data?.[2]?.result as boolean | undefined;
 
-  // Subtract the side-door intermediary's pending-burn WPRL so TVL
+  // Subtract the side-door intermediary's pending-burn WPEARL so TVL
   // reflects user-held supply, not raw on-chain totalSupply. See
   // useIntermediaryHotBalance for the rationale.
   const { balance: pendingBurn } = useIntermediaryHotBalance();
@@ -35,7 +35,7 @@ export function BridgeStats() {
 
   return (
     <div className="w-full max-w-lg mx-auto mt-3 grid grid-cols-3 gap-3">
-      <Stat label="TVL (WPRL)" value={tvl !== undefined ? grainsToWholePrl(tvl) : "—"} />
+      <Stat label="TVL (WPEARL)" value={tvl !== undefined ? grainsToWholePrl(tvl) : "—"} />
       <Stat label="Fast Lane Left" value={fastRemaining !== undefined ? grainsToWholePrl(fastRemaining) : "—"} />
       <Stat
         label="Bridge Status"

@@ -94,7 +94,7 @@ function TopologyDiagram() {
       </text>
       <text x="400" y="354" textAnchor="middle"
         fontFamily="ui-monospace, monospace" fontSize="10" fill="#9ca3af">
-        on-chain threshold check · mint / release WPRL
+        on-chain threshold check · mint / release WPEARL
       </text>
     </svg>
   );
@@ -128,7 +128,7 @@ export function Infrastructure() {
         <p className="text-gray-400 text-base max-w-2xl mx-auto leading-relaxed">
           PearlBridge runs as a federation of independent{" "}
           <code className="text-[#00e5d0] text-sm">pearld</code> validators
-          that observe Pearl chain deposits and authorize WPRL mints through{" "}
+          that observe Pearl chain deposits and authorize WPEARL mints through{" "}
           <code className="text-[#00e5d0] text-sm">BridgeController</code> on
           Ethereum. An on-chain threshold check enforces that no single
           operator can move value alone.
@@ -142,7 +142,7 @@ export function Infrastructure() {
           {[
             ["Sentries", "Public-facing Pearl nodes that speak the P2P protocol. The only tier with inbound exposure to the public network."],
             ["Validators", "Independent pearld nodes with no public ingress. Each observes deposits via WireGuard tunnels to assigned sentries."],
-            ["Controller", "BridgeController on Ethereum verifies validator authorizations on-chain before minting or releasing WPRL."],
+            ["Controller", "BridgeController on Ethereum verifies validator authorizations on-chain before minting or releasing WPEARL."],
           ].map(([title, copy]) => (
             <div key={title as string} className="bg-white/5 border border-white/10 rounded-xl px-3 py-3">
               <div className="font-semibold text-white text-sm mb-1.5">{title as string}</div>
@@ -208,7 +208,7 @@ export function Infrastructure() {
           <p>
             <span className="font-semibold text-white">Fast lane.</span>{" "}
             The first <span className="text-[#00e5d0]">{fastCapPrl ?? "—"} PRL</span> bridged in any rolling
-            24-hour window mints to WPRL once the Pearl deposit reaches its
+            24-hour window mints to WPEARL once the Pearl deposit reaches its
             size-scaled confirmation count: 6 confs (~12 minutes) for deposits
             ≤ 1k PRL, stepping up to 400 confs (~13 hours) for deposits at the
             500k PRL ceiling. Smaller deposits stay fast; larger ones wait

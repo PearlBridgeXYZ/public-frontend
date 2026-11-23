@@ -1,6 +1,6 @@
 // Affected-wallet table for the May-2026 duplicate-payout incident.
 //
-// During a ~36h window, four WPRL→PRL burns received more PRL than the
+// During a ~36h window, four WPEARL→PRL burns received more PRL than the
 // burn called for: a race in the relay's unlock path occasionally let
 // two signing+broadcast attempts both succeed on a single burn (and once,
 // three). The relay code path that allowed it is now fixed (CAS-guarded

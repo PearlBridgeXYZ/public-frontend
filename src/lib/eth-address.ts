@@ -6,7 +6,7 @@ export type EthAddressValidation =
   | { kind: "invalid"; reason: string };
 
 // Validate an Ethereum address ahead of binding it to a per-user Pearl
-// deposit address. A typo here mints WPRL to the wrong address — unrecoverable
+// deposit address. A typo here mints WPEARL to the wrong address — unrecoverable
 // without an admin refund — so the UX needs to be loud about the distinction
 // between a checksummed input and a raw lower/upper-case one.
 export function validateEthAddress(input: string): EthAddressValidation {

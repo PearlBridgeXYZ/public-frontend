@@ -114,7 +114,7 @@ export function BridgeWidget() {
               : "text-gray-400 hover:text-white"
           }`}
         >
-          PRL &rarr; WPRL
+          PRL &rarr; WPEARL
         </button>
         <button
           onClick={() => setDirection("burn")}
@@ -124,7 +124,7 @@ export function BridgeWidget() {
               : "text-gray-400 hover:text-white"
           }`}
         >
-          WPRL &rarr; PRL
+          WPEARL &rarr; PRL
         </button>
       </div>
 

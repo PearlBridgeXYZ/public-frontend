@@ -26,9 +26,9 @@ function fmtPrl(grainsStr: string): string {
   }
 }
 
-// Inflow = WPRL minted on Ethereum (PRL deposited and locked).
-// Outflow = WPRL leaving Ethereum, returning PRL — burn + intermediary
-//           (partner-funded WPRL unwrap that still releases locked PRL).
+// Inflow = WPEARL minted on Ethereum (PRL deposited and locked).
+// Outflow = WPEARL leaving Ethereum, returning PRL — burn + intermediary
+//           (partner-funded WPEARL unwrap that still releases locked PRL).
 function inflowGrains(w: Window): bigint {
   try {
     return BigInt(w.mint.grains);
@@ -101,7 +101,7 @@ export function Stats() {
     };
   }, []);
 
-  // TVL = total PRL collateral backing WPRL: hot lock + cold treasury + any
+  // TVL = total PRL collateral backing WPEARL: hot lock + cold treasury + any
   // in-flight deposit balances. Fees = grains at the fee collection address.
   // Same custody scan the audit page uses, so /stats and /audit can never
   // disagree. The "fee" address sits outside TVL — fees are revenue, not
@@ -178,7 +178,7 @@ export function Stats() {
         </div>
         <div className="glass rounded-2xl p-4 text-center">
           <div className="text-gray-400 text-[11px] uppercase tracking-wide mb-1">
-            WPRL Supply
+            WPEARL Supply
           </div>
           <div className="text-2xl font-extrabold text-white tabular-nums">
             {supply ? Number(supply).toLocaleString("en-US", { maximumFractionDigits: 0 }) : "—"}
@@ -233,7 +233,7 @@ export function Stats() {
                   {grainsToWholePrlWithCommas(inflow)}
                 </div>
                 <div className="text-[10px] text-gray-500 mt-0.5">
-                  PRL locked → WPRL minted
+                  PRL locked → WPEARL minted
                 </div>
                 <div className="text-[11px] text-gray-400 mt-2 tabular-nums">
                   {w.mint.count.toLocaleString("en-US")} deposits
@@ -249,7 +249,7 @@ export function Stats() {
                   {grainsToWholePrlWithCommas(outflow)}
                 </div>
                 <div className="text-[10px] text-gray-500 mt-0.5">
-                  WPRL burned → PRL unlocked
+                  WPEARL burned → PRL unlocked
                 </div>
                 <div className="text-[11px] text-gray-400 mt-2 tabular-nums">
                   {(w.burn.count + w.intermediary.count).toLocaleString("en-US")} unlocks
@@ -286,7 +286,7 @@ export function Stats() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[12px]">
                 <div className="flex items-baseline justify-between">
-                  <span className="text-gray-400">Deposit → WPRL</span>
+                  <span className="text-gray-400">Deposit → WPEARL</span>
                   <span className="font-semibold text-[#00e5d0] tabular-nums">
                     {fmtPrl(w.mint.grains)}{" "}
                     <span className="text-[10px] text-gray-500">
@@ -295,7 +295,7 @@ export function Stats() {
                   </span>
                 </div>
                 <div className="flex items-baseline justify-between">
-                  <span className="text-gray-400">WPRL → Pearl</span>
+                  <span className="text-gray-400">WPEARL → Pearl</span>
                   <span className="font-semibold text-emerald-400 tabular-nums">
                     {fmtPrl(w.burn.grains)}{" "}
                     <span className="text-[10px] text-gray-500">
@@ -314,7 +314,7 @@ export function Stats() {
                 </div>
               </div>
               <p className="text-[10px] text-gray-500 mt-3 leading-relaxed">
-                Intermediary unwraps are partner-funded WPRL → PRL conversions
+                Intermediary unwraps are partner-funded WPEARL → PRL conversions
                 that still release locked PRL, so they count toward outflow.
               </p>
             </div>

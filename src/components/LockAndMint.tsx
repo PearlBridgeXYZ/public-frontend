@@ -99,7 +99,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
   // the next 15s poll. 1Hz is fine — the countdown is human-readable, not
   // sub-second precision.
   const [nowMs, setNowMs] = useState(() => Date.now());
-  // Advanced-mode destination override: mint WPRL to a wallet other than the
+  // Advanced-mode destination override: mint WPEARL to a wallet other than the
   // connected one. Only readable from state when isAdvanced=true; in normal
   // mode the destination is always the connected wallet so the
   // EIP-712 destination-confirmation signature can bind the address the user
@@ -153,7 +153,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
     return id;
   }
 
-  // Effective destination: in advanced mode the user can override the WPRL
+  // Effective destination: in advanced mode the user can override the WPEARL
   // recipient with a custom address (e.g. mint to a cold wallet from a hot
   // signing wallet). In normal mode the destination is always the connected
   // wallet so the EIP-712 destination-confirmation gate binds an address the
@@ -214,7 +214,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
   // mint would revert with InvalidAmount on chain — better to refuse here.
   const belowMin = grains !== null && grains > 0n && grains <= MIN_BRIDGE_FEE_GRAINS;
 
-  // EIP-55 gate on the effective destination. A typo here mints WPRL to the
+  // EIP-55 gate on the effective destination. A typo here mints WPEARL to the
   // wrong recipient, which is unrecoverable without an admin refund.
   const addressCheck = effectiveDestination ? validateEthAddress(effectiveDestination) : null;
   const checksummedAddress =
@@ -506,7 +506,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
   // transition (mint-status poll above) flips the UI to "done" once the relay
   // marks the row finalized, but the relay's confirmation policy can lag the
   // first Ethereum confirmation by several blocks. Users were left staring at
-  // "Confirmed — relay is processing your mint" long after their WPRL was
+  // "Confirmed — relay is processing your mint" long after their WPEARL was
   // already in the wallet. Watching the mint tx receipt directly closes that
   // gap: as soon as the tx has ≥1 confirmation on chain AND the receipt logs
   // contain a MintExecuted event (fast lane), the UI flips to the success
@@ -516,9 +516,9 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
   //
   // Pre-fix bug (2026-05-29): the watcher flipped on receipt.status === "success"
   // alone — but executeMint succeeds on-chain in BOTH lane cases (only the
-  // event differs). Slow-lane deposits showed "WPRL minted successfully" the
+  // event differs). Slow-lane deposits showed "WPEARL minted successfully" the
   // instant the queue tx confirmed, while the user was actually waiting on a
-  // 24h timelock with no WPRL in their wallet.
+  // 24h timelock with no WPEARL in their wallet.
   const mintHashTyped: `0x${string}` | undefined =
     mintTxHash && /^0x[0-9a-f]{64}$/i.test(mintTxHash)
       ? (mintTxHash as `0x${string}`)
@@ -561,7 +561,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
           return;
         }
       } catch {
-        // Non-bridge-event log (e.g. WPRL Transfer). Skip.
+        // Non-bridge-event log (e.g. WPEARL Transfer). Skip.
       }
     }
     if (!fastLaneMintExecuted) return;
@@ -600,7 +600,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
           {isAdvanced && (
             <div>
               <label className="block text-xs text-yellow-300 mb-1.5 uppercase tracking-wide">
-                WPRL destination (advanced)
+                WPEARL destination (advanced)
               </label>
               <input
                 type="text"
@@ -614,7 +614,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
                 }`}
               />
               <p className="text-xs text-gray-500 mt-1.5">
-                Override the WPRL recipient. Leave blank to mint to the connected wallet.
+                Override the WPEARL recipient. Leave blank to mint to the connected wallet.
                 A typo here mints to the wrong address — unrecoverable without an admin refund.
               </p>
               {customCheck?.kind === "invalid" && (
@@ -638,7 +638,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
                 label={feeFloorActive ? "Bridge fee (4 PRL minimum)" : "Bridge fee (0.5%)"}
                 value={grainsToDisplay(fee) + " PRL"}
               />
-              <Row label="You receive" value={grainsToDisplay(net) + " WPRL"} highlight />
+              <Row label="You receive" value={grainsToDisplay(net) + " WPEARL"} highlight />
               <Row
                 label="Estimated time"
                 value={willBeSlowLane ? "~24h (slow lane)" : `${tierWaitLabel} (fast lane)`}
@@ -662,7 +662,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
               <span className="font-semibold">Fast lane.</span>{" "}
               Your amount fits the {dailyFastMintLimit !== undefined ? grainsToDisplay(dailyFastMintLimit) : "—"} PRL daily fast-lane cap
               ({fastMintWindowRemaining !== undefined ? grainsToDisplay(fastMintWindowRemaining) : "—"} PRL remaining today),
-              so WPRL will mint as soon as your deposit reaches {requiredConfirmations} Pearl confirmations.
+              so WPEARL will mint as soon as your deposit reaches {requiredConfirmations} Pearl confirmations.
             </div>
           )}
 
@@ -675,7 +675,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
                   : `Only ${fastMintWindowRemaining !== undefined ? grainsToDisplay(fastMintWindowRemaining) : "—"} PRL is left in today's fast lane — this transaction routes through the slow lane in full.`}
               </p>
               <p className="text-gray-300">
-                Your WPRL will be queued and automatically minted after{" "}
+                Your WPEARL will be queued and automatically minted after{" "}
                 {slowMintDelay !== undefined ? formatDuration(Number(slowMintDelay) * 1000) : "~24h"}.
                 No action required from you. You can reduce the amount below
                 {" "}{dailyFastMintLimit !== undefined ? grainsToDisplay(dailyFastMintLimit) : "the fast-lane cap"}
@@ -764,7 +764,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
                   <CopyButton value={userDepositAddress} />
                 </div>
                 <p className="text-xs text-gray-500 mt-1.5">
-                  This address is unique to your wallet. WPRL will be minted to{" "}
+                  This address is unique to your wallet. WPEARL will be minted to{" "}
                   <span className="font-mono text-gray-400">{checksummedAddress.slice(0, 10)}…</span>{" "}
                   once your deposit confirms.
                 </p>
@@ -959,7 +959,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
               The bridge fast-lane cap protects against catastrophic loss in
               the event of a relay compromise. Deposits above the daily fast
               limit ride a 24h timelocked slow lane — no action is required
-              from you; the WPRL will be minted automatically when the window
+              from you; the WPEARL will be minted automatically when the window
               opens.
             </p>
             <div className="flex flex-col sm:flex-row gap-2 justify-center pt-2">
@@ -1141,8 +1141,8 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
       {step === "done" && (
         <div className="text-center py-6 space-y-3">
           <div className="text-4xl">&#10003;</div>
-          <p className="text-white font-semibold">WPRL minted successfully</p>
-          <p className="text-gray-400 text-sm">{grainsToDisplay(net)} WPRL delivered to your wallet</p>
+          <p className="text-white font-semibold">WPEARL minted successfully</p>
+          <p className="text-gray-400 text-sm">{grainsToDisplay(net)} WPEARL delivered to your wallet</p>
 
           {mintTxHash && (() => {
             const url = ethExplorerTxUrl(mintTxHash);
@@ -1153,7 +1153,7 @@ export function LockAndMint({ ethAddress, bridgePaused }: Props) {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-sm text-[#00e5d0] hover:underline mt-2"
               >
-                View WPRL mint on Etherscan &rarr;
+                View WPEARL mint on Etherscan &rarr;
               </a>
             ) : (
               <p className="text-xs text-gray-500 font-mono break-all mt-2">

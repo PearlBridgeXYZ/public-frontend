@@ -4,9 +4,9 @@
 import { NETWORK } from "./contracts";
 export { NETWORK };
 
-// 50 basis points = 0.5% on PRL → WPRL deposits.
+// 50 basis points = 0.5% on PRL → WPEARL deposits.
 export const MINT_FEE_BPS = Number(import.meta.env.VITE_MINT_FEE_BPS ?? "50");
-// 0 basis points on WPRL → PRL redemptions (RC3 mainnet 2026-05-18 —
+// 0 basis points on WPEARL → PRL redemptions (RC3 mainnet 2026-05-18 —
 // matches on-chain `burnFeeBps` on the new BridgeController).
 export const BURN_FEE_BPS = Number(import.meta.env.VITE_BURN_FEE_BPS ?? "0");
 
@@ -43,7 +43,7 @@ export const PUBLIC_API_BASE = import.meta.env.VITE_RELAY_API_BASE || "https://a
 export const PEARL_EXPLORER_BASE = import.meta.env.VITE_PEARL_EXPLORER_BASE ?? "https://explorer.pearlresearch.ai";
 
 // Etherscan / equivalent block explorer for the Ethereum side. Used to link
-// the user out to the WPRL mint transaction once the relay has broadcast it.
+// the user out to the WPEARL mint transaction once the relay has broadcast it.
 // DevNet has no explorer (Hardhat localnet) — the field stays empty there
 // and the UI hides the link.
 export function ethExplorerTxUrl(txHash: string): string | null {

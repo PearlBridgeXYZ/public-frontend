@@ -1,7 +1,7 @@
 # pearlbridge.xyz — frontend
 
 The web UI for the PearlBridge protocol — a trust-minimized bridge between
-the native PRL on the Pearl Network and Wrapped Pearl (WPRL, ERC-20) on
+the native PRL on the Pearl Network and Wrapped Pearl (WPEARL, ERC-20) on
 Ethereum.
 
 This repository is the canonical source for what's served at
@@ -34,9 +34,9 @@ onto Cloudflare Pages — no server-side runtime.
 
 ## What this app does
 
-1. Lets a user lock native PRL on the Pearl Network and mint WPRL on
+1. Lets a user lock native PRL on the Pearl Network and mint WPEARL on
    Ethereum (the "lock-and-mint" flow)
-2. Lets a user burn WPRL on Ethereum to release PRL on the Pearl Network
+2. Lets a user burn WPEARL on Ethereum to release PRL on the Pearl Network
    (the "burn-and-unlock" flow)
 3. Reads the on-chain bridge state directly from the deployed
    `BridgeController` (paused status, daily fast-mint cap, pending mint

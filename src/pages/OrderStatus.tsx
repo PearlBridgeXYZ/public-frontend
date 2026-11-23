@@ -51,7 +51,7 @@ const STATE_COPY: Record<NonNullable<MintStatus["state"]> | "unknown", {
   signing: {
     label: "Signing mint attestation",
     detail:
-      "Confirmations are met. The relay is signing the EIP-712 attestation that authorises the WPRL mint on Ethereum.",
+      "Confirmations are met. The relay is signing the EIP-712 attestation that authorises the WPEARL mint on Ethereum.",
     tone: "neutral",
   },
   submitted: {
@@ -103,8 +103,8 @@ const STATE_COPY: Record<NonNullable<MintStatus["state"]> | "unknown", {
     tone: "bad",
   },
   minted: {
-    label: "WPRL minted",
-    detail: "WPRL has been minted and delivered to the destination wallet.",
+    label: "WPEARL minted",
+    detail: "WPEARL has been minted and delivered to the destination wallet.",
     tone: "good",
   },
   refunded: {
@@ -267,7 +267,7 @@ export function OrderStatus() {
     <div className="max-w-2xl mx-auto px-6 py-12 space-y-6">
       <div className="space-y-1">
         <p className="text-xs text-gray-500 uppercase tracking-wide">
-          PRL &rarr; WPRL bridge order
+          PRL &rarr; WPEARL bridge order
         </p>
         <h1 className="text-2xl font-extrabold">Order status</h1>
         <p className="text-gray-400 text-sm">
@@ -364,7 +364,7 @@ export function OrderStatus() {
                   rel="noopener noreferrer"
                   className="text-xs text-[#00e5d0] hover:underline"
                 >
-                  View WPRL mint on Etherscan &rarr;
+                  View WPEARL mint on Etherscan &rarr;
                 </a>
               ) : (
                 <span className="text-xs text-gray-400 font-mono break-all">

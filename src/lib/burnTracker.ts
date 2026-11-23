@@ -1,4 +1,4 @@
-// Persistent burn-tracker for WPRL → PRL.
+// Persistent burn-tracker for WPEARL → PRL.
 //
 // The naive flow in BurnAndUnlock kept the burn tx hash in React state from
 // `useWriteContract`. That state lives only as long as the component is

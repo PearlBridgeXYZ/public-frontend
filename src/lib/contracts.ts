@@ -200,7 +200,7 @@ export const BRIDGE_CONTROLLER_ABI = [
   // Mint-lane events from the tiered-cap BridgeController. The receipt watcher
   // in LockAndMint decodes these to distinguish "minted now" (MintExecuted,
   // fast lane) from "queued for 24h timelock" (MintQueued, slow lane). Without
-  // this distinction the watcher flipped to "WPRL minted successfully" the
+  // this distinction the watcher flipped to "WPEARL minted successfully" the
   // instant the executeMint tx confirmed — even when the deposit was actually
   // routed to the slow lane and the user was still waiting on the timelock.
   {
@@ -296,7 +296,7 @@ export const ADDRESSES = {
   // devnet-up.sh's deploy script — same nonce sequence every fresh `pkill -f
   // 'hardhat node' && devnet-up.sh` reproduces them. Pearl lock address is
   // the SAME mainnet address as `mainnet` because the bridge demos a hybrid
-  // bring-up: real Pearl mainnet deposits mint DevNet WPRL.
+  // bring-up: real Pearl mainnet deposits mint DevNet WPEARL.
   devnet: {
     // RC2.1 redeploy 2026-05-18 — fresh proxies (totalSupply=0, dailyMintLimit=1M,
     // burnFeeBps=0). Same Hardhat account[0] as default admin.

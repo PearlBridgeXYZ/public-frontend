@@ -15,7 +15,7 @@ export interface BridgeReceipt {
   netGrains: string;           // BigInt serialised — after fee
   depositAddress: string | null;
   pearlTxId: string | null;
-  // Ethereum tx that delivered WPRL to the user's wallet. Populated once
+  // Ethereum tx that delivered WPEARL to the user's wallet. Populated once
   // the relay reports state="minted" via /api/deposits/<pearlTxId>.
   mintTxHash: string | null;
   step: ReceiptStep;

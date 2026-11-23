@@ -107,7 +107,7 @@ export function Status() {
               ["pending", "yellow", "Pearl tx seen but not yet confirmed enough."],
               ["attesting", "yellow", "Confirmations met; relay is signing the mint attestation."],
               ["queued", "sky", "Slow-lane mint — over the daily fast-lane cap; finalises automatically at readyAt (~24h)."],
-              ["minted", "emerald", "WPRL minted on Ethereum. Done."],
+              ["minted", "emerald", "WPEARL minted on Ethereum. Done."],
               ["cancelled", "red", "Mint cancelled (reorg-watch or admin). Funds held pending refund — open the order page for the cancel reason and operator contact."],
               ["rejected", "red", "Deposit failed validation. Open the order page for the reject reason and operator contact."],
               ["refunded", "emerald", "Admin refund executed; PRL returned to depositor."],
