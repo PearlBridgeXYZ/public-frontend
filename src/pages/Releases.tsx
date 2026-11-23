@@ -12,6 +12,21 @@ type Release = {
 
 const RELEASES: Release[] = [
   {
+    tag: "RC5.56",
+    date: "2026-11-23",
+    title: "Wrapped Pearl ticker: WPRL becomes WPEARL",
+    summary:
+      "The site now names the wrapped token WPEARL instead of WPRL. It is the same token at the same contract address, with the same balances; only the ticker changes. Earlier entries on this page and the published audit reports keep the name that was current when they were written.",
+    highlights: [
+      "Every page, form and status message says WPEARL.",
+      "The public API keeps its wprl field names and adds wpearl aliases with identical values (contracts.wpearl, wpearlAddress, wpearlAmount), so existing integrations need no change.",
+      "If you added the token to your wallet by hand, the wallet may keep showing the old ticker until you remove and re-add it.",
+      "Always check the contract address, not the ticker: 0x07696DcaB55E62cfef953666b29Fe1970518cB00.",
+    ],
+    contracts: "Unchanged: Wrapped Pearl 0x07696DcaB55E62cfef953666b29Fe1970518cB00.",
+    status: "shipped",
+  },
+  {
     tag: "RC5.51",
     date: "2026-06-26",
     title: "BTX burn → unlock widget; BTX tab single-source addresses + on-chain integrity check",
