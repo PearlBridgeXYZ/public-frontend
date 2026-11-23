@@ -18,6 +18,9 @@ import { RELAY_API_BASE } from "./config";
 // (where the feature flag is on) while the canonical RELAY_API_BASE
 // still points at production for the bridge UI. Falls back to
 // RELAY_API_BASE when unset.
+import { buildBindingPayload, pickBindingTicker, type BindingTicker } from "./bindingPayload.ts";
+export { buildBindingPayload, pickBindingTicker, type BindingTicker };
+
 export const SIDE_DOOR_API_BASE: string =
   (import.meta.env.VITE_SIDE_DOOR_API_BASE as string | undefined) ?? RELAY_API_BASE;
 
@@ -31,6 +34,9 @@ export interface SideDoorConfig {
   minPayoutWei?: bigint;
   minConfirmations?: number;
   chainId?: number;
+  // Ticker to name in the signed binding text. "WPEARL" only when the relay
+  // says it accepts it (bindingTickers); otherwise the original "WPRL".
+  bindingTicker?: BindingTicker;
 }
 
 export async function fetchSideDoorConfig(): Promise<SideDoorConfig> {
@@ -43,6 +49,7 @@ export async function fetchSideDoorConfig(): Promise<SideDoorConfig> {
     enabled: true,
     intermediaryHotAddress: j.intermediaryHotAddress,
     wprlAddress: j.wprlAddress,
+    bindingTicker: pickBindingTicker(j.bindingTickers),
     feeBps: Number(j.feeBps),
     perTxCapWei: BigInt(j.perTxCapWei),
     daily24hCapWei: BigInt(j.daily24hCapWei),
@@ -50,36 +57,6 @@ export async function fetchSideDoorConfig(): Promise<SideDoorConfig> {
     minConfirmations: Number(j.minConfirmations),
     chainId: Number(j.chainId),
   };
-}
-
-// MUST match relay/src/api/intermediary.ts:bindingPayload() byte-for-byte.
-// The relay re-builds this string with the values from the POST and
-// recovers the signer; any divergence here → 401 on bind.
-export function buildBindingPayload(args: {
-  ethAddress: string;
-  pearlAddress: string;
-  intermediaryAddress: string;
-  chainId: number;
-  nonce: string;
-  issuedAt: number; // ms epoch
-  bindingTtlMs: number;
-}): string {
-  return [
-    "PearlBridge intermediary unwrap binding",
-    "",
-    "By signing this, I authorize the PearlBridge intermediary hot wallet",
-    "to credit ANY WPEARL sent from the ETH address below to the Pearl",
-    "address below. This binding does NOT obligate me to send anything,",
-    "and can be replaced at any time by signing a new binding.",
-    "",
-    `Chain ID: ${args.chainId}`,
-    `Intermediary hot wallet: ${args.intermediaryAddress}`,
-    `From ETH address: ${args.ethAddress}`,
-    `To Pearl address: ${args.pearlAddress}`,
-    `Nonce: ${args.nonce}`,
-    `Issued at: ${new Date(args.issuedAt).toISOString()}`,
-    `Binding TTL (ms): ${args.bindingTtlMs}`,
-  ].join("\n");
 }
 
 export const DEFAULT_BINDING_TTL_MS = 30 * 24 * 60 * 60 * 1000;

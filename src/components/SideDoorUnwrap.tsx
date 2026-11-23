@@ -230,6 +230,7 @@ export function SideDoorUnwrap() {
         nonce,
         issuedAt,
         bindingTtlMs: DEFAULT_BINDING_TTL_MS,
+        ticker: cfg.bindingTicker,
       });
       const signature = await signMessageAsync({ message: payload });
       const row = await postBind({
